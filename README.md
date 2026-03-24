@@ -1,8 +1,8 @@
 # Linear Workflow with Claude Code
 
-This documents the development loop used in this project: Linear for issue tracking, Claude Code for implementation, and a set of slash commands that tie them together.
+This documents the development loop used in this project: [Linear](https://linear.app) for issue tracking, [Claude Code](https://claude.ai/code) for implementation, and a set of slash commands that tie them together.
 
-Everything runs inside Claude Code — no browser, no second terminal window.
+Everything runs inside [Claude Code](https://claude.ai/code) — no browser, no second terminal window.
 
 ---
 
@@ -37,17 +37,17 @@ Clone this repo:
 git clone https://github.com/gutehall/claude-linear.git
 ```
 
-The slash commands live in `.claude/commands/` and skills in `.claude/skills/`. Two options:
+The slash commands live in `claude/commands/` and skills in `claude/skills/`. Two options:
 
-**Per-project** — copy `.claude` into your project root:
+**Per-project** — copy `claude` into your project root:
 ```bash
-cp -r claude-linear/.claude /path/to/your/project/
+cp -r claude-linear/claude /path/to/your/project/.claude
 ```
 
 **Global** — available in all projects:
 ```bash
-cp claude-linear/.claude/commands/* ~/.claude/commands/
-cp -r claude-linear/.claude/skills/* ~/.claude/skills/
+cp claude-linear/claude/commands/* ~/.claude/commands/
+cp -r claude-linear/claude/skills/* ~/.claude/skills/
 ```
 
 ### 2. Linear CLI
@@ -102,6 +102,63 @@ Verify with `gh alias list`.
 
 ---
 
+## Windows Installation
+
+All the same tools work on Windows. Use PowerShell unless noted otherwise.
+
+### 1. Get the commands
+
+```powershell
+git clone https://github.com/gutehall/claude-linear.git
+```
+
+**Per-project** — copy into your project:
+```powershell
+Copy-Item -Recurse claude-linear\claude .claude
+```
+
+**Global** — available in all projects:
+```powershell
+Copy-Item claude-linear\claude\commands\* $env:USERPROFILE\.claude\commands\
+Copy-Item -Recurse claude-linear\claude\skills\* $env:USERPROFILE\.claude\skills\
+```
+
+### 2. Linear CLI
+
+```powershell
+npm install -g @dabble/linear-cli
+linear login
+```
+
+### 3. Linear MCP Server
+
+```powershell
+claude mcp add --transport http linear-server https://mcp.linear.app/mcp
+```
+
+### 4. GitHub CLI
+
+Install via winget:
+```powershell
+winget install --id GitHub.cli
+gh auth login
+```
+
+Or via Scoop: `scoop install gh`
+
+### 5. gh aliases
+
+```powershell
+gh alias set prc 'pr checks'
+gh alias set prv 'pr view'
+gh alias set prd 'pr diff'
+gh alias set prl 'pr list'
+gh alias set prm 'pr merge --squash --delete-branch'
+gh alias set co 'pr checkout'
+```
+
+---
+
 ## Daily Loop
 
 ```
@@ -139,6 +196,13 @@ Claude reads the issue, explores the codebase, and implements. You review and gu
 
 **4. Commit, push, and open a PR**
 
+Before running `/done`, review what will be committed:
+```
+!git status
+!git diff
+```
+
+Then:
 ```
 /done
 ```
@@ -149,8 +213,10 @@ Claude stages any uncommitted changes, commits, pushes the branch, and creates a
 ```
 !gh prc
 ```
-Wait for green. If a check fails, re-run it:
+Wait for green. If a check fails, fix the code, push to the same branch, and the PR updates automatically — no need to create a new PR:
 ```
+# fix the issue, then:
+!git add <files> && git commit -m "fix: ..." && git push
 !gh run list
 !gh run rerun <run-id> --failed
 ```
@@ -175,9 +241,17 @@ On merge, the `Closes FIN-X` in the PR body automatically moves the Linear issue
 **8. Pick the next issue**
 
 ```
+!git checkout main && git pull
 /next
 ```
+
+Always pull main after a merge — you're still on the feature branch after `!gh prm`. This gets you back to a clean base before the next branch is created.
+
 Repeat from step 3.
+
+**Tip: don't wait on CI**
+
+CI can take minutes. Once `/done` has opened the PR, you can immediately run `/next` and start the next issue. Come back to merge when CI goes green — the PR stays open.
 
 ---
 
@@ -303,6 +377,7 @@ Aliases are configured globally (`gh alias list` to verify) for the most common 
 | Request changes | — | `!gh pr review --request-changes -b "reason"` |
 | Re-run failed CI | — | `!gh run rerun <run-id> --failed` |
 | Watch live CI output | — | `!gh run watch` |
+| Clean up stale local branches | — | `!git fetch --prune` |
 
 > Note: GitHub does not allow approving your own PR. Skip the approve step when self-merging.
 
@@ -353,5 +428,3 @@ linear branch FIN-5                 # Create and check out branch: fin-5-issue-t
 | XL | Very large — break down before starting |
 
 L/XL issues should be split into sub-issues before work begins.
-
-#WayOfWorking
