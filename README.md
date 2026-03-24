@@ -34,7 +34,7 @@ There are two types of commands:
 Clone this repo:
 
 ```bash
-git clone https://github.com/awiant/claude-linear.git
+git clone https://github.com/gutehall/claude-linear.git
 ```
 
 The slash commands live in `.claude/commands/` and skills in `.claude/skills/`. Two options:
