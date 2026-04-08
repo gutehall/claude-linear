@@ -314,6 +314,18 @@ linear project complete "Phase 1"
 # Then update CLAUDE.md status table
 ```
 
+### Multi-team setup
+
+If your workspace has multiple teams, you can switch between them:
+
+```bash
+linear login                          # Re-run to switch teams
+linear whoami                         # Confirm current team
+LINEAR_TEAM=OTHER linear issues       # Override team for a single command
+```
+
+For per-project team configuration, set `team=TEAMKEY` in the project's `.linear` file. The local `.linear` overrides the global `~/.linear`, so each project can target a different team automatically.
+
 ## Parent Context
 
 When viewing an issue with `linear issue show`, you'll see where it fits in the larger work:
@@ -333,3 +345,7 @@ ISSUE-3: Implement authentication system
 ```
 
 This helps understand the scope and what comes before/after the current task.
+
+## Related Skills
+
+- **product-planning** — for thinking through a problem before creating tickets. Use when the user has an idea or vague direction, not a ready-to-implement task.

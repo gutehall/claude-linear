@@ -34,6 +34,13 @@ Create Linear issues directly via MCP, without clipboard or intermediate steps.
 
 5. **Offer to start:** suggest `/next <ID>` for the highest-priority issue created
 
+## Error Handling
+
+- If `mcp__claude_ai_Linear__list_issues` or `list_projects` fails: say "Could not reach Linear. Is the MCP server connected? Run `/mcp` to check." and stop.
+- If no teams are returned: say "No teams found in Linear. Make sure the MCP server is authenticated."
+- If issue creation fails: report the specific error and do not silently skip. Offer to retry.
+- If a duplicate issue is detected (same title or very similar): show the existing issue and ask whether to proceed or update the existing one instead.
+
 ## Rules
 
 - Always read current Linear state before planning — don't create duplicates

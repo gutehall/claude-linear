@@ -34,12 +34,29 @@ If ambiguous, ask.
 6. Print the PR URL
 7. Offer `/next` to continue
 
+### Branch name detection fallback
+
+If the current branch does **not** match the `TEAM-123` pattern (e.g., it was created manually):
+1. Run `git log --oneline -5` to show recent commits for context
+2. Ask: "I couldn't detect an issue ID from branch `<branch-name>`. Which issue does this complete? (e.g., FIN-42)"
+3. Continue with the provided ID
+
+### If push is rejected due to diverged history
+
+If `git push` fails because the remote has diverged:
+1. Run `git fetch origin` then `git log --oneline HEAD..origin/<branch>` to assess the gap
+2. Run `git rebase origin/<base-branch>` (prefer rebase over merge for a clean history)
+3. If conflicts appear: list the conflicting files and **stop** — do not auto-resolve
+4. Tell the user: "There are conflicts in: `<files>`. Resolve them, then run `git rebase --continue` and `/done` again."
+5. Do **not** force-push unless the user explicitly requests it
+
 ### Code Rules
 
 - The PR body **must** contain `Closes <ID>` (e.g., `Closes FIN-42`) — this triggers Linear's GitHub integration to auto-move the issue to Done on merge
 - Do **not** run `linear done` when creating a PR — GitHub integration handles Linear status on merge
 - If there are no commits, skip the PR step and note it
 - If in a worktree, run `linear done <id>` after PR creation and show the cleanup commands
+- Base branch is typically `main` — if the repo uses a different default (e.g., `develop`), detect it with `git remote show origin | grep 'HEAD branch'`
 
 ---
 

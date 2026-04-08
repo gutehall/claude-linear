@@ -87,16 +87,49 @@ linear milestones reorder "Alpha" "Beta" --project "Phase 2"
 linear issue move ISSUE-5 --before ISSUE-1
 ```
 
-## Update product.md
+## product.md
 
-After planning, update `product.md` with any new or refined:
-- Product vision, problem statement, target users
-- Brand voice or positioning
-- Technical architecture decisions
-- Key decisions made and rationale
-- Deferred items and why
+`product.md` is the persistent product context file for a project. It lives at the project root and is read at the start of every planning session to avoid re-deriving context.
 
-Create the file if it doesn't exist. Keep it concise.
+### When to create it
+
+Create `product.md` if it doesn't exist after any substantive planning session that produces decisions worth remembering. Also create it when planning work in an unfamiliar existing codebase.
+
+### Template
+
+```markdown
+# Product
+
+## Vision
+One sentence: what is this and who is it for?
+
+## Problem
+What problem does it solve? Who has this problem?
+
+## Users
+Who are the primary users? What do they care about?
+
+## Architecture
+Key technical decisions and why.
+
+## Roadmap
+Planned phases or milestones and their goals.
+
+## Decisions
+| Decision | Rationale | Date |
+|----------|-----------|------|
+
+## Deferred
+Things explicitly cut from scope, and why.
+```
+
+### What to update after each session
+
+- New decisions about scope, architecture, or product direction
+- Items explicitly deferred (and why)
+- Refined understanding of the user or problem
+
+Keep it short. It's a reference, not a wiki. If it grows beyond 1–2 pages, trim it.
 
 ## Session Summary
 
@@ -106,3 +139,7 @@ Track progress throughout the session, then summarize:
 2. **Decided** - Key decisions and rationale
 3. **Deferred** - What we cut (and why)
 4. **Next** - `linear issues --unblocked`
+
+## Related Skills
+
+- **linear-cli** — full Linear CLI command reference for creating and managing issues once planning is done.

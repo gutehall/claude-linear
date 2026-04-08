@@ -83,6 +83,15 @@ Ask what they want to focus on:
 
 Then follow the product-planning skill guidelines.
 
+## If no unblocked issues are found
+
+1. Run `linear issues --open` to check what's actually there
+2. **If all issues are blocked:** show the blocked list with blocking issue IDs. Say: "All issues are blocked. You can resolve a blocker or use `/plan` to add new unblocked work." Offer the blocked list so the user can pick one to unblock.
+3. **If the backlog is empty:** say "No open issues found." and offer:
+   - "Product planning" to create new issues with `/plan`
+   - A prompt to describe something new: `/plan "..."`
+4. **If `linear` is not configured:** if the CLI returns an auth error, say "Linear CLI is not set up. Run `linear login` to get started."
+
 ## Notes
 
 - Always use long flags (--unblocked, not -u) for clarity

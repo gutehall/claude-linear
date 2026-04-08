@@ -66,6 +66,8 @@ linear login
 
 Config is layered: `~/.linear` (global) is loaded first, then `./.linear` (project-level) overrides it. Env vars (`LINEAR_API_KEY`, `LINEAR_TEAM`) are used as fallbacks.
 
+**Multiple teams:** if you work across several Linear teams, set `team=TEAMKEY` in each project's `.linear` file. The project-level config overrides the global one, so each repo automatically targets the right team. Run `linear whoami` to confirm which team is active.
+
 ### 3. Linear MCP Server
 
 The slash commands (`/plan`, `/standup`) talk to Linear via MCP. Configure the Linear MCP server in Claude Code settings so it has access to your Linear workspace.
@@ -162,8 +164,10 @@ gh alias set co 'pr checkout'
 ## Daily Loop
 
 ```
-/standup → /next → implement → /done → !gh pr checks → !gh pr merge → /next → repeat
+/standup → /next → implement → /done → !gh prc → !gh prm → /next → repeat
 ```
+
+Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off.
 
 ---
 
@@ -290,6 +294,8 @@ What it does:
 
 The branch name is derived from the issue ID and title: `fin-42-add-caching-layer`.
 
+`/next` creates the branch off the current HEAD. Make sure you're on the main branch (or your team's trunk) before running it — `!git checkout main && git pull` first.
+
 ---
 
 ### `/plan` — Plan work and create Linear issues
@@ -329,6 +335,10 @@ The `Closes FIN-12` triggers Linear's GitHub integration — the issue moves to 
 
 For non-code work (documents, decks, research): closes the issue directly in Linear, optionally attaching a link first.
 
+If the current branch was created manually and doesn't contain an issue ID, `/done` will ask you which issue to link before creating the PR.
+
+If push fails due to a diverged branch, `/done` will rebase and list any conflicts for you to resolve — it will not force-push without your explicit instruction.
+
 ---
 
 ### `/standup` — Daily standup summary
@@ -338,7 +348,7 @@ For non-code work (documents, decks, research): closes the issue directly in Lin
 ```
 
 What it does:
-1. Fetches via MCP: issues completed in the last 2 days, issues currently in progress, blocked issues
+1. Fetches via MCP: issues completed recently, issues currently in progress, blocked issues
 2. Fetches recent git commits and open/merged PRs via `gh`
 3. Presents a summary:
 
@@ -356,6 +366,42 @@ Recent commits:
 - repo: N commits
 - PR #X merged: title
 ```
+
+On **Monday**, the lookback window extends to 3 days to cover the weekend.
+
+---
+
+### `/review` — Review open pull requests
+
+```
+/review           # List open PRs and pick one to review
+/review 42        # Review PR #42 directly
+```
+
+What it does:
+1. Lists open PRs with author, branch, and age
+2. On selection: shows the PR description, CI status, and full diff
+3. Summarizes what changed and any issues spotted
+4. Offers to approve, request changes, or comment
+
+Note: GitHub does not allow approving your own PR — `/review` skips the approve option when the PR is yours.
+
+---
+
+### `/sync` — Sync Linear with GitHub state
+
+```
+/sync             # Report drift between Linear and GitHub (read-only)
+/sync fix         # Report drift and apply fixes
+```
+
+What it does:
+1. Fetches in-progress Linear issues and checks the state of their branches and PRs
+2. Detects: merged PRs with open issues, stale in-progress issues with no branch, closed PRs
+3. Reports a table of findings
+4. With `fix`: closes stale issues in Linear (confirms before each change)
+
+Useful after returning from time off or at sprint boundaries when the board has drifted.
 
 ---
 
