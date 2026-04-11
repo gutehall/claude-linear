@@ -167,7 +167,7 @@ gh alias set co 'pr checkout'
 /standup → /next → implement → /done → !gh prc → !gh prm → /next → repeat
 ```
 
-Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off.
+Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, and `/onboard` to orient in a new codebase.
 
 ---
 
@@ -385,6 +385,127 @@ What it does:
 4. Offers to approve, request changes, or comment
 
 Note: GitHub does not allow approving your own PR — `/review` skips the approve option when the PR is yours.
+
+---
+
+### `/bugs` — Scan the codebase for bugs and create Linear issues
+
+```
+/bugs              # Full codebase scan
+/bugs <path>       # Scan a specific directory or file
+```
+
+What it does:
+1. Reads your Linear team and labels via MCP — creates a "bug" label if one doesn't exist
+2. Explores the full directory tree and reads every source file (no sampling)
+3. Scans for seven categories: security, error handling, logic errors, null/undefined access, type safety, resource management, concurrency
+4. Ranks all findings by severity before creating anything
+5. Creates one Linear issue per bug in priority order: Urgent → High → Medium → Low
+
+Each issue includes: a `[Category] Title`, structured description with exact file location, impact, and suggested fix, priority 1–4, and the "bug" label.
+
+Creating in priority order ensures your backlog sorts correctly without manual reordering.
+
+---
+
+### `/debt` — Scan the codebase for tech debt and create Linear issues
+
+```
+/debt              # Full codebase scan
+/debt <path>       # Scan a specific path
+```
+
+What it does:
+1. Creates a "tech-debt" label in Linear if one doesn't exist
+2. Reads every source file looking for: missing tests, overly complex functions, dead code, TODO/FIXME comments, hardcoded config, duplicated logic, missing type safety, and outdated patterns
+3. Ranks all findings by impact before creating anything
+4. Creates one Linear issue per finding in priority order, each with file location, impact, and a concrete fix
+
+The non-bug counterpart to `/bugs` — use both together for a full code health audit.
+
+---
+
+### `/deps` — Audit dependencies for vulnerabilities and outdated packages
+
+```
+/deps              # Full audit (security + outdated)
+/deps --security   # Security vulnerabilities only
+/deps --outdated   # Outdated packages only
+```
+
+What it does:
+1. Detects all package managers in the repo (npm, yarn, pnpm, pip, cargo, go modules, bundler)
+2. Runs the appropriate security audit and outdated-check commands for each
+3. Maps CVE severity to Linear priority: Critical → Urgent, High → High, Moderate → Medium
+4. Creates one Linear issue per finding ordered by severity, each with the exact upgrade command
+
+---
+
+### `/triage` — Groom the backlog interactively
+
+```
+/triage              # All issues missing priority, labels, or estimate
+/triage --priority   # Only issues with no priority set
+/triage --unlabeled  # Only issues with no labels
+```
+
+What it does:
+1. Fetches all untriaged Linear issues (no priority, no labels, or no estimate)
+2. Presents each issue one at a time with suggested priority, labels, estimate, and project
+3. Accept with Enter, edit individual fields, skip, or quit — applies confirmed values via MCP immediately
+4. Reports how many issues were triaged at the end
+
+---
+
+### `/retro` — Sprint retrospective
+
+```
+/retro              # Last 2 weeks
+/retro 1w           # Last week
+/retro 3w           # Last 3 weeks
+/retro 2024-01-01   # Since a specific date
+```
+
+What it does:
+1. Detects the most recently completed Linear cycle, or falls back to the specified time window
+2. Pulls shipped issues, slipped issues (started but not closed), blocked issues, and merged/open PRs
+3. Presents a structured retrospective: Shipped / Slipped / Never started / Blocked / Velocity
+4. Optionally creates Linear issues for action items (recurring blockers, scope creep patterns, missing tests, etc.)
+
+---
+
+### `/release` — Generate a changelog and create a GitHub release
+
+```
+/release            # Auto-detect version bump from change types
+/release patch      # Force patch bump
+/release minor      # Force minor bump
+/release major      # Force major bump
+```
+
+What it does:
+1. Finds the last git tag; uses the first commit as baseline if no tags exist
+2. Gathers all merged PRs and commits since that tag
+3. Categorizes changes: Breaking / Features / Fixes / Performance / Docs / Chores
+4. Determines the next semver version (or uses the argument), drafts the changelog, and asks for confirmation
+5. On confirm: creates the tag, pushes it, and runs `gh release create` with the generated notes
+6. Optionally prepends to CHANGELOG.md
+
+---
+
+### `/onboard` — Orient in an unfamiliar codebase
+
+```
+/onboard            # Print codebase orientation to chat
+/onboard --save     # Same, and write ONBOARDING.md to project root
+```
+
+What it does:
+1. Discovers the stack: language, framework, package manager, test setup
+2. Maps top-level directories and identifies all entry points
+3. Reads representative source files to extract patterns: imports, error handling, config, data layer
+4. Surfaces gotchas — non-obvious setup steps, known quirks, day-one surprises
+5. Outputs a structured orientation document (stack, directory map, patterns, key abstractions, gotchas, quick start)
 
 ---
 
