@@ -87,7 +87,7 @@ Rank all findings before creating any issues.
 
 ### 5. Create Linear issues — highest priority first
 
-Create all Urgent issues, then High, then Medium, then Low.
+Create all Urgent issues, then High, then Medium, then Low in a new project.
 
 **Title for vulnerabilities:** `[Security] <package>@<current>: <CVE or brief description>`
 
