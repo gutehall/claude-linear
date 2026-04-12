@@ -73,7 +73,7 @@ Don't skip files that look clean — bugs hide in boring code.
 
 ## Creating Linear issues
 
-Rank all findings first, then create issues in order: Urgent → High → Medium → Low.
+Rank all findings first, then create issues in order: Urgent → High → Medium → Low. Ask if it should be created in existing project or in a new project.
 Creating in priority order ensures the backlog is correctly sorted.
 
 **Title format:** `[Category] Short description`

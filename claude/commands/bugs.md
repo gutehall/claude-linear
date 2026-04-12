@@ -76,7 +76,7 @@ After the full scan, rank every finding before creating any issues:
 
 ### 4. Create Linear issues — highest priority first
 
-Create all Urgent issues, then High, then Medium, then Low in a new project. This ensures the backlog is sorted correctly on creation.
+Create all Urgent issues, then High, then Medium, then Low. Ask if it should be created in existing project or in a new project. This ensures the backlog is sorted correctly on creation.
 
 For each bug:
 
