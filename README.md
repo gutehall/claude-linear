@@ -1,6 +1,19 @@
 # Linear Workflow with Claude Code
 
-This documents the development loop used in this project: [Linear](https://linear.app) for issue tracking, [Claude Code](https://claude.ai/code) for implementation, and a set of slash commands that tie them together.
+This repo contains two workflow variants:
+
+| Variant | AI tool | Issue tracker | Directory |
+|---------|---------|--------------|-----------|
+| **Claude + Linear** | [Claude Code](https://claude.ai/code) | [Linear](https://linear.app) | `claude/` |
+| **Codex + Jira** | [OpenAI Codex](https://github.com/openai/codex) | [Jira](https://www.atlassian.com/software/jira) | `codex-jira/` |
+
+Both implement the same loop: pick issue → branch → implement → PR → merge → repeat.
+
+See [Codex + Jira setup](#codex--jira) for the Jira variant.
+
+---
+
+This documents the development loop for Claude Code + Linear: [Linear](https://linear.app) for issue tracking, [Claude Code](https://claude.ai/code) for implementation, and a set of slash commands that tie them together.
 
 Everything runs inside [Claude Code](https://claude.ai/code) — no browser, no second terminal window.
 
@@ -595,3 +608,78 @@ linear branch FIN-5                 # Create and check out branch: fin-5-issue-t
 | XL | Very large — break down before starting |
 
 L/XL issues should be split into sub-issues before work begins.
+
+---
+
+## Codex + Jira
+
+Same workflow, different tools. Instructions live in `codex-jira/codex/`.
+
+### Installation
+
+**1. Get the instructions**
+
+```bash
+# Per-project
+cp -r codex-jira/codex /path/to/your/project/.codex
+
+# Global
+cp codex-jira/codex/instructions/* ~/.codex/instructions/
+cp -r codex-jira/codex/skills/* ~/.codex/skills/
+```
+
+**2. Jira CLI**
+
+```bash
+brew install jira-cli
+jira init
+```
+
+`jira init` will prompt for your Jira server URL, email, and API token (generate one at `https://id.atlassian.com/manage-profile/security/api-tokens`), then ask which project and board to default to.
+
+**3. GitHub CLI**
+
+```bash
+brew install gh
+gh auth login
+```
+
+**4. GitHub-Jira integration (optional)**
+
+Install the Jira GitHub app in your Jira workspace. Once connected, PRs that include `Closes PROJ-42` in the body auto-transition the issue to Done on merge. Without it, run `jira issue move PROJ-42 "Done"` manually after merge.
+
+### Daily Loop
+
+```
+/standup → /next → implement → /done → gh pr checks → gh pr merge → /next → repeat
+```
+
+### Commands
+
+| Command | What it does |
+|---------|-------------|
+| `/next` | Pick a To Do issue, assign yourself, create branch |
+| `/done` | Commit, push, create PR with `Closes PROJ-N` |
+| `/plan` | Create Jira issues inline via CLI |
+| `/standup` | Daily summary from Jira + git |
+| `/issues` | Browse issues by sprint or epic |
+| `/review` | Review open PRs |
+| `/sync` | Detect drift between Jira and branch/PR state |
+| `/triage` | Groom untriaged issues interactively |
+| `/retro` | Sprint retrospective → action items |
+| `/bugs` | Scan codebase → create Bug issues |
+| `/debt` | Scan codebase → create Task issues tagged tech-debt |
+| `/deps` | Audit dependencies → create issues |
+| `/onboard` | Codebase orientation |
+| `/release` | Generate changelog → GitHub release |
+
+### Key Differences from Claude + Linear
+
+| | Claude + Linear | Codex + Jira |
+|---|---|---|
+| Branch creation | `linear branch ISSUE-1` | `git checkout -b PROJ-1-slug` |
+| Start issue | `linear issue start` | `jira issue move + jira issue assign` |
+| Close issue | GitHub integration auto-closes | `jira issue move "Done"` or GitHub-Jira app |
+| Sprints | Cycles + milestones | `jira sprint list/add` |
+| Grouping | Projects | Epics |
+| Priorities | urgent/high/medium/low | Highest/High/Medium/Low/Lowest |
