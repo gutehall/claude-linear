@@ -180,7 +180,7 @@ gh alias set co 'pr checkout'
 /standup → /next → implement → /done → !gh prc → !gh prm → /next → repeat
 ```
 
-Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, `/onboard` to orient in a new codebase, and `/diagnose` to systematically root-cause a bug before touching any code.
+Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, `/onboard` to orient in a new codebase, `/diagnose` to systematically root-cause a bug before touching any code, and `/sit` to force a mid-task self-audit when something feels off.
 
 ---
 
@@ -540,6 +540,24 @@ Use this instead of guessing and editing. No code is written until a hypothesis 
 
 ---
 
+### `/sit` — Stop, Inspect, Think — structured mid-task self-audit
+
+```
+/sit
+```
+
+What it does:
+1. **Stops** all forward momentum — no more tool calls, no next line of code
+2. **Inspects** what has been done: restates the original goal, lists concrete actions taken, surfaces assumptions made
+3. **Thinks** through whether the approach is still right: scope creep, complexity growth, upcoming risky steps
+4. **Decides** one of four outcomes: Continue / Correct course / Ask the user / Stop and report
+
+Output is structured and honest — not a recap, not reassurance. The test is whether the output reads like genuine reflection.
+
+Trigger automatically: after 10+ tool calls without confirmation, when something unexpected happens, before a destructive action, or when scope has grown beyond what was asked.
+
+---
+
 ### `/sync` — Sync Linear with GitHub state
 
 ```
@@ -691,6 +709,7 @@ Install the Jira GitHub app in your Jira workspace. Once connected, PRs that inc
 | `/onboard` | Codebase orientation |
 | `/release` | Generate changelog → GitHub release |
 | `/diagnose` | Root-cause a bug before writing any fix |
+| `/sit` | Stop, Inspect, Think — mid-task self-audit |
 
 ### Key Differences from Claude + Linear
 
