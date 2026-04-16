@@ -4,7 +4,7 @@ A set of Claude Code slash commands and skills for managing a Linear + GitHub de
 
 ## What this is
 
-Slash commands (`/next`, `/done`, `/plan`, `/standup`, `/issues`, `/review`, `/sync`) and supporting skills (`linear-cli`, `product-planning`) that automate the full development loop.
+Slash commands (`/next`, `/done`, `/plan`, `/standup`, `/issues`, `/review`, `/sync`, `/diagnose`) and supporting skills (`linear-cli`, `product-planning`, `diagnostic`) that automate the full development loop.
 
 ## Structure
 
@@ -14,6 +14,7 @@ claude/
   skills/
     linear-cli/       # Linear CLI reference and best practices
     product-planning/ # Product thinking methodology
+    diagnostic/       # Structured debugging and diagnosis protocol
 ```
 
 ## Working in this repo

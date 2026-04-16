@@ -180,7 +180,7 @@ gh alias set co 'pr checkout'
 /standup → /next → implement → /done → !gh prc → !gh prm → /next → repeat
 ```
 
-Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, and `/onboard` to orient in a new codebase.
+Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, `/onboard` to orient in a new codebase, and `/diagnose` to systematically root-cause a bug before touching any code.
 
 ---
 
@@ -522,6 +522,24 @@ What it does:
 
 ---
 
+### `/diagnose` — Root-cause a bug before touching any code
+
+```
+/diagnose "login fails with 401 after token refresh"
+/diagnose                 # Describe the problem interactively
+```
+
+What it does:
+1. Reads the full error — origin vs surface, recent changes, environment details
+2. Generates at least 3 mechanical hypotheses ranked by likelihood, each with evidence for and against
+3. Designs and runs the fastest diagnostic that distinguishes the top two candidates
+4. Fixes the confirmed root cause with the minimum change required
+5. Explains what was wrong, why, and what the fix does
+
+Use this instead of guessing and editing. No code is written until a hypothesis is confirmed.
+
+---
+
 ### `/sync` — Sync Linear with GitHub state
 
 ```
@@ -672,6 +690,7 @@ Install the Jira GitHub app in your Jira workspace. Once connected, PRs that inc
 | `/deps` | Audit dependencies → create issues |
 | `/onboard` | Codebase orientation |
 | `/release` | Generate changelog → GitHub release |
+| `/diagnose` | Root-cause a bug before writing any fix |
 
 ### Key Differences from Claude + Linear
 
