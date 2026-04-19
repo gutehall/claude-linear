@@ -180,7 +180,7 @@ gh alias set co 'pr checkout'
 /standup → /next → implement → /done → !gh prc → !gh prm → /next → repeat
 ```
 
-Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, `/onboard` to orient in a new codebase, `/diagnose` to systematically root-cause a bug before touching any code, and `/sit` to force a mid-task self-audit when something feels off.
+Use `/start` to set up a known issue without immediately implementing. Use `/pr` to open a PR for early review without closing the issue. Use `/blocked` to mark an issue blocked and keep moving. Use `/work` to plan and start immediate work without creating a Linear ticket first. Use `/estimate` to bulk-size unestimated issues. Use `/scope` to audit a project for gaps before a sprint. Use `/split` to decompose an L/XL issue into sub-issues. Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, `/onboard` to orient in a new codebase, `/diagnose` to systematically root-cause a bug before touching any code, and `/sit` to force a mid-task self-audit when something feels off.
 
 ---
 
@@ -572,6 +572,123 @@ What it does:
 4. With `fix`: closes stale issues in Linear (confirms before each change)
 
 Useful after returning from time off or at sprint boundaries when the board has drifted.
+
+---
+
+### `/start` — Set up a known issue without implementing
+
+```
+/start            # Pick from unblocked issues
+/start FIN-12     # Start a specific issue
+```
+
+What it does:
+1. Assigns the issue to you and marks it In Progress in Linear
+2. Creates and checks out a git branch from the issue ID
+3. Shows the full issue with context
+
+Use this when you already know what to work on and just need the context loaded. Unlike `/next`, it doesn't start implementing — it hands control back to you.
+
+---
+
+### `/pr` — Open a pull request for current work
+
+```
+/pr               # PR for the current branch
+/pr --draft       # Open as a draft PR
+/pr "my title"    # Override the generated title
+```
+
+What it does:
+1. Detects the issue ID from the branch name
+2. Stages and commits any uncommitted changes
+3. Pushes the branch and creates a PR titled `FIN-12: Issue title` with `Closes FIN-12` in the body
+
+Use this when you want a PR open for review but aren't done yet. For completed work, prefer `/done`.
+
+---
+
+### `/blocked` — Mark an issue as blocked
+
+```
+/blocked                     # Block the current issue
+/blocked FIN-12              # Block a specific issue
+/blocked FIN-12 FIN-99       # FIN-12 is blocked by the existing FIN-99
+```
+
+What it does:
+1. If you provide a blocking issue ID, links the two issues
+2. If the blocker is unknown, creates a new blocker issue with urgent priority and links it
+3. Offers `/next` so you can keep moving
+
+Blocked issues disappear from `linear issues --unblocked` automatically.
+
+---
+
+### `/estimate` — Bulk-estimate unestimated issues
+
+```
+/estimate                    # Work through all unestimated issues
+/estimate FIN-12             # Estimate a specific issue
+/estimate --project "P1"     # Scope to a project
+```
+
+What it does:
+1. Fetches open issues with no estimate set
+2. For each: shows the issue, reads referenced code if needed, suggests a t-shirt size with a rationale
+3. Accepts your confirmation or adjustment, then applies it with `linear issue update --estimate`
+
+At the end, flags any L/XL issues and suggests `/split`.
+
+---
+
+### `/scope` — Audit a project for gaps
+
+```
+/scope                  # Audit the current default project
+/scope "Phase 1"        # Audit a specific project
+```
+
+What it does:
+1. Loads the project's issues and reads `product.md` for intended scope
+2. Looks for: unclear issues, unestimated issues, orphaned issues, scope gaps, oversized issues, stale in-progress
+3. Presents findings grouped by category with specific issue IDs
+4. Offers to act on each finding — never creates or edits anything without confirmation
+
+Use this before a sprint to catch surprises before they happen.
+
+---
+
+### `/split` — Break a large issue into sub-issues
+
+```
+/split FIN-12     # Split a specific issue
+/split            # Split the current issue (detected from branch)
+```
+
+What it does:
+1. Reads the issue's description and acceptance criteria
+2. Proposes a breakdown of 3–5 sub-issues with estimates and dependency ordering
+3. On confirmation, creates the sub-issues with `--parent` and `--blocked-by` set correctly
+4. Adds a comment to the parent naming the sub-issues, then offers `/start` for the first one
+
+Always shows the proposed breakdown before creating anything.
+
+---
+
+### `/work` — Plan and start immediate work, no Linear required
+
+```
+/work "add rate limiting to the API"
+/work                    # Describe what you want to do
+```
+
+What it does:
+1. Quickly frames the problem (what, where, constraints)
+2. Proposes an approach — what changes, which files, scope boundary
+3. Creates a descriptive git branch and starts implementing immediately
+
+No Linear ticket needed. If the work grows in scope mid-implementation, `/work` flags it and offers to promote it to a proper issue. Use `/plan` instead when you need scheduling, collaboration, or tracking from the start.
 
 ---
 

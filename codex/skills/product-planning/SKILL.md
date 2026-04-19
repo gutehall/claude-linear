@@ -155,3 +155,4 @@ Track progress throughout the session, then summarize:
 ## Related Skills
 
 - **jira-cli** — full Jira CLI command reference for creating and managing issues once planning is done.
+- **quick-start** — when the user wants to start immediately without creating tickets first. Use instead of product-planning for small, focused, immediate work.

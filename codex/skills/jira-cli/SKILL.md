@@ -228,3 +228,5 @@ jira issue list --epics PROJ-100 --plain
 ## Related Skills
 
 - **product-planning** — for thinking through a problem before creating tickets. Use when the user has an idea or vague direction, not a ready-to-implement task.
+- **github-cli** — for PR creation, review, and CI checks once the Jira issue is in progress.
+- **quick-start** — for immediate work that doesn't need a Jira ticket first.

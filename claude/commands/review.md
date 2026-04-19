@@ -33,21 +33,25 @@ gh pr checks <number>      # CI check details
 gh pr diff <number>        # Full diff
 ```
 
-### 4. Summarize findings
+### 4. Review the diff
+
+Follow the **code-review skill** to assess the PR. Cover: correctness, tests, security, and scope. For large diffs, summarize by file/area rather than line-by-line.
+
+### 5. Summarize findings
 
 Report:
 - **What changed**: files touched, scope of change
 - **CI status**: passing / failing (which checks)
-- **Issues spotted**: correctness, missing tests, scope creep, security concerns
+- **Issues spotted**: per the code-review skill
 - **Questions**: anything unclear that the author should clarify
 
-### 5. Offer actions
+### 6. Offer actions
 
 ```
-a) Approve              → !gh pr review <number> --approve
-b) Request changes      → !gh pr review <number> --request-changes -b "reason"
-c) Comment only         → !gh pr review <number> --comment -b "comment"
-d) Check out locally    → !gh co <number>
+a) Approve              → gh pr review <number> --approve
+b) Request changes      → gh pr review <number> --request-changes -b "reason"
+c) Comment only         → gh pr review <number> --comment -b "comment"
+d) Check out locally    → gh co <number>
 e) Skip                 → continue
 ```
 
@@ -55,5 +59,4 @@ e) Skip                 → continue
 
 - You cannot approve your own PR — GitHub will reject it. Skip the approve option when the PR author matches `git config user.email`
 - If CI is failing, do not approve — note which checks failed and suggest fixes
-- Focus review on: correctness, scope creep, missing tests, security
-- For large diffs, summarize by file/area rather than line-by-line
+- Follow the code-review skill for what to check and how to communicate findings
