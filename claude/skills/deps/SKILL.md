@@ -11,9 +11,9 @@ Detect all package managers in the project, run security and outdated checks, an
 
 Before auditing:
 
-1. `mcp__plugin_linear_linear__list_teams` — identify the active team
-2. `mcp__plugin_linear_linear__list_issue_labels` — note available labels
-3. If no "dependencies" label exists: `mcp__plugin_linear_linear__create_issue_label` to create one
+1. `mcp__claude_ai_Linear__list_teams` — identify the active team
+2. `mcp__claude_ai_Linear__list_issue_labels` — note available labels
+3. If no "dependencies" label exists: `mcp__claude_ai_Linear__create_issue_label` to create one
 
 ## Package manager detection
 
@@ -108,7 +108,7 @@ Creating in priority order ensures the backlog is correctly sorted.
 
 **Labels:** `["dependencies"]` for all issues. Add `["security"]` for any issue with a CVE or advisory. Do not create extra labels.
 
-Use `mcp__plugin_linear_linear__save_issue` for each issue.
+Use `mcp__claude_ai_Linear__save_issue` for each issue.
 
 ## Output
 

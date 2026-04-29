@@ -12,9 +12,9 @@
 
 ### 1. Setup: Read Linear state
 
-- `mcp__plugin_linear_linear__list_teams` → pick the active team
-- `mcp__plugin_linear_linear__list_issue_labels` → note available labels
-- If a "dependencies" label does not exist, create it with `mcp__plugin_linear_linear__create_issue_label`
+- `mcp__claude_ai_Linear__list_teams` → pick the active team
+- `mcp__claude_ai_Linear__list_issue_labels` → note available labels
+- If a "dependencies" label does not exist, create it with `mcp__claude_ai_Linear__create_issue_label`
 
 ### 2. Detect package managers
 
@@ -113,7 +113,7 @@ Create all Urgent issues, then High, then Medium, then Low. Ask if it should be 
 
 **Labels:** `["dependencies"]` for all issues. Add `["security"]` if the issue has a CVE or advisory. Do not create extra labels beyond these.
 
-Use `mcp__plugin_linear_linear__save_issue` for each issue.
+Use `mcp__claude_ai_Linear__save_issue` for each issue.
 
 ### 6. Report
 

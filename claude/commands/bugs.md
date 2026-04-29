@@ -11,9 +11,9 @@
 
 ### 1. Setup: Read Linear state
 
-- `mcp__plugin_linear_linear__list_teams` → pick the active team
-- `mcp__plugin_linear_linear__list_issue_labels` → note available labels
-- If a "bug" label does not exist, create it with `mcp__plugin_linear_linear__create_issue_label`
+- `mcp__claude_ai_Linear__list_teams` → pick the active team
+- `mcp__claude_ai_Linear__list_issue_labels` → note available labels
+- If a "bug" label does not exist, create it with `mcp__claude_ai_Linear__create_issue_label`
 
 ### 2. Scan: Systematic codebase audit
 
@@ -102,7 +102,7 @@ Example: `[Security] SQL injection in user search endpoint`
 
 **Labels**: `["bug"]` — add any additional matching type labels that already exist in the workspace (e.g. "security", "performance"). Do not create extra labels for categories.
 
-Use `mcp__plugin_linear_linear__save_issue` for each issue.
+Use `mcp__claude_ai_Linear__save_issue` for each issue.
 
 ### 5. Report
 

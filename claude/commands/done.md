@@ -53,7 +53,7 @@ If `git push` fails because the remote has diverged:
 ### Code Rules
 
 - The PR body **must** contain `Closes <ID>` (e.g., `Closes FIN-42`) — this triggers Linear's GitHub integration to auto-move the issue to Done on merge
-- Do **not** run `linear done` when creating a PR — GitHub integration handles Linear status on merge
+- Do **not** run `linear done` when creating a PR — GitHub integration handles Linear status on merge. If the issue does not auto-close after merge, the GitHub-Linear integration may not be configured; run `linear done <id>` manually as a fallback.
 - If there are no commits, skip the PR step and note it
 - If in a worktree, run `linear done <id>` after PR creation and show the cleanup commands
 - Base branch is typically `main` — if the repo uses a different default (e.g., `develop`), detect it with `git remote show origin | grep 'HEAD branch'`

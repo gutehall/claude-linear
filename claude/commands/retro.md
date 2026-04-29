@@ -15,7 +15,7 @@ Pull completed and in-progress work from Linear and git/GitHub, then create acti
 
 ### 1. Determine the time window
 
-- Call `mcp__plugin_linear_linear__list_cycles` to find the most recently completed cycle.
+- Call `mcp__claude_ai_Linear__list_cycles` to find the most recently completed cycle.
 - If a completed cycle exists and its end date is within the last 2 weeks: use that cycle's start and end dates as the period.
 - Otherwise: parse the argument to determine the lookback date:
   - No argument → 2 weeks ago
@@ -25,7 +25,7 @@ Pull completed and in-progress work from Linear and git/GitHub, then create acti
 
 ### 2. Gather data (run in parallel)
 
-**From Linear** — call `mcp__plugin_linear_linear__list_teams` first to get the team ID, then:
+**From Linear** — call `mcp__claude_ai_Linear__list_teams` first to get the team ID, then:
 - Issues with status Done or Cancelled updated within the period
 - Issues that were In Progress at the start of the period and are still open (slipped)
 - Issues with a "Blocked" status or blocking label that were active in the period
@@ -77,7 +77,7 @@ If the user confirms or describes patterns, help identify concrete actions. Exam
 - No tests in shipped code → tech-debt issue
 - Single author on all PRs → process or pairing issue
 
-Create each action item via `mcp__plugin_linear_linear__save_issue` with:
+Create each action item via `mcp__claude_ai_Linear__save_issue` with:
 - A clear title describing the action, not the symptom
 - Priority based on impact (blocking = High, process = Medium, polish = Low)
 - Appropriate labels if they exist

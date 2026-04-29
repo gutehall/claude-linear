@@ -11,10 +11,10 @@ Work through untriaged Linear issues interactively, suggesting metadata based on
 
 Before triaging:
 
-1. `mcp__plugin_linear_linear__list_teams` — identify the active team
-2. `mcp__plugin_linear_linear__list_issue_labels` — fetch all available labels
-3. `mcp__plugin_linear_linear__list_projects` — fetch all active projects
-4. `mcp__plugin_linear_linear__list_issues` — fetch open issues, then filter to untriaged
+1. `mcp__claude_ai_Linear__list_teams` — identify the active team
+2. `mcp__claude_ai_Linear__list_issue_labels` — fetch all available labels
+3. `mcp__claude_ai_Linear__list_projects` — fetch all active projects
+4. `mcp__claude_ai_Linear__list_issues` — fetch open issues, then filter to untriaged
 
 An issue needs triage if any of the following are true:
 - Priority is 0 (none)
@@ -31,7 +31,7 @@ An issue needs triage if any of the following are true:
 
 ## Suggesting values
 
-For each issue, fetch full details via `mcp__plugin_linear_linear__get_issue` and analyze the title and description.
+For each issue, fetch full details via `mcp__claude_ai_Linear__get_issue` and analyze the title and description.
 
 ### Priority
 
@@ -84,7 +84,7 @@ Suggested:
 [Enter] Accept  [e] Edit  [s] Skip  [q] Quit
 ```
 
-**Accept:** apply all suggested values for fields not already set via `mcp__plugin_linear_linear__save_issue`.
+**Accept:** apply all suggested values for fields not already set via `mcp__claude_ai_Linear__save_issue`.
 
 **Edit:** prompt each field in sequence with current value shown; apply on confirmation.
 
@@ -94,7 +94,7 @@ Suggested:
 
 ## Applying updates
 
-Use `mcp__plugin_linear_linear__save_issue` with only the fields being changed. Never send a field that is already set unless the user explicitly changed it during edit.
+Use `mcp__claude_ai_Linear__save_issue` with only the fields being changed. Never send a field that is already set unless the user explicitly changed it during edit.
 
 ## Output
 

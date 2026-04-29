@@ -26,6 +26,16 @@ When editing command or skill files:
 - Keep each command self-contained; avoid cross-command dependencies at runtime
 - Skills are referenced from commands; a command may say "follow the product-planning skill"
 
+## MCP tool names
+
+Command and skill files reference Linear MCP tools by name. The names depend on how the MCP server was registered. The README setup uses:
+
+```bash
+claude mcp add --transport http linear-server https://mcp.linear.app/mcp
+```
+
+This produces tool names prefixed `mcp__claude_ai_Linear__` (e.g. `mcp__claude_ai_Linear__list_issues`). If you registered the server under a different name or as a local plugin, the prefix will differ — update all `mcp__claude_ai_Linear__` references in the command and skill files to match.
+
 ## Testing changes
 
 There is no test suite. Validate by:

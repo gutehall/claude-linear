@@ -15,10 +15,10 @@ Fetch all issues missing triage metadata and work through them one by one, sugge
 ### 1. Load context
 
 Fetch in parallel:
-- `mcp__plugin_linear_linear__list_teams` — get team ID
-- `mcp__plugin_linear_linear__list_issues` — all open issues
-- `mcp__plugin_linear_linear__list_issue_labels` — available labels
-- `mcp__plugin_linear_linear__list_projects` — available projects
+- `mcp__claude_ai_Linear__list_teams` — get team ID
+- `mcp__claude_ai_Linear__list_issues` — all open issues
+- `mcp__claude_ai_Linear__list_issue_labels` — available labels
+- `mcp__claude_ai_Linear__list_projects` — available projects
 
 Filter issues based on the flag passed:
 - No flag: issues where priority is 0 (none), OR labels are empty, OR estimate is unset
@@ -33,7 +33,7 @@ If the MCP call fails: say "Could not reach Linear. Check your MCP connection wi
 
 ### 2. Work through issues one at a time
 
-For each issue, fetch full details via `mcp__plugin_linear_linear__get_issue`, then display:
+For each issue, fetch full details via `mcp__claude_ai_Linear__get_issue`, then display:
 
 ```
 --- Issue FIN-42 ---
@@ -81,14 +81,14 @@ Suggested:
 [Enter] Accept  [e] Edit  [s] Skip  [q] Quit
 ```
 
-**On accept:** call `mcp__plugin_linear_linear__save_issue` with all suggested fields that are not already set. Print: `Updated FIN-42.`
+**On accept:** call `mcp__claude_ai_Linear__save_issue` with all suggested fields that are not already set. Print: `Updated FIN-42.`
 
 **On edit:** prompt for each field individually in sequence:
 - `Priority (current: <value>) [1 Urgent / 2 High / 3 Medium / 4 Low / Enter to keep]:`
 - `Labels (available: <list>) [comma-separated names / Enter to keep]:`
 - `Estimate [XS / S / M / L / XL / Enter to keep]:`
 - `Project [<name> / Enter to keep / n for none]:`
-Then apply via `mcp__plugin_linear_linear__save_issue`. Print: `Updated FIN-42.`
+Then apply via `mcp__claude_ai_Linear__save_issue`. Print: `Updated FIN-42.`
 
 **On skip:** move to next issue. Print: `Skipped FIN-42.`
 

@@ -676,6 +676,23 @@ Always shows the proposed breakdown before creating anything.
 
 ---
 
+### `/pr` — Open a pull request for current work
+
+```
+/pr               # PR for the current branch
+/pr --draft       # Open as a draft PR
+/pr "my title"    # Override the generated title
+```
+
+What it does:
+1. Detects the issue ID from the branch name
+2. Stages and commits any uncommitted changes
+3. Pushes the branch and creates a PR titled `FIN-12: Issue title` with `Closes FIN-12` in the body
+
+Use this when you want a PR open for review but aren't done with the issue yet. For completed work, prefer `/done`.
+
+---
+
 ### `/work` — Plan and start immediate work, no Linear required
 
 ```

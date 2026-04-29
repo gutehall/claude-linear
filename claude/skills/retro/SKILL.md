@@ -11,9 +11,9 @@ Surface what shipped, what slipped, and what never started — then turn pattern
 
 Before fetching data:
 
-1. `mcp__plugin_linear_linear__list_teams` — identify the active team and its ID
-2. `mcp__plugin_linear_linear__list_cycles` — check for a recently completed cycle
-3. `mcp__plugin_linear_linear__list_issue_statuses` — map status names to categories (Done, In Progress, Todo, Blocked, Cancelled)
+1. `mcp__claude_ai_Linear__list_teams` — identify the active team and its ID
+2. `mcp__claude_ai_Linear__list_cycles` — check for a recently completed cycle
+3. `mcp__claude_ai_Linear__list_issue_statuses` — map status names to categories (Done, In Progress, Todo, Blocked, Cancelled)
 
 ## Time window resolution
 
@@ -32,7 +32,7 @@ Fetch all sources in parallel.
 
 ### Linear issues
 
-Use `mcp__plugin_linear_linear__list_issues` with the resolved team ID and appropriate filters:
+Use `mcp__claude_ai_Linear__list_issues` with the resolved team ID and appropriate filters:
 
 | Category | Filter criteria |
 |----------|----------------|
@@ -113,7 +113,7 @@ Only surface patterns that are actually present in the data. Do not invent findi
 
 ## Creating action items
 
-Use `mcp__plugin_linear_linear__save_issue` for each action item.
+Use `mcp__claude_ai_Linear__save_issue` for each action item.
 
 **Title format:** `[Retro] Short description of the action`
 Example: `[Retro] Resolve repeated auth-service blocking dependency`

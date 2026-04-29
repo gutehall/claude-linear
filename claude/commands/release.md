@@ -11,10 +11,6 @@ Generates a changelog from merged PRs and commits since the last git tag, determ
 /release major      # Force major bump
 ```
 
-Follow the release skill for the full procedure. Run:
+Follow the **release skill** for the full procedure.
 
-```
-@release
-```
-
-The version argument (patch, minor, major) is optional. If provided, use it to override auto-detection in Step 4.
+The version argument (patch, minor, major) is optional. If provided, use it to override auto-detection in Step 5.

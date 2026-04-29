@@ -11,9 +11,9 @@ Exhaustively scan the codebase for bugs and create one Linear issue per finding,
 
 Before scanning:
 
-1. `mcp__plugin_linear_linear__list_teams` — identify the active team
-2. `mcp__plugin_linear_linear__list_issue_labels` — note available labels
-3. If no "bug" label exists: `mcp__plugin_linear_linear__create_issue_label` to create one
+1. `mcp__claude_ai_Linear__list_teams` — identify the active team
+2. `mcp__claude_ai_Linear__list_issue_labels` — note available labels
+3. If no "bug" label exists: `mcp__claude_ai_Linear__create_issue_label` to create one
 
 ## Scanning
 
@@ -96,7 +96,7 @@ Example: `[Security] SQL injection in user search endpoint`
 
 **Labels:** `["bug"]` plus any existing type labels that match (e.g. "security", "performance"). Do not create extra labels for categories.
 
-Use `mcp__plugin_linear_linear__save_issue` for each issue.
+Use `mcp__claude_ai_Linear__save_issue` for each issue.
 
 ## Output
 
