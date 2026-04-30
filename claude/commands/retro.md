@@ -84,6 +84,10 @@ Create each action item via `mcp__claude_ai_Linear__save_issue` with:
 
 Print each created issue ID and title after creation.
 
+After creating action items, offer:
+- `/estimate` — to size the new issues before they go into the backlog
+- `/next` — to start the highest-priority action item immediately
+
 ## Error handling
 
 - If Linear returns no issues: say "No closed issues found in this period. Is the MCP connected? Try `/mcp`." and stop.

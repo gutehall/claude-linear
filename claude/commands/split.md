@@ -24,17 +24,32 @@ Decompose an L or XL issue into smaller, independently trackable sub-issues. Alw
    ```
    Split FIN-12 into:
      1. FIN-?a: Design data model — S
+        "Define the schema for X. Acceptance: schema reviewed and merged."
      2. FIN-?b: Implement API endpoints — M (blocked by 1)
+        "Build POST/GET endpoints for X. Acceptance: endpoints tested, OpenAPI updated."
      3. FIN-?c: Build UI — M (blocked by 2)
+        "Build the form and list view for X. Acceptance: matches design, responsive."
      4. FIN-?d: Write integration tests — S (blocked by 2)
+        "E2E tests covering the create and list flows. Acceptance: CI green."
 
    Proceed?
    ```
 
-5. **On confirmation, create sub-issues:**
+5. **On confirmation, create sub-issues** — every sub-issue must include title, description, estimate, priority (inherit from parent unless there's reason to differ), and labels:
    ```bash
-   linear issue create --title "..." --parent ISSUE-12 --estimate S
-   linear issue create --title "..." --parent ISSUE-12 --estimate M --blocked-by <prev>
+   linear issue create \
+     --title "..." \
+     --description "<one sentence what, one sentence acceptance criteria>" \
+     --parent ISSUE-12 \
+     --estimate S \
+     --priority <parent priority>
+   linear issue create \
+     --title "..." \
+     --description "..." \
+     --parent ISSUE-12 \
+     --estimate M \
+     --priority <parent priority> \
+     --blocked-by <prev>
    ```
 
 6. **Update the parent** with a summary comment:

@@ -22,17 +22,18 @@ If ambiguous, ask.
 ## Path A: Code Work
 
 1. **Detect the issue** from the branch name (extract `TEAM-123` pattern) or use the provided ID
-2. **Show work summary:**
+2. **Detect base branch:** run `git remote show origin | grep 'HEAD branch'`, default to `main` if detection fails. Use this as `<base>` throughout Path A.
+3. **Show work summary:**
    - `git log --oneline <base>..HEAD`
    - `git diff --stat <base>..HEAD`
-3. **Stage and commit** any uncommitted changes (if any exist)
-4. **Push branch** to origin
-5. **Create PR:**
+4. **Stage and commit** any uncommitted changes (if any exist)
+5. **Push branch** to origin
+6. **Create PR:**
    ```
    gh pr create --title "ISSUE-12: Issue title" --body "## Summary\n...\n\nCloses ISSUE-12"
    ```
-6. Print the PR URL
-7. Offer `/next` to continue
+7. Print the PR URL
+8. Offer `/next` to continue
 
 ### Branch name detection fallback
 

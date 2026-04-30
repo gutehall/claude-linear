@@ -33,9 +33,17 @@ If no blocker ID is provided:
 
 1. Ask: "What's blocking this? Describe it or give an issue ID."
 2. If they describe something external (waiting on credentials, a third party, a decision):
+   - Determine priority: Urgent if it's actively preventing all work on the issue, High if it's blocking but work can partially continue, Medium otherwise.
+   - Create the blocker with a proper description:
    ```bash
-   linear issue create --title "<description>" --priority urgent --blocks <id>
+   linear issue create \
+     --title "<short description of what is needed>" \
+     --description "## Blocker\n<what is missing or needed>\n\n## Unblocks\n<ISSUE-ID>: <issue title>\n\n## Done when\n<what needs to happen for this to be resolved>" \
+     --priority <urgent|high|medium> \
+     --label blocker \
+     --blocks <id>
    ```
+   - If a "blocker" label does not exist in the workspace, omit `--label blocker`
 3. Show the created blocker ID
 4. Confirm: "Created <NEW-ID> as a blocker. ISSUE-12 is now blocked."
 5. Offer `/next` to continue with unblocked work
@@ -45,6 +53,7 @@ If no blocker ID is provided:
 ## Notes
 
 - Always offer `/next` after blocking — keep momentum going
-- Use `--priority urgent` for new blocker issues so they surface immediately
+- New blocker issues must have a description and a "done when" condition — a blocker with no resolution criteria is just noise
+- Priority should reflect actual urgency, not always Urgent — reserve Urgent for blockers that halt all progress today
 - A blocked issue disappears from `linear issues --unblocked` automatically once the blocker relationship is set
 - To unblock later: `linear issue update <blocker-id> --status done` or close it with `linear issue close <blocker-id>`

@@ -18,10 +18,18 @@ Sets up your working context — assign, move to In Progress, create branch, sho
 5. **Show full context:** `linear issue show <id>`
 6. **Confirm:** "Branch `<branch-name>` checked out. Ready when you are."
 
+## When to use `/start` vs `/next`
+
+| | `/start` | `/next` |
+|---|---|---|
+| You already know the issue | Yes | Either |
+| You want help finding what to work on | No | Yes |
+| Starts implementing immediately | No — sets up context only | Yes |
+
+Use `/start` when you want to load context and then decide how to approach the work yourself. Use `/next` when you want Claude to find the work and start implementing in one flow.
+
 ## Notes
 
-- This sets up context only — it does not start implementing. Start coding when you're ready.
 - If the branch already exists locally, check it out without erroring
 - For non-code issues, skip the branch step
 - When done, run `/done` to create the PR and close the issue
-- Prefer `/next` if you want to find work AND start implementing in one step

@@ -15,6 +15,7 @@ Create Linear issues directly via MCP, without clipboard or intermediate steps.
    - List open issues (`mcp__claude_ai_Linear__list_issues`)
    - List projects (`mcp__claude_ai_Linear__list_projects`)
    - List teams to get the correct team ID (`mcp__claude_ai_Linear__list_teams`)
+   - List available labels (`mcp__claude_ai_Linear__list_issue_labels`)
 
 2. **If input is vague or missing, ask three questions before doing anything else:**
    - What needs to happen?
@@ -27,12 +28,20 @@ Create Linear issues directly via MCP, without clipboard or intermediate steps.
    - Identify gaps, priorities, or the focus area provided
    - Draft issues with clear titles, descriptions, and acceptance criteria
 
-4. **Create issues via MCP** directly:
-   - Use `mcp__claude_ai_Linear__save_issue` for each issue
-   - Set appropriate team, priority, and labels
+4. **Create a project and issues via MCP** directly:
+   - First create a project with `mcp__claude_ai_Linear__save_project` if one doesn't exist for this work
+   - Use `mcp__claude_ai_Linear__save_issue` for each issue — every issue **must** include:
+     - `title` — clear, action-oriented
+     - `description` — what, why, and acceptance criteria
+     - `priority` — 1 (urgent) / 2 (high) / 3 (medium) / 4 (low)
+     - `labelIds` — at least one label (e.g. feature, bug, improvement)
+     - `teamId` and `projectId`
    - Print each created issue ID and title
+   - After all issues are created, sort them by implementation order using `mcp__claude_ai_Linear__update_issue` to set `sortOrder` so issues appear in the sequence they should be worked on
 
-5. **Offer to start:** suggest `/next <ID>` for the highest-priority issue created
+5. **Offer next steps:**
+   - Suggest `/estimate` to size the newly created issues before picking one up
+   - Then suggest `/next <ID>` for the highest-priority issue once estimated
 
 ## Error Handling
 
@@ -44,6 +53,8 @@ Create Linear issues directly via MCP, without clipboard or intermediate steps.
 ## Rules
 
 - Always read current Linear state before planning — don't create duplicates
-- Issues need: title, description, acceptance criteria, team, priority
+- Always create a project to group the issues under (check existing projects first)
+- Every issue **must** have: title, description, acceptance criteria, priority, and at least one label
+- Issues must be sorted by implementation order — the first issue to work on appears first in Linear
 - Keep issues small enough to implement in one PR
 - No clipboard, no JSON payload, no external scripts

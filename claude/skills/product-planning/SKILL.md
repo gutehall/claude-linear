@@ -56,14 +56,24 @@ For technical work, explore the existing codebase first to understand patterns a
 
 **Sizing:** XS/S/M = single issue, < 1 day. L/XL = needs breakdown.
 
+Every issue must have: title, description, priority, and at least one label.
+
 ```bash
 # Parent issue (the goal)
-linear issue create --title "User auth system" --estimate L --project "Phase 2"
+linear issue create --title "User auth system" \
+  --description "Implement full auth flow so users can log in securely.\n\n**Acceptance criteria:**\n- Users can sign up, log in, and log out\n- Sessions expire after 30 days" \
+  --priority medium --label feature --estimate L --project "Phase 2"
 
 # Sub-issues (the steps)
-linear issue create --title "Design auth flow" --parent ISSUE-10 --estimate S
-linear issue create --title "Implement login" --parent ISSUE-10 --estimate M
-linear issue create --title "Add sessions" --parent ISSUE-10 --blocked-by ISSUE-11 --estimate M
+linear issue create --title "Design auth flow" \
+  --description "Diagram and document the sign-up/login/logout flow." \
+  --priority medium --label feature --parent ISSUE-10 --estimate S
+linear issue create --title "Implement login endpoint" \
+  --description "POST /auth/login — validate credentials, issue session token." \
+  --priority high --label feature --parent ISSUE-10 --estimate M
+linear issue create --title "Add session management" \
+  --description "Store and expire session tokens. Use Redis." \
+  --priority medium --label feature --parent ISSUE-10 --blocked-by ISSUE-11 --estimate M
 ```
 
 ### 4. Organize
@@ -79,12 +89,22 @@ linear issue create --title "Core feature" --milestone "Beta" --estimate M
 linear issue create --title "Need API credentials" --blocks ISSUE-5
 ```
 
-### 5. Prioritize
+### 5. Order by Implementation Sequence
+
+After creating issues, sort them in the order they should be implemented — not by priority alone, but by actual execution order (dependencies first, blocked work last).
+
+```bash
+linear issue move ISSUE-11 --before ISSUE-12   # design before build
+linear issue move ISSUE-12 --before ISSUE-13   # build before deploy
+```
+
+Issues should appear in Linear in the sequence a developer would pick them up. If two issues are independent, put the higher-value one first.
+
+### 6. Prioritize Projects and Milestones
 
 ```bash
 linear projects reorder "Phase 1" "Phase 2" "Phase 3"
 linear milestones reorder "Alpha" "Beta" --project "Phase 2"
-linear issue move ISSUE-5 --before ISSUE-1
 ```
 
 ## product.md
