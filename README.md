@@ -180,7 +180,27 @@ gh alias set co 'pr checkout'
 /standup → /next → implement → /done → !gh prc → !gh prm → /next → repeat
 ```
 
-Use `/start` to set up a known issue without immediately implementing. Use `/pr` to open a PR for early review without closing the issue. Use `/blocked` to mark an issue blocked and keep moving. Use `/work` to plan and start immediate work without creating a Linear ticket first. Use `/estimate` to bulk-size unestimated issues. Use `/scope` to audit a project for gaps before a sprint. Use `/split` to decompose an L/XL issue into sub-issues. Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/issues` to browse and filter issues by project. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, `/onboard` to orient in a new codebase, `/diagnose` to systematically root-cause a bug before touching any code, and `/sit` to force a mid-task self-audit when something feels off.
+| Command | What it does |
+|---------|-------------|
+| `/start` | Set up a known issue without immediately implementing |
+| `/pr` | Open a PR for early review without closing the issue |
+| `/blocked` | Mark an issue blocked and keep moving |
+| `/work` | Plan and start immediate work without creating a Linear ticket first |
+| `/estimate` | Bulk-size unestimated issues |
+| `/scope` | Audit a project for gaps before a sprint |
+| `/split` | Decompose an L/XL issue into sub-issues |
+| `/issues` | Browse and filter issues by project |
+| `/review` | Review a teammate's PR |
+| `/sync` | Clean up stale issues after a sprint or time off |
+| `/bugs` | Scan the codebase and push bug findings into Linear |
+| `/debt` | Scan the codebase and push tech debt findings into Linear |
+| `/deps` | Audit dependencies |
+| `/triage` | Groom the backlog |
+| `/retro` | Sprint retrospective |
+| `/release` | Cut a release |
+| `/onboard` | Orient in a new codebase |
+| `/diagnose` | Systematically root-cause a bug before touching any code |
+| `/sit` | Force a mid-task self-audit when something feels off |
 
 ---
 
