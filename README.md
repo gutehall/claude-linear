@@ -5,7 +5,7 @@ This repo contains two workflow variants:
 | Variant | AI tool | Issue tracker | Directory |
 |---------|---------|--------------|-----------|
 | **Claude + Linear** | [Claude Code](https://claude.ai/code) | [Linear](https://linear.app) | `claude/` |
-| **Codex + Jira** | [OpenAI Codex](https://github.com/openai/codex) | [Jira](https://www.atlassian.com/software/jira) | `codex-jira/` |
+| **Codex + Jira** | [OpenAI Codex](https://github.com/openai/codex) | [Jira](https://www.atlassian.com/software/jira) | `codex/` |
 
 Both implement the same loop: pick issue → branch → implement → PR → merge → repeat.
 
@@ -54,13 +54,13 @@ The slash commands live in `claude/commands/` and skills in `claude/skills/`. Tw
 
 **Per-project** — copy `claude` into your project root:
 ```bash
-cp -r claude-linear/claude /path/to/your/project/.claude
+cp -r devloop/claude /path/to/your/project/.claude
 ```
 
 **Global** — available in all projects:
 ```bash
-cp claude-linear/claude/commands/* ~/.claude/commands/
-cp -r claude-linear/claude/skills/* ~/.claude/skills/
+cp devloop/claude/commands/* ~/.claude/commands/
+cp -r devloop/claude/skills/* ~/.claude/skills/
 ```
 
 ### 2. Linear CLI
@@ -124,18 +124,18 @@ All the same tools work on Windows. Use PowerShell unless noted otherwise.
 ### 1. Get the commands
 
 ```powershell
-git clone https://github.com/gutehall/claude-linear.git
+git clone https://github.com/gutehall/devloop.git
 ```
 
 **Per-project** — copy into your project:
 ```powershell
-Copy-Item -Recurse claude-linear\claude .claude
+Copy-Item -Recurse devloop\claude .claude
 ```
 
 **Global** — available in all projects:
 ```powershell
-Copy-Item claude-linear\claude\commands\* $env:USERPROFILE\.claude\commands\
-Copy-Item -Recurse claude-linear\claude\skills\* $env:USERPROFILE\.claude\skills\
+Copy-Item devloop\claude\commands\* $env:USERPROFILE\.claude\commands\
+Copy-Item -Recurse devloop\claude\skills\* $env:USERPROFILE\.claude\skills\
 ```
 
 ### 2. Linear CLI
@@ -180,7 +180,7 @@ gh alias set co 'pr checkout'
 /standup → /next → implement → /done → !gh prc → !gh prm → /next → repeat
 ```
 
-Use `/start` to set up a known issue without immediately implementing. Use `/pr` to open a PR for early review without closing the issue. Use `/blocked` to mark an issue blocked and keep moving. Use `/work` to plan and start immediate work without creating a Linear ticket first. Use `/estimate` to bulk-size unestimated issues. Use `/scope` to audit a project for gaps before a sprint. Use `/split` to decompose an L/XL issue into sub-issues. Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, `/onboard` to orient in a new codebase, `/diagnose` to systematically root-cause a bug before touching any code, and `/sit` to force a mid-task self-audit when something feels off.
+Use `/start` to set up a known issue without immediately implementing. Use `/pr` to open a PR for early review without closing the issue. Use `/blocked` to mark an issue blocked and keep moving. Use `/work` to plan and start immediate work without creating a Linear ticket first. Use `/estimate` to bulk-size unestimated issues. Use `/scope` to audit a project for gaps before a sprint. Use `/split` to decompose an L/XL issue into sub-issues. Use `/review` to review a teammate's PR. Use `/sync` to clean up stale issues after a sprint or time off. Use `/bugs` or `/debt` to audit the codebase and push findings into Linear. Use `/deps` to audit dependencies. Use `/issues` to browse and filter issues by project. Use `/triage` to groom the backlog, `/retro` for sprint retrospectives, `/release` to cut a release, `/onboard` to orient in a new codebase, `/diagnose` to systematically root-cause a bug before touching any code, and `/sit` to force a mid-task self-audit when something feels off.
 
 ---
 
@@ -470,6 +470,21 @@ What it does:
 
 ---
 
+### `/issues` — Browse and filter issues by project
+
+```
+/issues                  # Browse active projects, then issues in the selected project
+/issues "Phase 1"        # Jump directly to a named project
+```
+
+What it does:
+1. Lists active projects (Backlog, Planned, In Progress) as a numbered menu
+2. On selection, shows all non-completed issues in a table with ID, priority, status, title, assignee, and estimate
+3. Offers filter options: by status (Ready / In Progress / Backlog / All) and by assignee (Mine / Unassigned / All)
+4. On typing an issue ID, shows full details and offers `/next <ID>` to start work
+
+---
+
 ### `/retro` — Sprint retrospective
 
 ```
@@ -676,23 +691,6 @@ Always shows the proposed breakdown before creating anything.
 
 ---
 
-### `/pr` — Open a pull request for current work
-
-```
-/pr               # PR for the current branch
-/pr --draft       # Open as a draft PR
-/pr "my title"    # Override the generated title
-```
-
-What it does:
-1. Detects the issue ID from the branch name
-2. Stages and commits any uncommitted changes
-3. Pushes the branch and creates a PR titled `FIN-12: Issue title` with `Closes FIN-12` in the body
-
-Use this when you want a PR open for review but aren't done with the issue yet. For completed work, prefer `/done`.
-
----
-
 ### `/work` — Plan and start immediate work, no Linear required
 
 ```
@@ -783,7 +781,7 @@ L/XL issues should be split into sub-issues before work begins.
 
 ## Codex + Jira
 
-Same workflow, different tools. Instructions live in `codex-jira/codex/`.
+Same workflow, different tools. Instructions live in `codex/`.
 
 ### Installation
 
@@ -791,11 +789,11 @@ Same workflow, different tools. Instructions live in `codex-jira/codex/`.
 
 ```bash
 # Per-project
-cp -r codex-jira/codex /path/to/your/project/.codex
+cp -r codex /path/to/your/project/.codex
 
 # Global
-cp codex-jira/codex/instructions/* ~/.codex/instructions/
-cp -r codex-jira/codex/skills/* ~/.codex/skills/
+cp codex/instructions/* ~/.codex/instructions/
+cp -r codex/skills/* ~/.codex/skills/
 ```
 
 **2. Jira CLI**
