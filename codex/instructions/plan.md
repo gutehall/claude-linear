@@ -35,7 +35,9 @@ Create Jira issues directly, without clipboard or intermediate steps.
    - Link to a parent epic if applicable: `jira issue create -tStory --parent PROJ-100 -s"..."`
    - Add to active sprint if appropriate: `jira sprint add --board-id <id> PROJ-123`
 
-5. **Offer to start:** suggest `/next <ID>` for the highest-priority issue created
+5. **Offer to start:**
+   - Suggest `/next <ID>` for the highest-priority issue created
+   - When implementation is done, use `/done` or `/pr` to push and open a PR
 
 ## Error Handling
 

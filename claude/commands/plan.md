@@ -42,6 +42,7 @@ Create Linear issues directly via MCP, without clipboard or intermediate steps.
 5. **Offer next steps:**
    - Suggest `/estimate` to size the newly created issues before picking one up
    - Then suggest `/next <ID>` for the highest-priority issue once estimated
+   - When implementation is done, use `/done` or `/pr` to push and open a PR
 
 ## Error Handling
 
