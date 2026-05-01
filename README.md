@@ -177,7 +177,7 @@ gh alias set co 'pr checkout'
 ## Daily Loop
 
 ```
-/standup → /next → implement → /done → !gh prc → !gh prm → /next → repeat
+/standup → /next → implement → /done → /next → repeat
 ```
 
 | Command | What it does |
@@ -231,64 +231,42 @@ Claude shows up to 3 unblocked issues (yours first). Select one — it gets mark
 
 Claude reads the issue, explores the codebase, and implements. You review and guide as needed. When the work is done, move to the next step.
 
-**4. Commit, push, and open a PR**
+**4. Review what will be committed**
 
-Before running `/done`, review what will be committed:
 ```
 !git status
 !git diff
 ```
 
-Then:
+**5. Ship it**
+
 ```
 /done
 ```
-Claude stages any uncommitted changes, commits, pushes the branch, and creates a PR with `Closes FIN-X` in the body. The PR URL is printed.
 
-**5. Check CI**
+`/done` handles the full ship cycle:
+1. Stages and commits any uncommitted changes
+2. Pushes the branch and creates a PR with `Closes FIN-X` in the body
+3. Waits for CI (`gh pr checks --watch`) — stops and reports if anything fails
+4. Merges with squash and deletes the branch
+5. Checks out main and pulls
+6. Shows `git log --oneline` to confirm the merge landed
 
-```
-!gh prc
-```
-Wait for green. If a check fails, fix the code, push to the same branch, and the PR updates automatically — no need to create a new PR:
-```
-# fix the issue, then:
-!git add <files> && git commit -m "fix: ..." && git push
-!gh run list
-!gh run rerun <run-id> --failed
-```
+On merge, `Closes FIN-X` automatically moves the Linear issue to Done. No manual step needed.
 
-**6. Review the diff**
+If CI fails, `/done` stops and tells you what failed. Fix the code, push to the same branch, and run `/done` again — it picks up from the PR that already exists.
+
+**6. Pick the next issue**
 
 ```
-!gh prv
-!gh prd
-```
-
-**7. Merge**
-
-```
-!gh prm
-```
-
-Note: GitHub does not allow approving your own PR. Skip the approve step when self-merging. `gh pr review --approve` is only used when reviewing someone else's PR.
-
-On merge, the `Closes FIN-X` in the PR body automatically moves the Linear issue to Done. No manual step needed.
-
-**8. Pick the next issue**
-
-```
-!git checkout main && git pull
 /next
 ```
 
-Always pull main after a merge — you're still on the feature branch after `!gh prm`. This gets you back to a clean base before the next branch is created.
-
 Repeat from step 3.
 
-**Tip: don't wait on CI**
+**Use `/pr` instead when you want review before merging**
 
-CI can take minutes. Once `/done` has opened the PR, you can immediately run `/next` and start the next issue. Come back to merge when CI goes green — the PR stays open.
+`/done` merges immediately after CI. If you want a teammate to review first, use `/pr` to open the PR without merging — then merge manually once approved.
 
 ---
 
@@ -349,7 +327,7 @@ Issues are kept small (one PR each). L/XL issues get broken into sub-issues.
 
 ---
 
-### `/done` — Commit, push, and create a PR
+### `/done` — Ship the current issue end-to-end
 
 ```
 /done           # Complete the current issue (detected from branch name)
@@ -361,16 +339,21 @@ What it does:
 2. Shows a summary: commits and files changed
 3. Stages and commits any uncommitted changes
 4. Pushes the branch to origin
-5. Creates a PR titled `FIN-12: Issue title` with `Closes FIN-12` in the body
-6. Prints the PR URL
+5. Creates a PR titled `FIN-12: Issue title` with `Closes FIN-12` in the body — prints the URL
+6. Waits for CI (`gh pr checks --watch`) — stops if anything fails
+7. Merges with squash and deletes the remote branch
+8. Checks out the base branch and pulls
+9. Shows `git log --oneline` to confirm the merge landed
 
-The `Closes FIN-12` triggers Linear's GitHub integration — the issue moves to Done automatically when the PR merges. Do not manually close the issue.
+`Closes FIN-12` triggers Linear's GitHub integration — the issue moves to Done on merge automatically.
+
+If CI fails: `/done` stops and tells you what failed. Fix, push to the same branch, run `/done` again — it reuses the existing PR.
 
 For non-code work (documents, decks, research): closes the issue directly in Linear, optionally attaching a link first.
 
-If the current branch was created manually and doesn't contain an issue ID, `/done` will ask you which issue to link before creating the PR.
-
 If push fails due to a diverged branch, `/done` will rebase and list any conflicts for you to resolve — it will not force-push without your explicit instruction.
+
+Use `/pr` instead when you want a teammate to review before merging.
 
 ---
 
@@ -839,7 +822,7 @@ Install the Jira GitHub app in your Jira workspace. Once connected, PRs that inc
 ### Daily Loop
 
 ```
-/standup → /next → implement → /done → gh pr checks → gh pr merge → /next → repeat
+/standup → /next → implement → /done → /next → repeat
 ```
 
 ### Commands
@@ -847,7 +830,7 @@ Install the Jira GitHub app in your Jira workspace. Once connected, PRs that inc
 | Command | What it does |
 |---------|-------------|
 | `/next` | Pick a To Do issue, assign yourself, create branch |
-| `/done` | Commit, push, create PR with `Closes PROJ-N` |
+| `/done` | Commit, push, PR, wait for CI, merge, pull main |
 | `/plan` | Create Jira issues inline via CLI |
 | `/standup` | Daily summary from Jira + git |
 | `/issues` | Browse issues by sprint or epic |

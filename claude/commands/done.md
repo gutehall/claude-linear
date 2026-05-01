@@ -32,8 +32,28 @@ If ambiguous, ask.
    ```
    gh pr create --title "ISSUE-12: Issue title" --body "## Summary\n...\n\nCloses ISSUE-12"
    ```
-7. Print the PR URL
-8. Offer `/next` to continue
+   Print the PR URL immediately after creation.
+7. **Wait for CI:**
+   ```bash
+   gh pr checks --watch
+   ```
+   - All checks pass → proceed to merge
+   - Any check fails → stop: say "CI failed. Fix the issue, push to the same branch, then run `/done` again." Do not merge.
+   - No checks configured → proceed to merge immediately
+8. **Merge:**
+   ```bash
+   gh pr merge --squash --delete-branch
+   ```
+9. **Return to base and pull:**
+   ```bash
+   git checkout <base>
+   git pull
+   ```
+10. **Confirm merge landed:**
+    ```bash
+    git log --oneline -5
+    ```
+11. Offer `/next` to continue
 
 ### Branch name detection fallback
 
