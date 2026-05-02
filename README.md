@@ -197,6 +197,7 @@ gh alias set co 'pr checkout'
 | `/deps` | Audit dependencies |
 | `/triage` | Groom the backlog |
 | `/retro` | Sprint retrospective |
+| `/whatchanged` | Show everything that changed since the last run |
 | `/release` | Cut a release |
 | `/onboard` | Orient in a new codebase |
 | `/diagnose` | Systematically root-cause a bug before touching any code |
@@ -593,6 +594,22 @@ Useful after returning from time off or at sprint boundaries when the board has 
 
 ---
 
+### `/whatchanged` — Show changes since the last run
+
+```
+/whatchanged
+```
+
+What it does:
+1. Reads a checkpoint file (`.claude/whatchanged`) written by the previous run — stores a timestamp and commit SHA
+2. Gathers everything since that checkpoint in parallel: git commits, file diffs, merged and opened PRs, Linear issues grouped by status change
+3. Presents a structured summary: Commits / Files changed / PRs merged / PRs opened / Linear issues (New / Shipped / Started / Updated)
+4. Updates the checkpoint so the next run starts from here
+
+On the **first run**, no diff is shown — the command records the current state as the baseline and exits. Run it again to see future changes.
+
+---
+
 ### `/start` — Set up a known issue without implementing
 
 ```
@@ -833,11 +850,19 @@ Install the Jira GitHub app in your Jira workspace. Once connected, PRs that inc
 | `/done` | Commit, push, PR, wait for CI, merge, pull main |
 | `/plan` | Create Jira issues inline via CLI |
 | `/standup` | Daily summary from Jira + git |
+| `/start` | Set up a known issue without immediately implementing |
+| `/pr` | Open a PR for early review without closing the issue |
+| `/blocked` | Mark an issue blocked and keep moving |
+| `/work` | Plan and start immediate work without creating a Jira ticket first |
 | `/issues` | Browse issues by sprint or epic |
+| `/estimate` | Bulk-size unestimated issues |
+| `/scope` | Audit a project for gaps before a sprint |
+| `/split` | Decompose an L/XL issue into sub-issues |
 | `/review` | Review open PRs |
 | `/sync` | Detect drift between Jira and branch/PR state |
 | `/triage` | Groom untriaged issues interactively |
 | `/retro` | Sprint retrospective → action items |
+| `/whatchanged` | Show everything that changed since the last run |
 | `/bugs` | Scan codebase → create Bug issues |
 | `/debt` | Scan codebase → create Task issues tagged tech-debt |
 | `/deps` | Audit dependencies → create issues |
