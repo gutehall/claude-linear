@@ -1,4 +1,4 @@
-# /codereview
+# /review
 
 Perform a complete code review using the code-review skill.
 
