@@ -1,79 +1,214 @@
 ---
 name: code-review
-description: How to review a pull request — what to look for, how to reason about quality, and how to communicate findings. Used by /review.
+description: >
+  Performs a thorough, structured code review that goes beyond surface-level linting — it
+  validates that the code actually works as intended, finds logic errors, missing edge cases,
+  broken contracts between components, and anything that would cause the code to silently fail
+  or behave incorrectly. If issues are found, the skill produces a concrete fix plan and then
+  executes it, followed by test runs to confirm the fix holds. Use this skill whenever the user
+  asks to "review my code", "check if this works", "validate this function", "audit this module",
+  "does this look right", "review before PR", or any time code correctness is in question. Also
+  trigger when the user shares code and asks for feedback, wants a sanity check, or is about to
+  merge/deploy and wants confidence. This skill should run proactively whenever Claude notices
+  it's about to work on code that hasn't been reviewed and correctness matters.
 ---
 
 # Code Review
 
-How to read a PR and give useful, actionable feedback.
+**The goal**: Determine with confidence whether this code does what it's supposed to do — not just whether it looks clean, but whether it actually works correctly in all meaningful cases.
 
-## Mindset
+This is a four-phase protocol: **Understand → Audit → Plan & Fix → Verify**.
 
-You're looking for problems that matter — bugs, missing tests, security issues, scope creep. Not style preferences or things that don't affect correctness. Be direct about problems; be brief about things that are fine.
+---
 
-A review that says "looks good" with no substance is not useful. A review that nitpicks formatting is noise. Aim for: everything load-bearing gets checked, everything cosmetic gets skipped.
+## Phase 1: Understand Intent
 
-## What to check
+Before looking for problems, establish what "correct" means for this code.
 
-### 1. Correctness
-- Does the code do what the PR description says?
-- Are there edge cases the implementation misses?
-- Are errors handled, or do they silently swallow failures?
-- Are any assumptions baked in that could break under real conditions?
+**Gather:**
+- What is this code supposed to do? (Read docstrings, comments, function names, call sites)
+- What are the inputs and their valid ranges/types?
+- What are the expected outputs or side effects?
+- What invariants must hold? (e.g. "this list is always sorted", "this value is never null")
+- What's the broader context? (What calls this? What does it feed into?)
 
-### 2. Tests
-- Are there tests for the new behavior?
-- Do the tests actually cover the interesting paths (not just the happy path)?
-- If tests are missing: is it because the code is hard to test (a design smell), or just skipped?
+If intent is unclear from the code itself, ask the user one targeted question before proceeding. Don't guess at intent — a "correct" review of the wrong spec is worthless.
 
-### 3. Security
-- Any unvalidated user input reaching a database, shell, or file system?
-- Secrets or credentials hard-coded or logged?
-- Auth/permission checks present where needed?
-- SQL injection, XSS, or path traversal possibilities?
+---
 
-### 4. Scope
-- Does the PR do more than the issue asks? Flag scope creep — not as a blocker, but worth noting.
-- Does the PR do *less* than the issue asks? Check acceptance criteria.
-- Are there new dependencies introduced? Worth flagging if heavy or unusual.
+## Phase 2: Audit — Does It Actually Work?
 
-### 5. Maintainability (light touch)
-- Is there anything so complex it needs a comment to be understood later?
-- Is anything duplicated that should probably be a shared function?
-- These are suggestions, not blockers, unless the code is genuinely unreadable.
+Go through the code systematically. For each function, module, or logical unit, check:
 
-## What to skip
+### Correctness
+- [ ] Does the logic match the stated intent?
+- [ ] Are there off-by-one errors? (loop bounds, slice indices, pagination)
+- [ ] Are comparisons correct? (`>` vs `>=`, `===` vs `==`, wrong type comparisons)
+- [ ] Is mutable state modified correctly? (mutation when copy was intended, or vice versa)
+- [ ] Are async operations awaited where needed? Any unhandled promise rejections?
+- [ ] Are return values used correctly by callers?
 
-- Formatting, whitespace, naming style (unless the project has a strong convention and this clearly breaks it)
-- Refactoring opportunities unrelated to the change
-- "I would have done this differently" without a concrete reason it matters
+### Edge Cases
+- [ ] Empty inputs (empty array, empty string, zero, null/undefined)
+- [ ] Single-element inputs
+- [ ] Maximum/minimum values
+- [ ] Concurrent access (if relevant)
+- [ ] First/last items in collections
 
-## How to communicate
+### Error Handling
+- [ ] Are errors caught at the right level?
+- [ ] Do errors propagate in a way callers can act on?
+- [ ] Are there silent failures? (catching and swallowing exceptions, returning null instead of throwing)
+- [ ] Is cleanup done correctly on error paths?
 
-**Bugs / correctness issues** — direct, specific, with line or file:
-> "auth.ts:42 — `req.user` could be undefined here if the session has expired. Will throw."
+### Data Flow
+- [ ] Is data transformed correctly at each step?
+- [ ] Are there implicit type coercions that could go wrong?
+- [ ] Are nullable/optional values checked before use?
+- [ ] Is the correct data passed between functions (not stale, not mutated unexpectedly)?
 
-**Missing tests** — state what's untested:
-> "No test for the case where `userId` is null. This path exists in the code."
+### Dependencies and Contracts
+- [ ] Does this code rely on behavior from external functions/APIs that may not hold?
+- [ ] Are there implicit assumptions about the environment (env vars, file paths, network state)?
+- [ ] Do interfaces between components match? (function signatures, API shapes, event payloads)
 
-**Security** — be clear about the risk:
-> "Line 88: `query` is interpolated directly into the SQL string. Use a parameterized query."
+### Tests (if present)
+- [ ] Do existing tests actually cover the main logic paths?
+- [ ] Are there tests for failure cases and edge cases?
+- [ ] Do tests actually assert the right things, or just that nothing throws?
+- [ ] Could a test pass even if the code is wrong?
 
-**Suggestions (non-blocking)** — label them:
-> "Suggestion: this could be extracted into a helper, but not a blocker."
+---
 
-**Scope observations** — neutral, not accusatory:
-> "This touches the billing module which wasn't in the original issue. Worth noting for QA."
+## Phase 3: Report and Fix Plan
 
-## Approve vs. request changes
+### If no issues found
 
-**Approve** when: no bugs, tests cover the meaningful paths, no security issues. Minor suggestions are fine alongside an approval.
+State clearly: "This code appears correct. Here's what I verified: [brief summary of what was checked]." Point out anything worth noting even if not a bug (e.g., fragile patterns, missing tests for edge cases).
 
-**Request changes** when: there's a correctness bug, a missing test for a risky path, or a security issue. Don't block on style.
+### If issues are found
 
-**Comment only** when: you have observations but no strong opinion either way. Useful for large PRs where you reviewed part of the diff.
+For each issue, document:
 
-## Related Skills
+```
+Issue #N: [Short title]
+Severity: Critical | High | Medium | Low
+Location: [file:line or function name]
+Problem: [What is wrong — specific and mechanical, not vague]
+Why it matters: [What goes wrong at runtime when this triggers]
+Reproduction: [Minimal input/state that demonstrates the bug]
+Fix: [What change resolves the root cause]
+```
 
-- **github-cli** — for the `gh pr review` commands to submit the review
-- **diagnostic** — if you need to reason through a bug you found in the diff
+Severity guide:
+- **Critical** — Causes data loss, security vulnerability, crash in normal use, or silently returns wrong results
+- **High** — Causes incorrect behavior in a common case or edge case likely to be hit in production
+- **Medium** — Incorrect in uncommon cases, or code that could break with minor changes to surrounding code
+- **Low** — Doesn't cause bugs now but is fragile, misleading, or will cause bugs later
+
+After listing all issues, produce a **Fix Plan** ordered by priority:
+1. Issues to fix immediately (Critical/High)
+2. Issues to fix before merge (Medium)
+3. Issues to note/defer (Low)
+
+Ask the user: "Should I proceed with the fixes?" — unless the user already said to fix everything, in which case proceed directly.
+
+---
+
+## Phase 4: Apply Fixes
+
+Fix one issue at a time. For each fix:
+
+1. **State what you're changing and why** (one sentence)
+2. **Make the minimum change** that resolves the root cause
+3. **Don't refactor unrelated things** while fixing — stay focused
+4. **After each fix**, briefly confirm: "Fixed: [what was changed]"
+
+When all fixes are applied, move to verification.
+
+---
+
+## Phase 5: Verify
+
+After fixing, validate that the fixes work and nothing broke.
+
+### Run existing tests first
+```bash
+# Run whatever test command is appropriate for this project:
+# npm test / pytest / go test ./... / cargo test / etc.
+```
+
+If tests pass: good. If tests fail: apply the diagnostic-thinking skill before touching anything else.
+
+### Check fix coverage
+For each Critical or High issue fixed:
+- [ ] Is there an existing test that would catch a regression?
+- [ ] If not, write a minimal test that demonstrates the fix works
+
+Test structure:
+```
+Test name: [describes the scenario, not the implementation]
+Setup: [minimal state to reproduce the original bug]
+Action: [call the code]
+Assert: [the correct output or behavior]
+```
+
+### Final run
+Run the full test suite one more time after adding any new tests. Report:
+- Tests passing: N
+- Tests added: N  
+- Issues resolved: N
+
+---
+
+## Anti-Patterns to Avoid
+
+| What it looks like | Why it's a problem |
+|---|---|
+| Reviewing style instead of correctness | Doesn't tell you if the code works |
+| "This looks fine to me" without checking edge cases | The most common bugs live in edge cases |
+| Fixing symptoms instead of root causes | The bug comes back in a different form |
+| Making multiple fixes in one change | You won't know which fix resolved which issue |
+| Skipping verification | The fix may work for the wrong reason |
+| Adding tests that only test the happy path | Gives false confidence |
+| Not understanding intent before auditing | You can't tell if something is wrong without knowing what "right" looks like |
+
+---
+
+## `/review` Command
+
+This skill ships with a `/review` slash command for direct invocation in Claude Code.
+
+**Install:**
+```bash
+# Personal (all projects)
+mkdir -p ~/.claude/commands
+cp <skill-path>/commands/review.md ~/.claude/commands/review.md
+
+# Or project-scoped
+mkdir -p .claude/commands
+cp <skill-path>/commands/review.md .claude/commands/review.md
+```
+
+**Usage:**
+```
+/review                        ← reviews whatever you're currently working on
+/review src/auth/token.ts      ← reviews a specific file
+/review the payment flow       ← reviews a feature area
+/review before I open the PR   ← full review + fix + verify cycle
+```
+
+---
+
+## Quick Reference Checklist
+
+Before signing off on any review:
+
+- [ ] Do I understand what this code is supposed to do?
+- [ ] Have I checked edge cases: empty, null, single-item, boundary values?
+- [ ] Have I checked the error paths, not just the happy path?
+- [ ] Have I verified that data flows correctly between components?
+- [ ] Have I checked that async operations are handled correctly?
+- [ ] Do existing tests actually prove correctness, or just that nothing explodes?
+- [ ] If I fixed something, did I verify it with a test run?
+- [ ] Is every Critical/High issue either fixed or explicitly deferred with a reason?
