@@ -1,11 +1,11 @@
 ---
 name: whatchanged
-description: Show everything that has changed since the last time this command was run — git commits, files, Linear issues, and PRs. Persists a checkpoint so each run only shows new changes. Use this skill whenever the user runs /whatchanged or asks what has changed since the last run.
+description: Generate a management-facing progress report covering everything shipped since the last time the command was run — features delivered, bugs fixed, and work in flight. Persists a checkpoint so each run only covers new changes. Use this skill whenever the user runs /whatchanged or asks for a status report for management.
 ---
 
-# What Changed
+# What Changed — Management Report
 
-Show a focused diff of activity since the last checkpoint. Persist the checkpoint so the next run starts where this one left off.
+Produce a plain-language progress report for a non-technical audience. Lead with shipped value, not implementation detail. Persist a checkpoint so each run covers only the period since the last report.
 
 ## State file
 
@@ -33,145 +33,138 @@ cat .claude/whatchanged 2>/dev/null
 
 - If the file does **not** exist: this is the first run. Print:
 
-  > "No previous checkpoint found. Recording current state as the baseline — run `/whatchanged` again to see future changes."
+  > "No previous checkpoint found. Recording current state as the baseline — run `/whatchanged` again after your next batch of work to generate the first report."
 
-  Then jump straight to **Step 5** (write the checkpoint and stop — do not show a diff).
+  Then jump straight to **Step 5** (write the checkpoint and stop).
 
 - If the file exists: parse `timestamp` and `commit` from it.
 
-## Step 2: Gather changes (run all in parallel)
+## Step 2: Gather data (run all in parallel)
 
-Use the parsed `<commit>` as the git baseline and `<timestamp>` as the time baseline.
+Use `<timestamp>` as the time baseline for all sources and `<commit>` as the git baseline.
 
-### Git commits
+### Linear issues
+
+Call `mcp__claude_ai_Linear__list_teams` to get the team ID, then `mcp__claude_ai_Linear__list_issues` filtered to `updatedAt` >= `<timestamp>`.
+
+Categorise each issue:
+- **Shipped**: status moved to Done or Cancelled within the period
+- **In progress**: status is In Progress and was not Done at the start of the period
+- **Started**: moved from Todo/Backlog to In Progress within the period
+
+For each shipped issue, note the issue type if available (Feature, Bug, Improvement, etc.) — this drives the report grouping in Step 3.
+
+If Linear MCP is unavailable: note "Linear data unavailable" and continue with git/GitHub data only.
+
+### Merged PRs
+
+```
+gh pr list --state merged --json number,title,mergedAt,author,body --limit 50
+```
+
+Filter client-side to `mergedAt` > `<timestamp>`.
+
+For each merged PR, check whether its title or body contains a Linear issue ID (e.g. `FIN-42`, `Closes FIN-42`). PRs that reference a Linear issue are already covered by the Linear section — do not double-count them. PRs with **no Linear issue reference** are untracked work done directly in Claude Code or outside the issue tracker.
+
+If `gh` is unavailable: skip silently and note at the bottom.
+
+### Untracked commits
 
 ```
 git log <commit>..HEAD --oneline --no-merges
 ```
 
-If `<commit>` is no longer in the repo history (e.g. after a rebase): fall back to `--since=<timestamp>`.
+Identify commits that are not covered by any merged PR in the list above (i.e. not reachable from a merged PR's merge commit). These are direct commits with no PR and no Linear issue.
 
-### Files changed
+If `<commit>` is no longer in history (e.g. after a rebase): fall back to `--since=<timestamp>`.
 
-```
-git diff --stat <commit>..HEAD
-```
-
-Summarise by grouping changes under top-level directories. Cap the display at 20 files; if more, show the count.
-
-### Merged PRs
+### Commit count (context only — not shown in body of report)
 
 ```
-gh pr list --state merged --json number,title,mergedAt,author --limit 50
+git log <commit>..HEAD --oneline --no-merges | wc -l
 ```
 
-Filter client-side to PRs where `mergedAt` > `<timestamp>`.
+Used only in the footer line, not in the body.
 
-If `gh` is unavailable: skip silently and note "GitHub data unavailable" at the bottom.
+## Step 3: Write the report
 
-### Open PRs created since last run
-
-```
-gh pr list --state open --json number,title,createdAt,author --limit 50
-```
-
-Filter to `createdAt` > `<timestamp>`.
-
-### Linear issues updated since last run
-
-Call `mcp__claude_ai_Linear__list_teams` to get the team ID, then `mcp__claude_ai_Linear__list_issues` filtered to `updatedAt` >= `<timestamp>`.
-
-Group by status change direction:
-- Newly created (createdAt >= timestamp)
-- Moved to Done/Cancelled
-- Moved to In Progress
-- Everything else updated
-
-If Linear MCP is unavailable: skip silently and note "Linear data unavailable" at the bottom.
-
-## Step 3: Present the changes
+Write in plain language. Avoid technical jargon (no branch names, commit SHAs, file paths, or PR numbers in the body). Use issue titles as written in Linear — they are already the business description.
 
 Use this format. Omit any section that has no items.
 
 ```
-## What changed since <timestamp>
+## Progress Report: <start_date> → <end_date>
 
-### Commits (<N>)
-- <sha7> <message>
-...
+### Delivered
+- <Issue title or synthesized description> — <one sentence plain-language description of the value delivered>
+- ...
 
-### Files changed
-src/
-  foo.ts (M), bar.ts (A)
-lib/
-  util.ts (D)
-<N more files not shown>
+### Bug Fixes
+- <Issue title or synthesized description>
+- ...
 
-### PRs merged (<N>)
-- #N: <title> — @author
+### Other Work
+- <synthesized description of untracked PR or commit>
+- ...
 
-### PRs opened (<N>)
-- #N: <title> — @author
+### In Progress
+- <Issue title> — started <N> days ago
+- ...
 
-### Linear issues
-#### New
-- FIN-N: <title>
-
-#### Shipped (→ Done)
-- FIN-N: <title>
-
-#### Started (→ In Progress)
-- FIN-N: <title>
-
-#### Updated
-- FIN-N: <title>
+### Coming Up (started this period)
+- <Issue title>
+- ...
 
 ---
-Checkpoint: <old-timestamp> → <new-timestamp>
+<N> commits · <N> PRs merged · Period: <start_date> → <end_date>
 ```
 
-If **nothing changed** in any category: print "No changes since `<timestamp>`." and still update the checkpoint.
+**Writing the descriptions under Delivered:**
+- For Linear issues: pull the description from the issue if it has one, otherwise infer from the title
+- For untracked PRs and commits: read the PR title or commit messages and synthesize a plain-language summary of what changed
+- One sentence maximum — what the user/customer can now do, or what was improved, not what the engineer changed
+- Example: "Users can now reset their password via email" not "Added POST /auth/reset endpoint"
 
-## Step 4: Offer actions
+**Grouping untracked work:**
+- Place untracked PRs and direct commits under **Other Work** if they are unclear in nature
+- If the PR title or commit messages clearly indicate a bug fix (`fix:`, `bug:`, resolved an error) move the entry to **Bug Fixes**
+- If they clearly indicate a user-facing feature or improvement, move to **Delivered**
+- Use judgment — do not leave value out of the report just because it lacks a ticket
 
-After showing the summary, offer contextually relevant follow-ups:
+**Grouping tracked work:** if Linear issue types are available, split Delivered into sub-groups (Features, Improvements). If types are not available, use a single Delivered list.
 
-- If there are Linear issues in Done: suggest `/retro` to reflect on shipped work
-- If there are open PRs: suggest `/review` to review them
-- If there are commits but no PRs: suggest `/pr` to open a PR
+If **nothing changed**: print "No changes since `<start_date>`. Nothing to report." and still update the checkpoint.
 
-Only mention actions that are relevant to what was found.
+## Step 4: Offer to share
+
+After presenting the report, ask:
+
+> "Want me to format this for Slack or email?"
+
+- **Slack**: reformat as a compact message with emoji bullets, suitable for pasting into a channel update
+- **Email**: wrap in a short intro line ("Here's a summary of what the team shipped this week:") and a closing line, plain text
+
+Only reformat if the user confirms.
 
 ## Step 5: Write the checkpoint
 
 Always update the checkpoint at the end, even on first run or when nothing changed.
 
 ```
-git rev-parse HEAD
-```
-
-Write `.claude/whatchanged` with:
-
-```
-timestamp=<current ISO-8601 datetime in UTC>
-commit=<HEAD sha>
-```
-
-Example write command:
-```
 printf 'timestamp=%s\ncommit=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$(git rev-parse HEAD)" > .claude/whatchanged
 ```
 
 ## Rules
 
-- Never show changes older than the checkpoint — the point is a focused view, not a full history
-- Always update the checkpoint, even if the run fails mid-way or shows nothing
-- Do not create any Linear issues or PRs from this command — read-only only
+- Write for a manager or stakeholder, not a developer — no SHAs, file names, or branch names in the report body
+- Lead with shipped value; in-progress work is secondary context
+- Never invent descriptions — derive them from the Linear issue title and description only
+- Always update the checkpoint, even when nothing changed
+- Do not create any Linear issues or PRs — read-only only
 - If the state file is corrupt or unparseable: treat it as missing (first-run path)
-- The `.claude/` directory is project-local; do not write the state file anywhere else
 
 ## Related skills
 
-- **retro** — for a deeper retrospective view with action item creation
-- **standup** — for a time-windowed summary oriented around your own activity
-- **release** — for cutting a release based on what changed
+- **retro** — deeper retrospective with pattern analysis and action item creation, for the team rather than management
+- **standup** — developer-focused daily summary of your own activity
+- **release** — cut a GitHub release from the same change set

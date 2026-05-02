@@ -1,6 +1,6 @@
-# /whatchanged - Show changes since the last run
+# /whatchanged - Management progress report since the last run
 
-Show everything that changed since the last time this command was run — commits, files, Jira issues, and PRs — then update the checkpoint so the next run starts here.
+Generate a plain-language progress report for management — features delivered, bugs fixed, and work in flight — covering everything since the last time this command was run. Updates a checkpoint so each run covers only the new period.
 
 ## Usage
 
@@ -8,6 +8,6 @@ Show everything that changed since the last time this command was run — commit
 /whatchanged
 ```
 
-No arguments. The time window is automatically derived from the previous checkpoint stored in `.claude/whatchanged`.
+No arguments. The reporting period is automatically derived from the previous checkpoint stored in `.claude/whatchanged`.
 
 Follow the **whatchanged skill** for the full procedure.

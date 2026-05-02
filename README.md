@@ -197,7 +197,7 @@ gh alias set co 'pr checkout'
 | `/deps` | Audit dependencies |
 | `/triage` | Groom the backlog |
 | `/retro` | Sprint retrospective |
-| `/whatchanged` | Show everything that changed since the last run |
+| `/whatchanged` | Generate a management progress report since the last run |
 | `/release` | Cut a release |
 | `/onboard` | Orient in a new codebase |
 | `/diagnose` | Systematically root-cause a bug before touching any code |
@@ -594,7 +594,7 @@ Useful after returning from time off or at sprint boundaries when the board has 
 
 ---
 
-### `/whatchanged` — Show changes since the last run
+### `/whatchanged` — Management progress report since the last run
 
 ```
 /whatchanged
@@ -602,11 +602,12 @@ Useful after returning from time off or at sprint boundaries when the board has 
 
 What it does:
 1. Reads a checkpoint file (`.claude/whatchanged`) written by the previous run — stores a timestamp and commit SHA
-2. Gathers everything since that checkpoint in parallel: git commits, file diffs, merged and opened PRs, Linear issues grouped by status change
-3. Presents a structured summary: Commits / Files changed / PRs merged / PRs opened / Linear issues (New / Shipped / Started / Updated)
-4. Updates the checkpoint so the next run starts from here
+2. Pulls Linear issues that shipped, started, or are in flight since that checkpoint, plus merged PRs as supporting context
+3. Generates a plain-language report for management: Delivered / Bug Fixes / In Progress / Coming Up — no commit SHAs, no file paths, no branch names
+4. Offers to reformat the report for Slack or email
+5. Updates the checkpoint so the next run covers only the new period
 
-On the **first run**, no diff is shown — the command records the current state as the baseline and exits. Run it again to see future changes.
+On the **first run**, no report is produced — the command records the current state as the baseline. Run it again after work has shipped to generate the first report.
 
 ---
 
@@ -862,7 +863,7 @@ Install the Jira GitHub app in your Jira workspace. Once connected, PRs that inc
 | `/sync` | Detect drift between Jira and branch/PR state |
 | `/triage` | Groom untriaged issues interactively |
 | `/retro` | Sprint retrospective → action items |
-| `/whatchanged` | Show everything that changed since the last run |
+| `/whatchanged` | Generate a management progress report since the last run |
 | `/bugs` | Scan codebase → create Bug issues |
 | `/debt` | Scan codebase → create Task issues tagged tech-debt |
 | `/deps` | Audit dependencies → create issues |
