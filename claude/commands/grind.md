@@ -66,6 +66,18 @@ Classify work type from title/description/labels:
   Print `grind: <id> is non-code — moved to Backlog (needs-human), skipping.` Continue loop; do not implement.
 - **Ambiguous** → SKIP same as non-code (move to Backlog + `needs-human`). Never guess on autonomous runs.
 
+### 2b. Prior-work check (before branching)
+
+Run the **prior-work** skill (autonomous mode) on the issue: is this already solved by a merged PR, existing code, an open branch/PR, or a duplicate issue?
+
+- **Shipped / duplicate / in flight** → **SKIP** — never reimplement and never auto-close. Comment with what you found, then move it out of the queue for a human:
+  ```bash
+  linear issue update <id> --status "Backlog" --label "needs-human"
+  ```
+  Print `grind: <id> appears already solved (PR #188 / ISSUE-29) — flagged needs-human, skipping.` Continue loop; do not implement.
+- **Partial** → proceed, but build on the existing code — reuse the foundation, keep the change minimal, note what was extended in the PR body.
+- **Clear** → proceed normally.
+
 ### 3. Branch (code work)
 
 **Project mode:** if already on `<project-slug>-YYYY-MM-DD` for today, stay. Else:
@@ -176,6 +188,7 @@ grind ✓ ISSUE-12 merged (PR #214). Next cycle.
 |-----------|--------|
 | No issues in Ready for build | STOP LOOP (clean finish) |
 | Non-code / ambiguous issue | SKIP, continue loop |
+| Already solved / duplicate / in flight (prior-work check) | SKIP, flag needs-human, continue loop |
 | Needs product decision | STOP LOOP, issue left In Progress |
 | Tests/build fail (unfixable) | STOP LOOP |
 | Critical/High self-review finding (unfixable) | STOP LOOP, issue left In Progress |

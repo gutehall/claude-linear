@@ -132,18 +132,20 @@ If ambiguous, ask: "Is this code work or non-code work?"
 
 ### Path A: Code Work
 
-1. Set up the branch per scope (project or issue rules above)
-2. Read description and acceptance criteria (issue stays in **Ready for build** while you read)
-3. Explore relevant code
-4. Move the issue to **In Progress**, then implement — minimal solution, follow existing patterns
+1. Read description and acceptance criteria (issue stays in **Ready for build** while you read)
+2. **Prior-work check** — run the **prior-work** skill: has this already been solved (merged PR, existing code, open branch, or duplicate issue)? If it finds a match, present the finding and ask for the next step (proceed / close as done / extend existing / mark duplicate / quit) before branching. Do not skip this.
+3. Set up the branch per scope (project or issue rules above)
+4. Explore relevant code
+5. Move the issue to **In Progress**, then implement — minimal solution, follow existing patterns
 
 **Implementation rules:** read before coding; focused changes only; no unrelated refactors; check acceptance criteria; flag scope creep.
 
 ### Path B: Non-Code Work
 
 1. Read description and acceptance criteria (issue stays in **Ready for build** while you read)
-2. Identify the deliverable
-3. Move the issue to **In Progress**, then help produce it
+2. **Prior-work check** — run the **prior-work** skill: does this deliverable (or a duplicate issue) already exist? If so, present the finding and ask the next step before producing anything new.
+3. Identify the deliverable
+4. Move the issue to **In Progress**, then help produce it
 4. When ready, tell the user to run `/done` with the same scope they used (`/done project` or `/done issue`)
 
 No git branch for non-code work.

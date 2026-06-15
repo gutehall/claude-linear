@@ -63,6 +63,7 @@ Under the hood: the tracker's hosted MCP server gives Claude structured read acc
 | `/split` | Break a large issue into ordered sub-issues |
 | `/estimate` | Bulk t-shirt-size unestimated issues |
 | `/triage` | Groom issues missing priority / labels / estimate |
+| `/dedupe` | Find duplicate / similar issues and collapse them |
 | `/issues` | Browse and filter issues by project |
 | **Code health** | |
 | `/bugs` | Scan the codebase for bugs → issues |
@@ -254,10 +255,11 @@ Claude asks **project** or **issue** scope (skip with `/next project` / `/next i
 
 ### Implementation loop
 
-1. Claude reads the issue, explores the code, implements
-2. Review what'll be committed: `!git status`, `!git diff`
-3. Ship: `/done` (match scope — `/done project` or `/done issue`)
-4. Continue: `/next` with the same scope
+1. Claude reads the issue, then runs a **prior-work check** — if a merged PR, existing code, an open branch, or a duplicate issue already covers it, it surfaces the finding and asks the next step (proceed / close as done / extend the existing work / mark duplicate) before writing any code
+2. Explores the code and implements
+3. Review what'll be committed: `!git status`, `!git diff`
+4. Ship: `/done` (match scope — `/done project` or `/done issue`)
+5. Continue: `/next` with the same scope
 
 If CI fails, `/done` stops and reports what broke. Fix, push to the same branch, re-run `/done` — it reuses the existing PR. Use `/pr` instead of `/done` when you want a teammate to review before merge.
 
@@ -325,7 +327,7 @@ Match the scope you started `/next` with.
 /loop /grind project       # drain the whole project, one issue per cycle
 ```
 
-`/grind` fuses `/next` + implement + `/done` into a single command with **no prompts** — built to run under `/loop` unattended. It resolves scope from the argument, branch, or default project, picks the top ready issue, branches from `main`, implements the minimal change, runs the pre-ship gate (diff review, local tests, code-review pass), pushes, opens a PR, waits for CI, and **arms auto-merge** — GitHub completes the merge once branch protection is satisfied. It never merges directly with absent CI.
+`/grind` fuses `/next` + implement + `/done` into a single command with **no prompts** — built to run under `/loop` unattended. It resolves scope from the argument, branch, or default project, picks the top ready issue, runs a **prior-work check** (already-solved, duplicate, or in-flight issues are flagged `needs-human` and skipped — never reimplemented or auto-closed), branches from `main`, implements the minimal change, runs the pre-ship gate (diff review, local tests, code-review pass), pushes, opens a PR, waits for CI, and **arms auto-merge** — GitHub completes the merge once branch protection is satisfied. It never merges directly with absent CI.
 
 Where `/next`/`/done` would ask a human, `/grind` emits a **STOP LOOP** signal so the loop ends cleanly instead of hanging:
 
@@ -461,6 +463,17 @@ Per issue: shows context, reads referenced code if needed, suggests a t-shirt si
 ```
 
 Presents each untriaged issue with suggested priority, labels, estimate, and project. Accept, edit a field, skip, or quit.
+
+### `/dedupe` — Find and collapse duplicate issues
+
+```
+/dedupe                      # Compare open work (Backlog, Todo, In Progress)
+/dedupe --all                # Include Done/Canceled too
+/dedupe --project "Phase 1"  # Scope to one project
+/dedupe --label bug          # Scope to one label
+```
+
+Clusters duplicate and near-duplicate issues by confidence (duplicate / possible / related), picks a canonical to keep per cluster, then per cluster offers: collapse (copy context into the canonical, cross-link, cancel the duplicate), merge in the Linear UI, link as related, or skip. Never changes anything without confirmation; cancellation is the strongest action (no deletes).
 
 ### `/issues` — Browse and filter issues
 

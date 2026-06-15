@@ -140,11 +140,11 @@ If ambiguous, ask: "Is this code work or non-code work?"
 
 ### Path A: Code Work
 
-Set up branch per scope, read criteria (issue stays in **To Do** while reading), explore code, move to **In Progress**, then implement minimally.
+Read criteria (issue stays in **To Do** while reading), then run the **prior-work** skill — has this already been solved (merged PR, existing code, open branch, or duplicate issue)? If it finds a match, present the finding and ask the next step (proceed / close as done / extend existing / mark duplicate / quit) before branching. Then set up branch per scope, explore code, move to **In Progress**, and implement minimally.
 
 ### Path B: Non-Code Work
 
-Read criteria (issue stays in **To Do** while reading), move to **In Progress**, then produce the deliverable; run `/done project` or `/done issue` when ready. No git branch.
+Read criteria (issue stays in **To Do** while reading), then run the **prior-work** skill — does this deliverable (or a duplicate issue) already exist? If so, present the finding and ask the next step before producing anything. Then move to **In Progress** and produce the deliverable; run `/done project` or `/done issue` when ready. No git branch.
 
 ---
 
