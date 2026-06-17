@@ -58,6 +58,7 @@ Under the hood: the tracker's hosted MCP server gives Claude structured read acc
 | **Planning** | |
 | `/think` | Reason through a problem before any issues exist |
 | `/vision` | Strategic 1–3 year direction for a project |
+| `/evolve` | Plan the next version of an existing solution from its code |
 | `/plan` | Draft and create issues with acceptance criteria |
 | `/scope` | Audit a project for gaps and unclear issues |
 | `/split` | Break a large issue into ordered sub-issues |
@@ -416,6 +417,17 @@ A structured conversation to figure out what to build and why — no tracker rea
 ```
 
 Reads current state (open projects, `product.md`, README, recent git log), then works through forces of change, capability gaps, strategic bets, and assumption stress-tests. Produces a vision document with a hand-off to `/plan`.
+
+### `/evolve` — Plan the next version of an existing solution
+
+```
+/evolve                          # Open-ended: what should the next version be?
+/evolve "the API"                # Focus on a component
+/evolve "make it multi-tenant"   # Evolve toward a goal
+/evolve "v2"                     # Major-version rethink
+```
+
+Grounds the goal, then **reads the actual code** — structure, load-bearing parts, where the limits are — and proposes concrete improvements anchored to real files. Pressure-tests each (value, blast radius, reversibility), finds the smallest valuable version, and lays out a migration path. Defaults to incremental over rewrite. Produces a code-anchored brief for `/plan`. Differs from `/think` (reads code first) and `/vision` (concrete, not long-horizon).
 
 ### `/plan` — Plan work and create issues
 
