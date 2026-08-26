@@ -32,7 +32,7 @@ Run these in parallel; each is cheap. Use the issue's key terms (feature name, f
    The Jira GitHub dev panel also surfaces linked PRs — `jira issue view <key>` or the Atlassian MCP shows development links; a merged-PR link is the strongest "shipped" signal.
 
 2. **Duplicate or sibling issues**
-   Use the Atlassian MCP search (`mcp__claude_ai_Atlassian__`) or `jira issue list` to pull candidates, then compare by summary/description (same signals the **dedupe** skill uses). A near-identical issue that's Done → likely shipped; one that's open/in-progress → duplicate or parallel work. Check existing **Duplicate** links on the issue too.
+   Use the Atlassian MCP's issue-search tool (check your available `mcp__claude_ai_Atlassian__*` tools for the exact name) or `jira issue list` to pull candidates, then compare by summary/description (same signals the **dedupe** skill uses). A near-identical issue that's Done → likely shipped; one that's open/in-progress → duplicate or parallel work. Check existing **Duplicate** links on the issue too.
 
 3. **Existing implementation in the code**
    Search the repo for the capability the issue asks for — function names, routes, config keys, UI strings from the acceptance criteria. If the feature is already present and meets the criteria, it's shipped (the issue is stale). If part of it exists, it's partial — extend it.

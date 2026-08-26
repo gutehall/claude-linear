@@ -29,7 +29,7 @@ For completed work, prefer `/done` — it handles commit, push, PR, and offers `
    - Failures → **stop and report; do not push.** Only exception: the user explicitly wants a WIP PR — push with `--draft` and state the failures in the body.
    - No test/build tooling → say so; state it in the PR body too.
 
-5. **Self-review** — run the **code-review** skill (Phases 1–2: Understand → Audit) on `git diff <base>..HEAD`. Fix Critical/High findings before pushing; list unresolved Medium/Low under "Known issues" in the PR body.
+5. **Self-review** — run the **code-review** skill on `git diff <base>..HEAD`. Fix any correctness bug, missing test for a risky path, or security issue before pushing; list unresolved suggestions or scope observations under "Known issues" in the PR body.
 
 6. **Push:**
    ```bash
@@ -41,7 +41,7 @@ For completed work, prefer `/done` — it handles commit, push, PR, and offers `
 8. **Build PR body:**
    - Brief bullet summary of what changed
    - `## Test plan` with the real commands and results from step 4 — never an unchecked checkbox
-   - `## Known issues` for unresolved Medium/Low findings from step 5, if any
+   - `## Known issues` for unresolved suggestions or scope observations from step 5, if any
    - `Closes PROJ-12` at the end (triggers GitHub-Jira integration if configured)
 
 9. **Create PR:**

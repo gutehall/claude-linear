@@ -125,18 +125,7 @@ It is always better to say "I need to understand this better before I can fix it
 
 ## `/diagnose` Command
 
-This skill ships with a `/diagnose` command for direct invocation in Claude Code.
-
-**Install** — copy the command file to your commands folder:
-```bash
-# Personal (available in all projects)
-mkdir -p ~/.claude/commands
-cp <skill-path>/commands/diagnose.md ~/.claude/commands/diagnose.md
-
-# Or project-scoped
-mkdir -p .claude/commands
-cp <skill-path>/commands/diagnose.md .claude/commands/diagnose.md
-```
+This skill is invoked by the `/diagnose` command (`claude/commands/diagnose.md`), installed the same way as the rest of this package — see the "Testing changes" section of the repo's CLAUDE.md.
 
 **Usage:**
 ```

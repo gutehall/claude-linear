@@ -28,16 +28,19 @@ Create Jira issues directly, without clipboard or intermediate steps.
    - Draft issues with clear summaries, descriptions, and acceptance criteria
 
 4. **Create an epic and issues via CLI** directly:
-   - First create an epic to group the work if one doesn't exist: `jira epic create -n"<epic name>" -s"<summary>"` — leave it in **Backlog** status (do not transition it forward)
+   - First create an epic to group the work if one doesn't exist: `jira epic create -s"<epic name>" -b"<summary>"` — leave it in **Backlog** status (do not transition it forward)
    ```bash
    jira issue create -tStory -s"<title>" -b"<description>" --priority Medium
    ```
    - Print each created issue ID and title
    - Link to the parent epic: `jira issue create -tStory --parent PROJ-100 -s"..."`
    - New issues stay in **Backlog** — do **not** add them to the active sprint at planning time
+   - Set at least one label on each issue (e.g. feature, bug, improvement)
+   - Sequence the issues per the product-planning skill (priority + `blocks` links) so implementation order is visible, not just implied
 
-5. **Offer to start:**
-   - Suggest `/next <ID>` for the highest-priority issue created
+5. **Offer next steps:**
+   - Suggest `/estimate` to size the newly created issues before picking one up
+   - Then suggest `/next <ID>` for the highest-priority issue once estimated
    - When implementation is done, use `/done` or `/pr` to push and open a PR
 
 ## Error Handling
@@ -51,7 +54,8 @@ Create Jira issues directly, without clipboard or intermediate steps.
 
 - Always read current Jira state before planning — don't create duplicates
 - Always group issues under an epic (check existing epics first) — new epics and issues start in **Backlog**, not the active sprint
-- Issues need: summary, description, acceptance criteria, type, priority
+- Issues need: summary, description, acceptance criteria, type, priority, and at least one label
+- Issues must be sequenced (priority + `blocks` links) so the first issue to work on is clear
 - Keep issues small enough to implement in one PR (Story/Task)
 - Use Epic for large initiatives, Story for features, Bug for defects, Task for ops/chores
 - No clipboard, no JSON payload, no external scripts

@@ -70,7 +70,7 @@ Don't skip files that look tidy — debt hides in overlooked corners.
 ## Creating Jira issues
 
 Rank all findings first, then create issues in order: Highest → High → Medium → Low.
-Creating in priority order ensures the backlog is correctly sorted.
+Creating in priority order ensures the backlog is correctly sorted. Ask if issues should be created under an existing epic or left unassigned.
 
 **Summary format:** `[DebtType] Short description`
 Example: `[Missing Tests] No test coverage for auth token validation`

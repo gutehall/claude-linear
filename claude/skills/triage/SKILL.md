@@ -121,5 +121,5 @@ List each triaged issue ID and title.
 
 ## Related skills
 
-- **linear-cli** — full MCP tool reference for issue and label management
+- **linear-cli** — full Linear CLI reference for bulk issue and label management
 - **product-planning** — for planning new issues after a triage pass

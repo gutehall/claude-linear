@@ -177,18 +177,7 @@ Run the full test suite one more time after adding any new tests. Report:
 
 ## `/review` Command
 
-This skill ships with a `/review` slash command for direct invocation in Claude Code.
-
-**Install:**
-```bash
-# Personal (all projects)
-mkdir -p ~/.claude/commands
-cp <skill-path>/commands/review.md ~/.claude/commands/review.md
-
-# Or project-scoped
-mkdir -p .claude/commands
-cp <skill-path>/commands/review.md .claude/commands/review.md
-```
+This skill is invoked by the `/review` command (`claude/commands/review.md`), installed the same way as the rest of this package — see the "Testing changes" section of the repo's CLAUDE.md.
 
 **Usage:**
 ```

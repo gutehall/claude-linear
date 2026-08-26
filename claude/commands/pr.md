@@ -61,5 +61,5 @@ Follow the **github-cli** skill's "Push rejected (diverged history)" procedure. 
 - Body **must** contain `Closes <ID>` — this triggers Linear's GitHub integration
 - Base branch: detect with `git remote show origin | grep 'HEAD branch'`, default to `main`
 - If a PR already exists for this branch (`gh pr view`), report the existing URL instead of creating a duplicate
-- Do NOT run `linear done` — GitHub integration moves the Linear issue when the PR merges
+- Do NOT run `linear issue close` — GitHub integration moves the Linear issue when the PR merges
 - Follow the github-cli skill for PR body formatting

@@ -81,7 +81,7 @@ If a command exits non-zero with no parseable output: show raw error, skip, cont
 ## Creating Jira issues
 
 Rank all findings first, then create issues in order: Highest → High → Medium → Low.
-Creating in priority order ensures the backlog is correctly sorted.
+Creating in priority order ensures the backlog is correctly sorted. Ask if issues should be created under an existing epic or left unassigned.
 
 **Summary for vulnerabilities:** `[Security] <package>@<current>: <CVE or brief description>`
 

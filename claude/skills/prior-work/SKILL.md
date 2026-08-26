@@ -1,6 +1,6 @@
 ---
 name: prior-work
-description: Before implementing a Linear issue, check whether the same work has already been done — a merged PR, existing code, an open branch, or a duplicate issue. Use this skill whenever picking up an issue to implement (/next, /grind, /autopilot, /start) so effort isn't duplicated and already-solved work is caught before any code is written.
+description: Before implementing a Linear issue, check whether the same work has already been done — a merged PR, existing code, an open branch, or a duplicate issue. Use this skill whenever picking up an issue to implement (/next, /grind, /autopilot) so effort isn't duplicated and already-solved work is caught before any code is written.
 ---
 
 # Prior-Work Check

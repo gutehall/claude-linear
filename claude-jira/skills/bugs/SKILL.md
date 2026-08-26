@@ -73,7 +73,7 @@ Don't skip files that look clean — bugs hide in boring code.
 ## Creating Jira issues
 
 Rank all findings first, then create issues in order: Highest → High → Medium → Low.
-Creating in priority order ensures the backlog is correctly sorted.
+Creating in priority order ensures the backlog is correctly sorted. Ask if issues should be created under an existing epic or left unassigned.
 
 **Summary format:** `[Category] Short description`
 Example: `[Security] SQL injection in user search endpoint`

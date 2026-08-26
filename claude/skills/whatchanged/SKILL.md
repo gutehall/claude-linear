@@ -165,6 +165,6 @@ printf 'timestamp=%s\ncommit=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$(git rev-p
 
 ## Related skills
 
-- **retro** — deeper retrospective with pattern analysis and action item creation, for the team rather than management
-- **standup** — developer-focused daily summary of your own activity
 - **release** — cut a GitHub release from the same change set
+
+See also the `/standup` command for a developer-focused daily summary of your own activity.

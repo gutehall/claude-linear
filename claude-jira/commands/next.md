@@ -2,7 +2,7 @@
 
 Works for any type of issue — code, documents, decks, reviews, planning, ops tasks. Supports **project** mode (one branch, multiple issues in an epic) or **issue** mode (one branch per issue).
 
-In Jira, **project mode** uses an epic as the batch unit (Linear's equivalent of a project).
+**Project mode** uses an epic as the batch unit — one branch covers every issue in the epic.
 
 ## Usage
 
@@ -68,7 +68,7 @@ Then, **when you begin actually working** (writing code or producing the deliver
 
 ### Project branch (code work)
 
-Branch: `<epic-slug>-YYYY-MM-DD` (from epic summary; max 40 chars; slug rules as Linear project slug).
+Branch: `<epic-slug>-YYYY-MM-DD` (from epic summary; max 40 chars; lowercase, hyphenated slug).
 
 - If already on matching epic branch for today, stay on it.
 - Otherwise branch from `main` (default; use `develop` if the repo has no `main`):
@@ -142,6 +142,8 @@ If ambiguous, ask: "Is this code work or non-code work?"
 
 Read criteria (issue stays in **To Do** while reading), then run the **prior-work** skill — has this already been solved (merged PR, existing code, open branch, or duplicate issue)? If it finds a match, present the finding and ask the next step (proceed / close as done / extend existing / mark duplicate / quit) before branching. Then set up branch per scope, explore code, move to **In Progress**, and implement minimally.
 
+**Implementation rules:** read before coding; focused changes only; no unrelated refactors; check acceptance criteria; flag scope creep.
+
 ### Path B: Non-Code Work
 
 Read criteria (issue stays in **To Do** while reading), then run the **prior-work** skill — does this deliverable (or a duplicate issue) already exist? If so, present the finding and ask the next step before producing anything. Then move to **In Progress** and produce the deliverable; run `/done project` or `/done issue` when ready. No git branch.
@@ -150,17 +152,23 @@ Read criteria (issue stays in **To Do** while reading), then run the **prior-wor
 
 ## Product planning (issue mode only)
 
-If the user chooses "Product planning", follow the product-planning skill.
+If the user chooses "Product planning", ask what to focus on (backlog, features, next phase) and follow the product-planning skill.
 
 ---
 
-## No work available
+## No work available (project mode)
 
-**Project:** no To Do children → show status; offer `/plan`.
+1. `jira issue list --epics <epic-key> --plain`
+2. All blocked → show blockers; suggest `/plan`
+3. No open issues in the epic → offer `/plan` or `jira issue move <epic-key> "Done"` to close the epic
+4. Jira not configured → say to run `jira init`
 
-**Issue:** no To Do → show In Progress/blocked; offer `/plan`.
+## No issues in To Do (issue mode)
 
-**Jira not configured:** say to run `jira init`.
+1. `jira issue list -a"$(jira me)" --plain`
+2. All blocked → show blockers; offer `/plan`
+3. Empty backlog → offer Product planning or `/plan "..."`
+4. Jira not configured → say to run `jira init`
 
 ## Notes
 

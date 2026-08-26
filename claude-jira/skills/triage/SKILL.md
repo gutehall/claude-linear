@@ -56,6 +56,20 @@ For each issue, run `jira issue view <key>` and analyze the summary and descript
 - Match on content: "bug" for defects, "security" for auth/vulnerability issues, "performance" for speed concerns
 - Do not invent labels — suggest only common, logical values
 
+### Estimate
+
+Use the sizes from the **estimate** skill:
+
+| Size | Story points | Criteria |
+|------|--------------|----------|
+| XS | 1 | Trivial change, one file, clearly understood |
+| S | 2 | Small, well-scoped, a few files |
+| M | 3 | Moderate scope, some uncertainty |
+| L | 5 | Significant work, multiple components |
+| XL | 8 | Large, not well-defined, or clearly a multi-PR effort |
+
+Do not suggest an estimate if one is already set. Story points depend on field config — apply via whichever method works for this project (e.g. `jira issue edit <key> --custom "story_points=<n>"`).
+
 ### Epic
 
 - Only suggest a parent epic if the issue clearly belongs to one
@@ -70,12 +84,13 @@ Present one issue at a time:
 Title: <summary>
 Type: <type>
 Description: <first 200 chars or "(no description)">
-Current: priority=<value or unset>, labels=<values or none>
+Current: priority=<value or unset>, labels=<values or none>, estimate=<value or none>
 
 Suggested:
   priority: High
   type: Bug  (or "(keep current)" if already set)
   labels: [bug, auth]
+  estimate: S
   epic: PROJ-100 — Auth System  (or "(none)")
 
 [Enter] Accept  [e] Edit  [s] Skip  [q] Quit
@@ -92,6 +107,7 @@ Print: `Updated PROJ-42.`
 - `Priority [Highest / High / Medium / Low / Lowest / Enter to keep]:`
 - `Type [Epic / Story / Bug / Task / Enter to keep]:`
 - `Labels [comma-separated / Enter to keep]:`
+- `Estimate [XS / S / M / L / XL / Enter to keep]:`
 - `Epic key [PROJ-100 / Enter to keep / n for none]:`
 
 Then apply via `jira issue edit`. Print: `Updated PROJ-42.`
@@ -124,4 +140,5 @@ List each triaged issue key and summary.
 ## Related skills
 
 - **jira-cli** — full CLI reference for issue management
+- **estimate** — t-shirt sizing criteria used by the estimate suggestion above
 - **product-planning** — for planning new issues after a triage pass

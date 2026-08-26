@@ -68,7 +68,7 @@ Then classify work type from title/description/labels:
 - **Code work** → continue
 - **Non-code work** (doc, deck, plan, research, comms) → **SKIP**: move it **out of the queue** so the next cycle does not re-pick it:
   ```bash
-  linear issue update <id> --status "Backlog" --label "needs-human"
+  linear issue update <id> --status "Backlog" --label "auto-claude" --label "needs-human"
   ```
   Print `autopilot: <id> is non-code — moved to Backlog (needs-human), skipping.` Continue loop; do not implement. (Leave the `auto-claude` label in place so a human can re-queue it after handling.)
 - **Ambiguous** → SKIP same as non-code. Never guess on autonomous runs.
@@ -79,7 +79,7 @@ Run the **prior-work** skill (autonomous mode): is this already solved by a merg
 
 - **Shipped / duplicate / in flight** → **SKIP** — never reimplement and never auto-close. Comment with what you found, then move it out of the queue for a human (leave `auto-claude` in place so they can re-queue):
   ```bash
-  linear issue update <id> --status "Backlog" --label "needs-human"
+  linear issue update <id> --status "Backlog" --label "auto-claude" --label "needs-human"
   ```
   Print `autopilot: <id> appears already solved (PR #188 / ISSUE-29) — flagged needs-human, skipping.` Continue loop; do not implement.
 - **Partial** → proceed, but build on the existing code — reuse the foundation, keep the change minimal, note what was extended in the PR body.

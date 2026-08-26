@@ -285,7 +285,7 @@ git log --oneline -5
 - Do **not** run `linear issue close` before merge
 - If integration does not close the issue after merge, run `linear issue close <id>` as fallback
 - No commits → skip PR and note it
-- Worktree: show cleanup commands after PR creation
+- Worktree: show cleanup commands (`git worktree remove <path>`) after PR creation
 
 ### If push is rejected (both code paths)
 

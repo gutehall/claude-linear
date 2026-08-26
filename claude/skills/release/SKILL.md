@@ -187,4 +187,5 @@ ls CHANGELOG.md 2>/dev/null
 ## Related skills
 
 - **linear-cli** — for managing Linear issues if release notes need to cross-reference work items
-- **done** — for closing the issue that tracked the release milestone
+
+See also the `/done` command for closing the issue that tracked the release milestone.

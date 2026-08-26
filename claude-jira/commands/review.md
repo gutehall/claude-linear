@@ -52,7 +52,7 @@ Report:
 a) Approve              → gh pr review <number> --approve
 b) Request changes      → gh pr review <number> --request-changes -b "reason"
 c) Comment only         → gh pr review <number> --comment -b "comment"
-d) Check out locally    → gh co <number>
+d) Check out locally    → gh pr checkout <number>
 e) Skip                 → continue
 ```
 

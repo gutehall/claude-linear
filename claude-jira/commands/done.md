@@ -63,9 +63,9 @@ Record the exact commands and their results — they go into the PR body's test 
 
 ### G3. Self-review the code
 
-Run the **code-review** skill (Phases 1–2: Understand → Audit) against the full diff (`git diff <base>..HEAD`):
+Run the **code-review** skill against the full diff (`git diff <base>..HEAD`):
 
-- **Critical/High** findings → fix now, re-run G2, then continue
+- **Correctness bug, missing risky-path test, or security issue** → fix now, re-run G2, then continue
 - **Medium** → fix now, or list under "Known issues" in the PR body — never silently drop
 - **Low** → note in the PR body or propose a follow-up issue
 
@@ -127,7 +127,7 @@ Closes PROJ-12
 
 ## Known issues
 
-- (Medium/Low findings from G3 not fixed in this PR, if any)
+- (Unresolved suggestions or scope observations from G3 not fixed in this PR, if any)
 EOF
 )"
 ```
@@ -173,6 +173,7 @@ git checkout <base> && git pull
 
 - One PR per epic branch from `/done project`
 - Without GitHub-Jira integration: `jira issue move <id> "Done"` per issue after merge
+- No commits → skip PR and note it
 
 ---
 
@@ -262,6 +263,8 @@ git checkout <base> && git pull
 - PR title and body must include issue key; `Closes PROJ-42` for auto-transition
 - Without integration: `jira issue move PROJ-42 "Done"` after merge
 - Smart Commits: `PROJ-42 #done #comment …` if DVCS connector is enabled
+- No commits → skip PR and note it
+- Worktree: show cleanup commands (`git worktree remove <path>`) after PR creation
 
 ### If push is rejected (both code paths)
 

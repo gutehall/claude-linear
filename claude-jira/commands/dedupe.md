@@ -15,7 +15,7 @@ Scan a Jira project for duplicate and near-duplicate issues, cluster them, and w
 
 ### 1. Load issues
 
-Use the Atlassian MCP (`mcp__claude_ai_Atlassian__` search) for rich reads, or `jira issue list`. Filter to the set implied by the flag (default: open statuses — exclude Done/Closed).
+Use the Atlassian MCP's issue-search tool (check your available `mcp__claude_ai_Atlassian__*` tools for the exact name) for rich reads, or `jira issue list`. Filter to the set implied by the flag (default: open statuses — exclude Done/Closed).
 
 Report: `Comparing N issues for duplicates.`
 

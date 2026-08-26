@@ -88,7 +88,7 @@ jira epic create -s"Phase 2: Payments"
 jira issue create -tStory -s"Add Stripe integration" --parent PROJ-20
 ```
 
-### 5. Prioritize
+### 5. Prioritize and sequence
 
 Jira priority levels: Highest → High → Medium → Low → Lowest
 
@@ -96,6 +96,10 @@ Jira priority levels: Highest → High → Medium → Low → Lowest
 jira issue edit PROJ-12 --priority High
 jira issue edit PROJ-13 --priority Medium
 ```
+
+`jira-cli` has no backlog-reorder command, so encode implementation order two ways instead of relying on priority alone:
+- Set priority so the higher-value, earlier-to-work issue outranks issues that depend on it or matter less
+- Link dependencies explicitly: `jira issue link PROJ-12 PROJ-13 "blocks"` (design before build) so the intended sequence is visible in the issue graph, not just implied by priority
 
 For ordering within a sprint, use the board drag-drop in the Jira UI, or set priorities to reflect relative importance.
 
@@ -155,4 +159,3 @@ Track progress throughout the session, then summarize:
 ## Related Skills
 
 - **jira-cli** — full Jira CLI command reference for creating and managing issues once planning is done.
-- **quick-start** — when the user wants to start immediately without creating tickets first. Use instead of product-planning for small, focused, immediate work.

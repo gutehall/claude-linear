@@ -17,7 +17,7 @@ False positives waste the user's time and risk losing tracked work. Bias toward 
 
 Use the Atlassian MCP for rich reads and `jira` CLI for writes:
 
-1. `mcp__claude_ai_Atlassian__` search to pull the issue set (or `jira issue list`)
+1. The Atlassian MCP's issue-search tool (check your available `mcp__claude_ai_Atlassian__*` tools for the exact name) to pull the issue set (or `jira issue list`)
 2. Read titles, descriptions, and where useful, comments
 
 By default compare **open work** (not yet Done/Closed). Honor flags that widen the set:

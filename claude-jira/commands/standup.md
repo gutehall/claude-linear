@@ -12,6 +12,7 @@ Use the Jira CLI and git to generate a standup summary.
    - Issues you recently completed: `jira issue list -a"$(jira me)" -s"Done" --plain`
    - Issues currently in progress: `jira issue list -a"$(jira me)" -s"In Progress" --plain`
    - Issues in review: `jira issue list -a"$(jira me)" -s"In Review" --plain`
+   - Blocked issues: `jira issue list -a"$(jira me)" -s"Blocked" --plain` (if the project has no Blocked status, check flagged/"blocked"-labeled issues instead)
 
 3. **Fetch recent GitHub activity:**
    - `git log --oneline --since="<N> days ago" --author="$(git config user.email)"` (use the lookback window from step 1)
@@ -28,6 +29,9 @@ Today (in progress):
 
 In review:
 ⏳ PROJ-X: Issue summary (PR #N)
+
+Blocked:
+⊘ PROJ-X: Issue summary (reason if available)
 
 Recent commits:
 - repo: N commits

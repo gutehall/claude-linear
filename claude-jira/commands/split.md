@@ -44,7 +44,7 @@ Decompose an L or XL issue into smaller, independently trackable child issues. A
    ```bash
    jira issue comment add PROJ-12 "Split into child issues: PROJ-13, PROJ-14, PROJ-15, PROJ-16"
    ```
-   Update the parent priority to Highest if not already, to signal it's a large initiative.
+   Update the parent estimate to reflect the full scope — don't leave it unchanged (Jira story points depend on field config; use whichever method the **estimate** skill documents for this project, e.g. `jira issue edit PROJ-12 --custom "story_points=<n>"`).
 
 7. **Offer to start the first unblocked child issue:** "Run `/next PROJ-13` to begin."
 

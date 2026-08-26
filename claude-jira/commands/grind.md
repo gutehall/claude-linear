@@ -114,7 +114,7 @@ Implement the **minimal** solution against the acceptance criteria. Rules:
 
 1. **Diff review** — read `git status` and the **full** `git diff`. Stage only changes that belong to <key>; drop debug prints, stray files, and unrelated edits. Never blind-stage with `git add -A`.
 2. **Local verification** — detect and run the project's test and build commands (re-run after the diff review even if step 4 already ran them). Record the exact commands and results — they go into the PR body. Unfixable failure → **STOP LOOP**.
-3. **Self-review** — run the **code-review** skill (Phases 1–2: Understand → Audit) on `git diff <base>..HEAD`. Critical/High findings → fix, then re-run verification. Unfixable Critical/High → **STOP LOOP**, leave issue In Progress, print `grind: <key> failed self-review — <finding>. Stopping loop.`
+3. **Self-review** — run the **code-review** skill on `git diff <base>..HEAD`. Correctness bug, missing risky-path test, or security issue → fix, then re-run verification. Unfixable → **STOP LOOP**, leave issue In Progress, print `grind: <key> failed self-review — <finding>. Stopping loop.`
 
 ### 6. Ship (follow `/done`, non-interactive)
 
@@ -197,11 +197,11 @@ grind ✓ PROJ-12 merged (PR #214). Next cycle.
 | Already solved / duplicate / in flight (prior-work check) | SKIP, flag needs-human, continue loop |
 | Needs product decision | STOP LOOP, issue left In Progress |
 | Tests/build fail (unfixable) | STOP LOOP |
-| Critical/High self-review finding (unfixable) | STOP LOOP, issue left In Progress |
+| Unfixable correctness/security self-review finding | STOP LOOP, issue left In Progress |
 | No commits produced | STOP LOOP |
 | Rebase conflict | STOP LOOP, no force-push |
 | CI fail | STOP LOOP |
 | No CI checks configured | STOP LOOP, PR left open for manual review |
 | PR awaiting required review | STOP LOOP (clean — auto-merge armed) |
 
-Never: prompt the user, guess work type, force-push, merge with failing or absent CI, or transition to Done before merge.
+Never: prompt the user, pick blocked work, guess work type, force-push, merge with failing or absent CI, or transition to Done before merge.

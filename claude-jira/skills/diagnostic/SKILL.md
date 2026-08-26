@@ -65,3 +65,56 @@ Verify it worked: run the thing, check the output, confirm the error is gone.
 - Do not write any code until Phase 4
 - If you cannot confirm a hypothesis with available information, say so and ask for the specific output or file you need
 - "I need X before I can fix this" is always better than applying a guess
+
+---
+
+## Anti-Patterns to Actively Avoid
+
+| What it looks like | Why it's a problem |
+|---|---|
+| Trying the most common fix for an error message without reading context | Fixes a different instance of the same-looking error |
+| Making multiple changes at once | You won't know which one worked (or caused a new problem) |
+| "Let me try X and see if that helps" | You're now debugging by lottery |
+| Fixing the line that threw the error | The error is often thrown far from where it was caused |
+| Assuming the same fix as last time | Context changes; the same symptom can have different causes |
+| Not verifying after fixing | The fix may work for the wrong reason, leaving a latent bug |
+
+---
+
+## When You're Stuck
+
+If you've gone through this and still don't understand the problem:
+
+1. **Say so clearly** — "I don't have enough information to diagnose this confidently. I need to see X."
+2. **Ask a targeted question** — not "can you give me more context?" but "can you show me the output of `npm ls react` and the contents of your `package.json`?"
+3. **Build a minimal reproduction** — if the real codebase is complex, strip it down until the error is isolated
+
+It is always better to say "I need to understand this better before I can fix it" than to run three wrong fixes in a row.
+
+---
+
+## `/diagnose` Command
+
+This skill is invoked by the `/diagnose` command (`claude-jira/commands/diagnose.md`), installed the same way as the rest of this package — see the "Testing changes" section of the repo's CLAUDE.md.
+
+**Usage:**
+```
+/diagnose TypeError: Cannot read properties of undefined (reading 'map')
+/diagnose the build fails after I added the new env variable
+/diagnose   ← (no args — Claude will ask what's broken)
+```
+
+The command forces the full 5-phase protocol: gather facts → hypotheses → diagnostic → fix → explain. It cannot be shortcut.
+
+---
+
+## Quick Reference Checklist
+
+Before writing any fix:
+
+- [ ] Have I read the full error, not just the last line?
+- [ ] Do I know *where in the system* the failure originates?
+- [ ] Have I generated multiple hypotheses, not just one?
+- [ ] Have I run a diagnostic to confirm which hypothesis is right?
+- [ ] Is my fix addressing the root cause, not the symptom?
+- [ ] Will I verify it worked after applying it?
