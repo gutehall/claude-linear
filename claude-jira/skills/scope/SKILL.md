@@ -9,7 +9,7 @@ How to look at a project's issues and find what's missing, unclear, or out of or
 
 ## Mindset
 
-You're not padding the backlog — you're finding things that will surprise the team mid-sprint. The test for whether a gap is worth raising: would discovering it mid-implementation block progress or change the plan?
+You're not padding the backlog — you're finding things that will surprise the team mid-sprint. Test for whether a gap is worth raising: would discovering it mid-implementation block progress or change the plan?
 
 Ask before creating anything. Present findings; let the user decide what to act on.
 
@@ -23,20 +23,20 @@ An issue is unclear if someone picking it up tomorrow couldn't start without ask
 - No story point estimate
 
 ### Scope gaps
-Work that's implied by the project goals but not tracked anywhere. Sources:
+Work implied by project goals but not tracked anywhere. Sources:
 - `product.md` mentions a feature or requirement with no corresponding issue
-- An issue's acceptance criteria mentions a dependency that has no ticket
+- An issue's acceptance criteria mentions a dependency with no ticket
 - An epic has a logical step clearly missing (e.g., "design" and "deploy" but no "implement")
 - Integration points mentioned in one issue that another team/system would need to handle
 
 ### Issues not in any sprint
-Open issues that haven't been added to a sprint tend to get forgotten. Either pull them into the active sprint or confirm they're intentionally deferred to the backlog.
+Open issues not added to a sprint tend to get forgotten. Either pull them into the active sprint or confirm they're intentionally deferred to the backlog.
 
 ### Stale in-progress
-Issues that have been "In Progress" for an unusually long time relative to their estimate. May be blocked, abandoned, or just forgotten. Worth a conversation.
+Issues "In Progress" for an unusually long time relative to their estimate. May be blocked, abandoned, or just forgotten. Worth a conversation.
 
 ### Oversized issues
-L/XL issues (or Epics being treated as a single unit of work) that haven't been broken into child issues. These are planning liabilities — hard to schedule, easy to underestimate. Flag them with a suggestion to `/split`.
+L/XL issues (or Epics treated as a single unit of work) not broken into child issues. Planning liabilities — hard to schedule, easy to underestimate. Flag them with a suggestion to `/split`.
 
 ## How to assess gaps
 
@@ -44,11 +44,13 @@ Read `product.md` first. Without it, you're guessing at intended scope.
 
 For each epic or sprint: trace through the work like a user journey or a data flow. What needs to happen for this epic to deliver its stated goal? Is there a child issue for each step?
 
-Don't invent requirements. If you're unsure whether something is missing or just out of scope, say so and let the user decide.
+Don't invent requirements. If unsure whether something is missing or just out of scope, say so and let user decide.
+
+For projects with >20 issues, delegate the per-epic/per-sprint tracing pass to a subagent: hand it the issue list and `product.md`, have it run the assessment above, return only the grouped findings (next section's format) — not per-issue read output.
 
 ## Presenting findings
 
-Group by category and be specific — include issue keys, not just counts:
+Group by category, be specific — include issue keys, not just counts:
 
 ```
 Unclear (3):

@@ -9,7 +9,7 @@ Produce a plain-language progress report for a non-technical audience. Lead with
 
 ## State file
 
-The checkpoint lives at `.claude/whatchanged` in the project root (create `.claude/` if it does not exist).
+Checkpoint lives at `.claude/whatchanged` in the project root (create `.claude/` if it doesn't exist).
 
 File format (plain text, two lines):
 
@@ -31,13 +31,13 @@ commit=a3f9d12e8b1c4f7a0e2d5b6c9f3a8e1d4b7c0f2
 cat .claude/whatchanged 2>/dev/null
 ```
 
-- If the file does **not** exist: this is the first run. Print:
+- File does **not** exist: first run. Print:
 
   > "No previous checkpoint found. Recording current state as the baseline — run `/whatchanged` again after your next batch of work to generate the first report."
 
   Then jump straight to **Step 5** (write the checkpoint and stop).
 
-- If the file exists: parse `timestamp` and `commit` from it.
+- File exists: parse `timestamp` and `commit` from it.
 
 ## Step 2: Gather data (run all in parallel)
 
@@ -49,12 +49,12 @@ Call `mcp__claude_ai_Linear__list_teams` to get the team ID, then `mcp__claude_a
 
 Categorise each issue:
 - **Shipped**: status moved to Done or Cancelled within the period
-- **In progress**: status is In Progress and was not Done at the start of the period
+- **In progress**: status is In Progress and was not Done at start of period
 - **Started**: moved from Todo/Backlog to In Progress within the period
 
-For each shipped issue, note the issue type if available (Feature, Bug, Improvement, etc.) — this drives the report grouping in Step 3.
+For each shipped issue, note the issue type if available (Feature, Bug, Improvement, etc.) — drives report grouping in Step 3.
 
-If Linear MCP is unavailable: note "Linear data unavailable" and continue with git/GitHub data only.
+Linear MCP unavailable: note "Linear data unavailable" and continue with git/GitHub data only.
 
 ### Merged PRs
 
@@ -64,9 +64,9 @@ gh pr list --state merged --json number,title,mergedAt,author,body --limit 50
 
 Filter client-side to `mergedAt` > `<timestamp>`.
 
-For each merged PR, check whether its title or body contains a Linear issue ID (e.g. `FIN-42`, `Closes FIN-42`). PRs that reference a Linear issue are already covered by the Linear section — do not double-count them. PRs with **no Linear issue reference** are untracked work done directly in Claude Code or outside the issue tracker.
+For each merged PR, check whether title or body contains a Linear issue ID (e.g. `FIN-42`, `Closes FIN-42`). PRs referencing a Linear issue are already covered by the Linear section — don't double-count. PRs with **no Linear issue reference** are untracked work done directly in Claude Code or outside the issue tracker.
 
-If `gh` is unavailable: skip silently and note at the bottom.
+`gh` unavailable: skip silently, note at the bottom.
 
 ### Untracked commits
 
@@ -74,9 +74,9 @@ If `gh` is unavailable: skip silently and note at the bottom.
 git log <commit>..HEAD --oneline --no-merges
 ```
 
-Identify commits that are not covered by any merged PR in the list above (i.e. not reachable from a merged PR's merge commit). These are direct commits with no PR and no Linear issue.
+Identify commits not covered by any merged PR in the list above (not reachable from a merged PR's merge commit). Direct commits with no PR and no Linear issue.
 
-If `<commit>` is no longer in history (e.g. after a rebase): fall back to `--since=<timestamp>`.
+`<commit>` no longer in history (e.g. after a rebase): fall back to `--since=<timestamp>`.
 
 ### Commit count (context only — not shown in body of report)
 
@@ -88,9 +88,9 @@ Used only in the footer line, not in the body.
 
 ## Step 3: Write the report
 
-Write in plain language. Avoid technical jargon (no branch names, commit SHAs, file paths, or PR numbers in the body). Use issue titles as written in Linear — they are already the business description.
+Plain language. Avoid technical jargon (no branch names, commit SHAs, file paths, or PR numbers in the body). Use issue titles as written in Linear — already the business description.
 
-Use this format. Omit any section that has no items.
+Use this format. Omit any section with no items.
 
 ```
 ## Progress Report: <start_date> → <end_date>
@@ -120,20 +120,20 @@ Use this format. Omit any section that has no items.
 ```
 
 **Writing the descriptions under Delivered:**
-- For Linear issues: pull the description from the issue if it has one, otherwise infer from the title
-- For untracked PRs and commits: read the PR title or commit messages and synthesize a plain-language summary of what changed
-- One sentence maximum — what the user/customer can now do, or what was improved, not what the engineer changed
+- Linear issues: pull description from the issue if it has one, otherwise infer from title
+- Untracked PRs and commits: read PR title or commit messages, synthesize a plain-language summary of what changed
+- One sentence maximum — what the user/customer can now do, or what improved, not what the engineer changed
 - Example: "Users can now reset their password via email" not "Added POST /auth/reset endpoint"
 
 **Grouping untracked work:**
-- Place untracked PRs and direct commits under **Other Work** if they are unclear in nature
-- If the PR title or commit messages clearly indicate a bug fix (`fix:`, `bug:`, resolved an error) move the entry to **Bug Fixes**
-- If they clearly indicate a user-facing feature or improvement, move to **Delivered**
-- Use judgment — do not leave value out of the report just because it lacks a ticket
+- Place untracked PRs and direct commits under **Other Work** if unclear in nature
+- PR title or commit messages clearly indicate a bug fix (`fix:`, `bug:`, resolved an error) → move to **Bug Fixes**
+- Clearly indicate a user-facing feature or improvement → move to **Delivered**
+- Use judgment — don't leave value out of the report just because it lacks a ticket
 
-**Grouping tracked work:** if Linear issue types are available, split Delivered into sub-groups (Features, Improvements). If types are not available, use a single Delivered list.
+**Grouping tracked work:** Linear issue types available → split Delivered into sub-groups (Features, Improvements). Types not available → single Delivered list.
 
-If **nothing changed**: print "No changes since `<start_date>`. Nothing to report." and still update the checkpoint.
+**Nothing changed:** print "No changes since `<start_date>`. Nothing to report." and still update the checkpoint.
 
 ## Step 4: Offer to share
 
@@ -144,7 +144,7 @@ After presenting the report, ask:
 - **Slack**: reformat as a compact message with emoji bullets, suitable for pasting into a channel update
 - **Email**: wrap in a short intro line ("Here's a summary of what the team shipped this week:") and a closing line, plain text
 
-Only reformat if the user confirms.
+Only reformat if user confirms.
 
 ## Step 5: Write the checkpoint
 
@@ -161,7 +161,7 @@ printf 'timestamp=%s\ncommit=%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" "$(git rev-p
 - Never invent descriptions — derive them from the Linear issue title and description only
 - Always update the checkpoint, even when nothing changed
 - Do not create any Linear issues or PRs — read-only only
-- If the state file is corrupt or unparseable: treat it as missing (first-run path)
+- State file corrupt or unparseable: treat as missing (first-run path)
 
 ## Related skills
 

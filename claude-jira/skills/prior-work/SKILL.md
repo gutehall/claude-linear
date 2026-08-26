@@ -32,16 +32,16 @@ Run these in parallel; each is cheap. Use the issue's key terms (feature name, f
    The Jira GitHub dev panel also surfaces linked PRs — `jira issue view <key>` or the Atlassian MCP shows development links; a merged-PR link is the strongest "shipped" signal.
 
 2. **Duplicate or sibling issues**
-   Use the Atlassian MCP's issue-search tool (check your available `mcp__claude_ai_Atlassian__*` tools for the exact name) or `jira issue list` to pull candidates, then compare by summary/description (same signals the **dedupe** skill uses). A near-identical issue that's Done → likely shipped; one that's open/in-progress → duplicate or parallel work. Check existing **Duplicate** links on the issue too.
+   Use the Atlassian MCP's issue-search tool (check available `mcp__claude_ai_Atlassian__*` tools for exact name) or `jira issue list` to pull candidates, then compare by summary/description (same signals the **dedupe** skill uses). A near-identical issue that's Done → likely shipped; one open/in-progress → duplicate or parallel work. Check existing **Duplicate** links on the issue too.
 
 3. **Existing implementation in the code**
-   Search the repo for the capability the issue asks for — function names, routes, config keys, UI strings from the acceptance criteria. If the feature is already present and meets the criteria, it's shipped (the issue is stale). If part of it exists, it's partial — extend it.
+   Search the repo for the capability the issue asks for — function names, routes, config keys, UI strings from the acceptance criteria. If the feature is already present and meets the criteria, it's shipped (issue is stale). If part of it exists, it's partial — extend it.
 
 Keep the search proportional to the issue. A one-line fix needs a quick grep; a feature warrants checking PRs, issues, and code.
 
 ## Judging the match
 
-Be precise, like in **dedupe** — a shared topic is not a duplicate. The test: would the prior work, as-is, satisfy this issue's acceptance criteria?
+Be precise, like in **dedupe** — a shared topic is not a duplicate. Test: would the prior work, as-is, satisfy this issue's acceptance criteria?
 
 - **Yes, fully** → Shipped.
 - **Yes, but still open/unmerged** → In flight.
@@ -99,7 +99,7 @@ An unattended run must not guess that work is "done" and close it, nor reimpleme
 - Run the check before branching/implementing — never after writing code.
 - Never auto-close an issue on an autonomous run; flag `needs-human` and skip instead.
 - A shared topic is not a duplicate — apply the dedupe precision test.
-- When extending prior work, reuse it; do not rebuild what already exists.
+- When extending prior work, reuse it; don't rebuild what already exists.
 - Report what you found even when proceeding — the finding is useful PR context.
 
 ## Related skills

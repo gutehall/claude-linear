@@ -5,18 +5,20 @@ description: Audit project dependencies for security vulnerabilities and outdate
 
 # Dependency Auditor
 
-Detect all package managers in the project, run security and outdated checks, and create one Jira issue per finding, ordered by severity.
+Detect all package managers in project, run security and outdated checks, create one Jira issue per finding, ordered by severity.
 
 ## Setup
 
 Before auditing:
 
-1. `jira project list --plain` — confirm the active project key
-2. Note the project key (e.g. `PROJ`) for issue creation
+1. `jira project list --plain` — confirm active project key
+2. Note project key (e.g. `PROJ`) for issue creation
+
+Skip this if project key already known from earlier in the session.
 
 ## Package manager detection
 
-Check for manifest files in the project root and subdirectories:
+Check for manifest files in project root and subdirectories:
 
 | Manifest | Package manager |
 |----------|----------------|
@@ -56,7 +58,7 @@ If no manifests found: "No package manifests found. Is this a new project?" and 
 | go | `go list -m -u all` |
 | bundler | `bundle outdated` |
 
-If a tool is not installed: note it, skip that check, continue.
+If a tool is not installed: note it, skip check, continue.
 If a command exits non-zero with no parseable output: show raw error, skip, continue.
 
 ## Priority mapping
@@ -80,8 +82,8 @@ If a command exits non-zero with no parseable output: show raw error, skip, cont
 
 ## Creating Jira issues
 
-Rank all findings first, then create issues in order: Highest → High → Medium → Low.
-Creating in priority order ensures the backlog is correctly sorted. Ask if issues should be created under an existing epic or left unassigned.
+Rank findings first, create in order: Highest → High → Medium → Low.
+Priority order keeps backlog correctly sorted. Ask if issues go under existing epic or unassigned.
 
 **Summary for vulnerabilities:** `[Security] <package>@<current>: <CVE or brief description>`
 
@@ -113,9 +115,13 @@ jira issue create -tTask \
   --label "dependencies,security"
 ```
 
-## Output
+## Output Format
 
-When all issues are created:
+One line per finding when listing to the user:
+
+`package@version: [severity] problem — fix.`
+
+Then the summary block once all issues are created:
 
 ```
 Audited <N> package manager(s). Found X vulnerabilities, Y outdated packages.
@@ -124,16 +130,16 @@ Created N Jira issues.
 
 List each created issue key and summary.
 
-If everything is clean: "No vulnerabilities found. All packages are up to date (or within acceptable range)." — do not create any Jira issues.
+If clean: "No vulnerabilities found. All packages are up to date (or within acceptable range)." — do not create any Jira issues.
 
 ## Rules
 
-- Run every detected package manager — do not skip any
+- Run every detected package manager — skip none
 - One issue per vulnerable or outdated package
-- Never create an issue for a patch-only version difference
+- Never create issue for patch-only version difference
 - Keep descriptions concrete: exact package name, exact version, exact fix command
 
 ## Related skills
 
 - **jira-cli** — full CLI reference for issue management
-- **bugs** — for scanning the codebase itself for code-level bugs
+- **bugs** — for scanning codebase itself for code-level bugs

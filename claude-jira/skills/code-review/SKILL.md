@@ -9,71 +9,62 @@ How to read a PR and give useful, actionable feedback.
 
 ## Mindset
 
-You're looking for problems that matter — bugs, missing tests, security issues, scope creep. Not style preferences or things that don't affect correctness. Be direct about problems; be brief about things that are fine.
+Look for problems that matter — bugs, missing tests, security issues, scope creep. Not style preferences or things that don't affect correctness. Be direct about problems; brief about things that are fine.
 
-A review that says "looks good" with no substance is not useful. A review that nitpicks formatting is noise. Aim for: everything load-bearing gets checked, everything cosmetic gets skipped.
+A review saying "looks good" with no substance isn't useful. A review nitpicking formatting is noise. Aim for: everything load-bearing gets checked, everything cosmetic gets skipped.
 
 ## What to check
 
 ### 1. Correctness
-- Does the code do what the PR description says?
-- Are there edge cases the implementation misses?
-- Are errors handled, or do they silently swallow failures?
-- Are any assumptions baked in that could break under real conditions?
+- Does code do what PR description says?
+- Edge cases the implementation misses?
+- Errors handled, or silently swallowed?
+- Assumptions baked in that could break under real conditions?
 
 ### 2. Tests
-- Are there tests for the new behavior?
-- Do the tests actually cover the interesting paths (not just the happy path)?
-- If tests are missing: is it because the code is hard to test (a design smell), or just skipped?
+- Tests exist for new behavior?
+- Do tests cover interesting paths (not just happy path)?
+- If tests missing: hard to test (design smell), or just skipped?
 
 ### 3. Security
-- Any unvalidated user input reaching a database, shell, or file system?
+- Unvalidated user input reaching database, shell, or file system?
 - Secrets or credentials hard-coded or logged?
 - Auth/permission checks present where needed?
 - SQL injection, XSS, or path traversal possibilities?
 
 ### 4. Scope
-- Does the PR do more than the issue asks? Flag scope creep — not as a blocker, but worth noting.
-- Does the PR do *less* than the issue asks? Check acceptance criteria.
-- Are there new dependencies introduced? Worth flagging if heavy or unusual.
+- PR does more than issue asks? Flag scope creep — not a blocker, but worth noting.
+- PR does *less* than issue asks? Check acceptance criteria.
+- New dependencies introduced? Flag if heavy or unusual.
 
 ### 5. Maintainability (light touch)
-- Is there anything so complex it needs a comment to be understood later?
-- Is anything duplicated that should probably be a shared function?
-- These are suggestions, not blockers, unless the code is genuinely unreadable.
+- Anything so complex it needs a comment to be understood later?
+- Anything duplicated that should probably be a shared function?
+- Suggestions, not blockers, unless code is genuinely unreadable.
 
 ## What to skip
 
-- Formatting, whitespace, naming style (unless the project has a strong convention and this clearly breaks it)
+- Formatting, whitespace, naming style (unless project has strong convention this clearly breaks)
 - Refactoring opportunities unrelated to the change
 - "I would have done this differently" without a concrete reason it matters
 
-## How to communicate
+## Output Format
 
-**Bugs / correctness issues** — direct, specific, with line or file:
-> "auth.ts:42 — `req.user` could be undefined here if the session has expired. Will throw."
+One line per finding:
 
-**Missing tests** — state what's untested:
-> "No test for the case where `userId` is null. This path exists in the code."
+`file:line: [severity] problem — fix.`
 
-**Security** — be clear about the risk:
-> "Line 88: `query` is interpolated directly into the SQL string. Use a parameterized query."
-
-**Suggestions (non-blocking)** — label them:
-> "Suggestion: this could be extracted into a helper, but not a blocker."
-
-**Scope observations** — neutral, not accusatory:
-> "This touches the billing module which wasn't in the original issue. Worth noting for QA."
+Group by category (Bugs / Tests / Security / Scope / Maintainability) only if the finding count warrants it; otherwise one flat list. No praise lines, no restating what's fine.
 
 ## Approve vs. request changes
 
-**Approve** when: no bugs, tests cover the meaningful paths, no security issues. Minor suggestions are fine alongside an approval.
+**Approve** when: no bugs, tests cover meaningful paths, no security issues. Minor suggestions fine alongside approval.
 
-**Request changes** when: there's a correctness bug, a missing test for a risky path, or a security issue. Don't block on style.
+**Request changes** when: correctness bug, missing test for risky path, or security issue. Don't block on style.
 
-**Comment only** when: you have observations but no strong opinion either way. Useful for large PRs where you reviewed part of the diff.
+**Comment only** when: observations but no strong opinion either way. Useful for large PRs where you reviewed part of the diff.
 
 ## Related Skills
 
-- **github-cli** — for the `gh pr review` commands to submit the review
-- **diagnostic** — if you need to reason through a bug you found in the diff
+- **github-cli** — for `gh pr review` commands to submit the review
+- **diagnostic** — if you need to reason through a bug found in the diff

@@ -11,7 +11,7 @@ Work through untriaged Linear issues interactively, suggesting metadata based on
 
 Before triaging:
 
-1. `mcp__claude_ai_Linear__list_teams` — identify the active team
+1. `mcp__claude_ai_Linear__list_teams` — identify active team (skip if already known from this session or `.linear` config)
 2. `mcp__claude_ai_Linear__list_issue_labels` — fetch all available labels
 3. `mcp__claude_ai_Linear__list_projects` — fetch all active projects
 4. `mcp__claude_ai_Linear__list_issues` — fetch open issues, then filter to untriaged
@@ -20,6 +20,10 @@ An issue needs triage if any of the following are true:
 - Priority is 0 (none)
 - Labels list is empty
 - Estimate is unset
+
+## Large batches — delegate the fetch
+
+For a batch of many untriaged issues (>~30), delegate the fetch-and-suggest loop (steps in "Suggesting values" below, for every issue) to a subagent and have it return a compact list of `issue: suggested priority/labels/estimate`. Then run the interaction loop below yourself against that list — the per-issue `get_issue` fetches don't need to sit in the main thread's context.
 
 ## Filtering
 
@@ -31,7 +35,7 @@ An issue needs triage if any of the following are true:
 
 ## Suggesting values
 
-For each issue, fetch full details via `mcp__claude_ai_Linear__get_issue` and analyze the title and description.
+For each issue, fetch full details via `mcp__claude_ai_Linear__get_issue` and analyze title and description.
 
 ### Priority
 
@@ -39,7 +43,7 @@ For each issue, fetch full details via `mcp__claude_ai_Linear__get_issue` and an
 |--------|--------------------|
 | "crash", "broken", "data loss", "security", "blocked", "outage" | 1 Urgent or 2 High |
 | Feature request, improvement, refactor | 3 Medium or 4 Low |
-| Vague title, missing description | 4 Low — note that more detail is needed |
+| Vague title, missing description | 4 Low — note more detail needed |
 | Priority already set | Do not override |
 
 ### Labels
@@ -47,7 +51,7 @@ For each issue, fetch full details via `mcp__claude_ai_Linear__get_issue` and an
 - Only suggest labels that exist in Linear — never invent new ones
 - Match on content: bug reports → "bug", auth issues → "auth" (if label exists), etc.
 - Suggest multiple labels if more than one applies
-- Skip label suggestion if no labels exist in the workspace
+- Skip label suggestion if no labels exist in workspace
 
 ### Estimate
 
@@ -63,7 +67,7 @@ For each issue, fetch full details via `mcp__claude_ai_Linear__get_issue` and an
 ### Project
 
 - Only suggest a project if the issue clearly belongs to one
-- If no project is an obvious match, leave it unset — do not force an assignment
+- No obvious match → leave unset, don't force an assignment
 
 ## Interaction loop
 
@@ -94,29 +98,29 @@ Suggested:
 
 ## Applying updates
 
-Use `mcp__claude_ai_Linear__save_issue` with only the fields being changed. Never send a field that is already set unless the user explicitly changed it during edit.
+Use `mcp__claude_ai_Linear__save_issue` with only the fields being changed. Never send a field already set unless user explicitly changed it during edit.
 
 ## Output
 
-After all issues are processed:
+After all issues processed:
 
 ```
 Triaged N issues. Skipped M.
 ```
 
-List each triaged issue ID and title.
+Then one line per triaged issue: `ISSUE-ID: Title`
 
 ## Error handling
 
-- `save_issue` failure: print the error, offer retry or skip — do not silently continue
+- `save_issue` failure: print the error, offer retry or skip — never silently continue
 - Unknown label name during edit: warn and re-prompt
 - MCP unreachable: say "Could not reach Linear. Check your MCP connection with `/mcp`." and stop
 
 ## Rules
 
-- Never override a field that already has a value unless the user explicitly edits it
+- Never override a field that already has a value unless user explicitly edits it
 - Only use labels that already exist in Linear
-- Do not force project assignment
+- Don't force project assignment
 - Keep suggestions grounded in actual issue content
 
 ## Related skills

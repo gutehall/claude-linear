@@ -9,7 +9,7 @@ Produce a plain-language progress report for a non-technical audience. Lead with
 
 ## State file
 
-The checkpoint lives at `.claude/whatchanged` in the project root (create `.claude/` if it does not exist).
+Checkpoint lives at `.claude/whatchanged` in the project root (create `.claude/` if it doesn't exist).
 
 File format (plain text, two lines):
 
@@ -54,7 +54,7 @@ Categorise each issue:
 - **In progress**: status is In Progress and was not Done at the start of the period
 - **Started**: moved from To Do/Backlog to In Progress within the period
 
-For each shipped issue, note the issue type if available (Story, Bug, Task, Improvement) — this drives the report grouping in Step 3.
+For each shipped issue, note the issue type if available (Story, Bug, Task, Improvement) — drives report grouping in Step 3.
 
 If `jira` is unavailable: note "Jira data unavailable" and continue with GitHub data only.
 
@@ -66,7 +66,7 @@ gh pr list --state merged --json number,title,mergedAt,author,body --limit 50
 
 Filter client-side to `mergedAt` > `<timestamp>`.
 
-For each merged PR, check whether its title or body contains a Jira issue ID (e.g. `PROJ-42`, `Closes PROJ-42`). PRs that reference a Jira issue are already covered by the Jira section — do not double-count them. PRs with **no Jira issue reference** are untracked work done directly in Claude Code or outside the issue tracker.
+For each merged PR, check whether its title or body contains a Jira issue ID (e.g. `PROJ-42`, `Closes PROJ-42`). PRs referencing a Jira issue are already covered by the Jira section — don't double-count them. PRs with **no Jira issue reference** are untracked work done directly in Claude Code or outside the issue tracker.
 
 If `gh` is unavailable: skip silently and note at the bottom.
 
@@ -76,7 +76,7 @@ If `gh` is unavailable: skip silently and note at the bottom.
 git log <commit>..HEAD --oneline --no-merges
 ```
 
-Identify commits that are not covered by any merged PR in the list above. These are direct commits with no PR and no Jira issue.
+Identify commits not covered by any merged PR in the list above. These are direct commits with no PR and no Jira issue.
 
 If `<commit>` is no longer in history (e.g. after a rebase): fall back to `--since=<timestamp>`.
 
@@ -90,7 +90,7 @@ Used only in the footer line, not in the body.
 
 ## Step 3: Write the report
 
-Write in plain language. Avoid technical jargon (no branch names, commit SHAs, file paths, or PR numbers in the body). Use issue summaries as written in Jira — they are already the business description.
+Write in plain language. Avoid technical jargon (no branch names, commit SHAs, file paths, or PR numbers in the body). Use issue summaries as written in Jira — already the business description.
 
 Use this format. Omit any section that has no items.
 
@@ -128,10 +128,10 @@ Use this format. Omit any section that has no items.
 - Example: "Users can now reset their password via email" not "Added POST /auth/reset endpoint"
 
 **Grouping untracked work:**
-- Place untracked PRs and direct commits under **Other Work** if they are unclear in nature
+- Place untracked PRs and direct commits under **Other Work** if unclear in nature
 - If the PR title or commit messages clearly indicate a bug fix (`fix:`, `bug:`, resolved an error) move the entry to **Bug Fixes**
 - If they clearly indicate a user-facing feature or improvement, move to **Delivered**
-- Use judgment — do not leave value out of the report just because it lacks a ticket
+- Use judgment — don't leave value out of the report just because it lacks a ticket
 
 **Grouping tracked work:** if Jira issue types are available, split Delivered into sub-groups (Stories/Features, Improvements). If types are not available, use a single Delivered list.
 

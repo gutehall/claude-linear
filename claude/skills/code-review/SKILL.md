@@ -15,9 +15,9 @@ description: >
 
 # Code Review
 
-**The goal**: Determine with confidence whether this code does what it's supposed to do — not just whether it looks clean, but whether it actually works correctly in all meaningful cases.
+**Goal**: Determine with confidence whether code does what it's supposed to — not just whether it looks clean, but whether it works correctly in all meaningful cases.
 
-This is a four-phase protocol: **Understand → Audit → Plan & Fix → Verify**.
+Four-phase protocol: **Understand → Audit → Plan & Fix → Verify**.
 
 ---
 
@@ -28,25 +28,25 @@ Before looking for problems, establish what "correct" means for this code.
 **Gather:**
 - What is this code supposed to do? (Read docstrings, comments, function names, call sites)
 - What are the inputs and their valid ranges/types?
-- What are the expected outputs or side effects?
+- What are expected outputs or side effects?
 - What invariants must hold? (e.g. "this list is always sorted", "this value is never null")
-- What's the broader context? (What calls this? What does it feed into?)
+- Broader context? (What calls this? What does it feed into?)
 
-If intent is unclear from the code itself, ask the user one targeted question before proceeding. Don't guess at intent — a "correct" review of the wrong spec is worthless.
+If intent unclear from code itself, ask user one targeted question before proceeding. Don't guess at intent — a "correct" review of the wrong spec is worthless.
 
 ---
 
 ## Phase 2: Audit — Does It Actually Work?
 
-Go through the code systematically. For each function, module, or logical unit, check:
+Go through code systematically. For each function, module, or logical unit, check:
 
 ### Correctness
-- [ ] Does the logic match the stated intent?
-- [ ] Are there off-by-one errors? (loop bounds, slice indices, pagination)
-- [ ] Are comparisons correct? (`>` vs `>=`, `===` vs `==`, wrong type comparisons)
-- [ ] Is mutable state modified correctly? (mutation when copy was intended, or vice versa)
-- [ ] Are async operations awaited where needed? Any unhandled promise rejections?
-- [ ] Are return values used correctly by callers?
+- [ ] Does logic match stated intent?
+- [ ] Off-by-one errors? (loop bounds, slice indices, pagination)
+- [ ] Comparisons correct? (`>` vs `>=`, `===` vs `==`, wrong type comparisons)
+- [ ] Mutable state modified correctly? (mutation when copy intended, or vice versa)
+- [ ] Async operations awaited where needed? Unhandled promise rejections?
+- [ ] Return values used correctly by callers?
 
 ### Edge Cases
 - [ ] Empty inputs (empty array, empty string, zero, null/undefined)
@@ -56,26 +56,26 @@ Go through the code systematically. For each function, module, or logical unit, 
 - [ ] First/last items in collections
 
 ### Error Handling
-- [ ] Are errors caught at the right level?
-- [ ] Do errors propagate in a way callers can act on?
-- [ ] Are there silent failures? (catching and swallowing exceptions, returning null instead of throwing)
-- [ ] Is cleanup done correctly on error paths?
+- [ ] Errors caught at the right level?
+- [ ] Do errors propagate so callers can act on them?
+- [ ] Silent failures? (catching and swallowing exceptions, returning null instead of throwing)
+- [ ] Cleanup done correctly on error paths?
 
 ### Data Flow
 - [ ] Is data transformed correctly at each step?
-- [ ] Are there implicit type coercions that could go wrong?
-- [ ] Are nullable/optional values checked before use?
-- [ ] Is the correct data passed between functions (not stale, not mutated unexpectedly)?
+- [ ] Implicit type coercions that could go wrong?
+- [ ] Nullable/optional values checked before use?
+- [ ] Correct data passed between functions (not stale, not mutated unexpectedly)?
 
 ### Dependencies and Contracts
 - [ ] Does this code rely on behavior from external functions/APIs that may not hold?
-- [ ] Are there implicit assumptions about the environment (env vars, file paths, network state)?
+- [ ] Implicit assumptions about the environment (env vars, file paths, network state)?
 - [ ] Do interfaces between components match? (function signatures, API shapes, event payloads)
 
 ### Tests (if present)
-- [ ] Do existing tests actually cover the main logic paths?
-- [ ] Are there tests for failure cases and edge cases?
-- [ ] Do tests actually assert the right things, or just that nothing throws?
+- [ ] Do existing tests actually cover main logic paths?
+- [ ] Tests for failure cases and edge cases?
+- [ ] Do tests assert the right things, or just that nothing throws?
 - [ ] Could a test pass even if the code is wrong?
 
 ---
@@ -84,53 +84,53 @@ Go through the code systematically. For each function, module, or logical unit, 
 
 ### If no issues found
 
-State clearly: "This code appears correct. Here's what I verified: [brief summary of what was checked]." Point out anything worth noting even if not a bug (e.g., fragile patterns, missing tests for edge cases).
+State clearly: "This code appears correct. Here's what I verified: [brief summary]." Note anything worth flagging even if not a bug (fragile patterns, missing tests for edge cases).
 
-### If issues are found
+### If issues found
 
-For each issue, document:
+One line per issue, format: `file:line — problem. fix.` Include severity and reproduction inline when it isn't obvious from "problem":
 
 ```
 Issue #N: [Short title]
 Severity: Critical | High | Medium | Low
 Location: [file:line or function name]
-Problem: [What is wrong — specific and mechanical, not vague]
-Why it matters: [What goes wrong at runtime when this triggers]
-Reproduction: [Minimal input/state that demonstrates the bug]
-Fix: [What change resolves the root cause]
+Problem: [what's wrong — specific and mechanical, not vague]
+Why it matters: [what goes wrong at runtime]
+Reproduction: [minimal input/state demonstrating the bug]
+Fix: [change that resolves the root cause]
 ```
 
 Severity guide:
-- **Critical** — Causes data loss, security vulnerability, crash in normal use, or silently returns wrong results
-- **High** — Causes incorrect behavior in a common case or edge case likely to be hit in production
-- **Medium** — Incorrect in uncommon cases, or code that could break with minor changes to surrounding code
-- **Low** — Doesn't cause bugs now but is fragile, misleading, or will cause bugs later
+- **Critical** — data loss, security vulnerability, crash in normal use, or silently wrong results
+- **High** — incorrect behavior in a common case or edge case likely hit in production
+- **Medium** — incorrect in uncommon cases, or fragile to minor surrounding changes
+- **Low** — not buggy now but fragile, misleading, or will cause bugs later
 
 After listing all issues, produce a **Fix Plan** ordered by priority:
-1. Issues to fix immediately (Critical/High)
-2. Issues to fix before merge (Medium)
-3. Issues to note/defer (Low)
+1. Fix immediately (Critical/High)
+2. Fix before merge (Medium)
+3. Note/defer (Low)
 
-Ask the user: "Should I proceed with the fixes?" — unless the user already said to fix everything, in which case proceed directly.
+Ask: "Should I proceed with the fixes?" — unless user already said fix everything, then proceed directly.
 
 ---
 
 ## Phase 4: Apply Fixes
 
-Fix one issue at a time. For each fix:
+Fix one issue at a time. For each:
 
-1. **State what you're changing and why** (one sentence)
-2. **Make the minimum change** that resolves the root cause
-3. **Don't refactor unrelated things** while fixing — stay focused
-4. **After each fix**, briefly confirm: "Fixed: [what was changed]"
+1. **State what's changing and why** (one sentence)
+2. **Make the minimum change** resolving root cause
+3. **Don't refactor unrelated things** — stay focused
+4. **After each fix**, confirm briefly: "Fixed: [what changed]"
 
-When all fixes are applied, move to verification.
+When all fixes applied, move to verification.
 
 ---
 
 ## Phase 5: Verify
 
-After fixing, validate that the fixes work and nothing broke.
+After fixing, validate fixes work and nothing broke.
 
 ### Run existing tests first
 ```bash
@@ -138,12 +138,12 @@ After fixing, validate that the fixes work and nothing broke.
 # npm test / pytest / go test ./... / cargo test / etc.
 ```
 
-If tests pass: good. If tests fail: apply the diagnostic-thinking skill before touching anything else.
+Tests pass: good. Tests fail: apply diagnostic-thinking skill before touching anything else.
 
 ### Check fix coverage
 For each Critical or High issue fixed:
-- [ ] Is there an existing test that would catch a regression?
-- [ ] If not, write a minimal test that demonstrates the fix works
+- [ ] Existing test that would catch a regression?
+- [ ] If not, write a minimal test demonstrating the fix works
 
 Test structure:
 ```
@@ -154,9 +154,9 @@ Assert: [the correct output or behavior]
 ```
 
 ### Final run
-Run the full test suite one more time after adding any new tests. Report:
+Run full test suite once more after adding new tests. Report:
 - Tests passing: N
-- Tests added: N  
+- Tests added: N
 - Issues resolved: N
 
 ---
@@ -165,19 +165,19 @@ Run the full test suite one more time after adding any new tests. Report:
 
 | What it looks like | Why it's a problem |
 |---|---|
-| Reviewing style instead of correctness | Doesn't tell you if the code works |
-| "This looks fine to me" without checking edge cases | The most common bugs live in edge cases |
-| Fixing symptoms instead of root causes | The bug comes back in a different form |
-| Making multiple fixes in one change | You won't know which fix resolved which issue |
-| Skipping verification | The fix may work for the wrong reason |
-| Adding tests that only test the happy path | Gives false confidence |
-| Not understanding intent before auditing | You can't tell if something is wrong without knowing what "right" looks like |
+| Reviewing style instead of correctness | Doesn't tell you if code works |
+| "This looks fine to me" without checking edge cases | Most common bugs live in edge cases |
+| Fixing symptoms instead of root causes | Bug comes back in a different form |
+| Multiple fixes in one change | You won't know which fix resolved which issue |
+| Skipping verification | Fix may work for the wrong reason |
+| Tests that only cover the happy path | False confidence |
+| Not understanding intent before auditing | Can't tell if something's wrong without knowing "right" |
 
 ---
 
 ## `/review` Command
 
-This skill is invoked by the `/review` command (`claude/commands/review.md`), installed the same way as the rest of this package — see the "Testing changes" section of the repo's CLAUDE.md.
+Invoked by `/review` command (`claude/commands/review.md`), installed same way as rest of package — see "Testing changes" in repo's CLAUDE.md.
 
 **Usage:**
 ```
@@ -193,11 +193,11 @@ This skill is invoked by the `/review` command (`claude/commands/review.md`), in
 
 Before signing off on any review:
 
-- [ ] Do I understand what this code is supposed to do?
-- [ ] Have I checked edge cases: empty, null, single-item, boundary values?
-- [ ] Have I checked the error paths, not just the happy path?
-- [ ] Have I verified that data flows correctly between components?
-- [ ] Have I checked that async operations are handled correctly?
-- [ ] Do existing tests actually prove correctness, or just that nothing explodes?
-- [ ] If I fixed something, did I verify it with a test run?
-- [ ] Is every Critical/High issue either fixed or explicitly deferred with a reason?
+- [ ] Understand what this code is supposed to do?
+- [ ] Checked edge cases: empty, null, single-item, boundary values?
+- [ ] Checked error paths, not just happy path?
+- [ ] Verified data flows correctly between components?
+- [ ] Checked async operations handled correctly?
+- [ ] Do existing tests prove correctness, or just that nothing explodes?
+- [ ] If fixed something, verified with a test run?
+- [ ] Every Critical/High issue fixed or explicitly deferred with a reason?

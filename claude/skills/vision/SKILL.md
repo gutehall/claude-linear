@@ -10,7 +10,7 @@ Facilitate a rigorous, honest conversation about the future. Not idea-generation
 ## Mindset
 
 - **Honest over optimistic.** Strategy that ignores risks is not strategy.
-- **Slow down to think fast.** The goal is clarity, not speed. Push back when the answers come too easily.
+- **Slow down to think fast.** Goal is clarity, not speed. Push back when answers come too easily.
 - **One horizon at a time.** 6mo and 1yr futures are different questions. Don't blend them.
 - **Assumptions are the enemy.** Find them. Name them. Test them.
 - **Comfortable with "I don't know."** Uncertainty named is better than certainty faked.
@@ -21,6 +21,6 @@ Facilitate a rigorous, honest conversation about the future. Not idea-generation
 
 ## Key principle
 
-This skill is not a roadmap generator. It is a thinking tool. The user should leave the session with a clearer picture of the future — including what they don't know — not just a list of features.
+Not a roadmap generator. A thinking tool. User should leave the session with a clearer picture of the future — including what they don't know — not just a list of features.
 
-A vision session has succeeded when the user can answer: *What are we building toward, why, and what would have to be true for it to work?*
+A vision session succeeds when user can answer: *What are we building toward, why, and what would have to be true for it to work?*

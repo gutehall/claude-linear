@@ -6,7 +6,7 @@ allowed-tools: Bash(linear:*), Bash(curl:*)
 
 # Linear CLI
 
-A cross-platform CLI for Linear's GraphQL API, with unblocked issue filtering.
+Cross-platform CLI for Linear's GraphQL API, with unblocked issue filtering.
 
 Install: `npm install -g @dabble/linear-cli`
 
@@ -20,12 +20,12 @@ This will:
 1. Ask where to save credentials (project or global)
 2. Open Linear API settings in your browser
 3. Prompt you to paste your API key
-4. Show available teams and let you pick one (or create a new team)
-5. Save config to the chosen location
+4. Show available teams, let you pick one (or create a new team)
+5. Save config to chosen location
 
 ## Configuration
 
-Config is layered: `~/.linear` (global) is loaded first, then `./.linear` (local) overrides on top. Local values override global; unset local values inherit from global. Env vars (`LINEAR_API_KEY`, `LINEAR_TEAM`, `LINEAR_PROJECT`, `LINEAR_MILESTONE`) are used as fallbacks.
+Config is layered: `~/.linear` (global) loads first, then `./.linear` (local) overrides on top. Local values override global; unset local values inherit from global. Env vars (`LINEAR_API_KEY`, `LINEAR_TEAM`, `LINEAR_PROJECT`, `LINEAR_MILESTONE`) used as fallbacks.
 
 ```
 # .linear file format
@@ -39,9 +39,11 @@ V2=Version 2.0 Release
 MVP=MVP Milestone
 ```
 
+**Durable cache:** `.linear` config (team, default project, aliases) is the stable cache for these facts across sessions. Check it before calling `list_teams`/`list_projects`/`list_issue_labels` MCP tools again — only re-fetch if config is stale, empty, or the workspace changed.
+
 ## Aliases
 
-Create short codes for projects and milestones to use in commands:
+Create short codes for projects and milestones:
 
 ```bash
 # Create aliases
@@ -64,7 +66,7 @@ linear issue create --project V2 --milestone MVP "New feature"
 linear milestones --project V2
 ```
 
-Aliases are shown in `linear projects` and `linear milestones` output:
+Aliases shown in `linear projects` and `linear milestones` output:
 
 ```
 Projects:
@@ -204,149 +206,9 @@ gh pr create --title "ISSUE-5: Add caching layer"
 
 ## Workflow Guidelines
 
-### Setting context
-When working on a specific project/milestone, set it as default to avoid repeating flags:
-```bash
-linear project open "Phase 1"    # All commands now default to Phase 1
-linear milestone open "Sprint 3" # And to Sprint 3 milestone
-linear issues                    # Shows Phase 1 > Sprint 3 issues only
-linear issue create --title "Fix" # Created in Phase 1, Sprint 3
-linear project close             # Done? Clear the context
-```
-
-### Getting oriented
-```bash
-linear roadmap                  # See all projects, milestones, progress
-linear issues --project "P1"    # Issues in a specific project
-linear issues --milestone "M1"  # Issues in a specific milestone
-```
-
-### Starting work on an issue
-```bash
-linear issues --unblocked       # Find what's ready
-linear issue show ISSUE-2        # Review it (shows parent context)
-linear issue start ISSUE-2       # Assign + set In Progress
-linear branch ISSUE-2            # Create git branch
-```
-
-### When you hit a blocker
-If work cannot continue due to a dependency or external factor:
-
-```bash
-# Create the blocking issue
-linear issue create --title "Need API credentials" --blocks ISSUE-5
-
-# Or mark existing issue as blocking
-linear issue update ISSUE-3 --blocks ISSUE-5
-```
-
-This removes ISSUE-5 from `--unblocked` results until the blocker is resolved.
-
-### When a task is larger than expected
-If you discover an M issue is actually L/XL, break it down:
-
-```bash
-# Create sub-issues
-linear issue create --title "Step 1: Research approach" --parent ISSUE-5 --estimate S
-linear issue create --title "Step 2: Implement core logic" --parent ISSUE-5 --estimate M
-linear issue create --title "Step 3: Add tests" --parent ISSUE-5 --estimate S
-
-# Start working on the first sub-issue
-linear issue start ISSUE-6
-```
-
-### Checklists vs. sub-issues
-Use description checklists for lightweight steps within a single issue. Use sub-issues when items need their own status, assignee, or estimate.
-
-```bash
-# Checklist — quick implementation steps, a punch list, acceptance criteria
-linear issue update ISSUE-5 --append "## TODO\n- [ ] Add validation\n- [ ] Update tests\n- [ ] Check edge cases"
-
-# Check off completed items (fuzzy matches the item text)
-linear issue update ISSUE-5 --check "validation"
-linear issue update ISSUE-5 --check "tests"
-
-# Uncheck if needed
-linear issue update ISSUE-5 --uncheck "validation"
-
-# Sub-issues — substantial, independently trackable work
-linear issue create --title "Add login endpoint" --parent ISSUE-5 --estimate S
-```
-
-Prefer checklists when the items are small and don't need independent tracking. Prefer sub-issues when you'd want to assign, estimate, or block on them individually. Use `--check` to mark items complete as you finish them.
-
-### Completing work
-After finishing implementation, ask the developer if they want to close the issue:
-
-```bash
-# Suggest closing
-linear issue close ISSUE-5
-```
-
-Do not auto-close issues. Let the developer review the work first.
-
-### Adding notes while working
-```bash
-linear issue update ISSUE-2 --append "## Notes\n\nDiscovered X, trying Y approach..."
-# or for quick updates
-linear issue comment ISSUE-2 "Found the root cause in auth.ts:142"
-```
-
-### Organizing with milestones
-Milestones group related issues within a project:
-
-```bash
-# Create milestone for a release
-linear milestone create "Beta" --project "Phase 1" --target-date 2024-03-01
-
-# Add issues to milestone
-linear issue create --title "Core feature" --milestone "Beta" --estimate M
-linear issue update ISSUE-5 --milestone "Beta"
-
-# Reorder milestones to reflect priority
-linear milestones reorder "Alpha" "Beta" "Stable" --project "Phase 1"
-```
-
-### Completing a phase
-```bash
-linear issue close ISSUE-7       # Close remaining issues
-linear project complete "Phase 1"
-# Then update CLAUDE.md status table
-```
-
-### Multi-team setup
-
-If your workspace has multiple teams, you can switch between them:
-
-```bash
-linear login                          # Re-run to switch teams
-linear whoami                         # Confirm current team
-LINEAR_TEAM=OTHER linear issues       # Override team for a single command
-```
-
-For per-project team configuration, set `team=TEAMKEY` in the project's `.linear` file. The local `.linear` overrides the global `~/.linear`, so each project can target a different team automatically.
-
-## Parent Context
-
-When viewing an issue with `linear issue show`, you'll see where it fits in the larger work:
-
-```
-# ISSUE-6: Add JWT validation
-
-State: In Progress
-...
-
-## Context
-
-ISSUE-3: Implement authentication system
-  - [Done] ISSUE-4: Add login endpoint
-  → [In Progress] ISSUE-6: Add JWT validation  ← you are here
-  - [Backlog] ISSUE-7: Add refresh tokens
-```
-
-This helps understand the scope and what comes before/after the current task.
+For worked examples (setting context, getting oriented, starting work, hitting a blocker, breaking down large tasks, checklists vs sub-issues, completing work, adding notes, organizing with milestones, completing a phase, multi-team setup) and parent-issue context, read `references/workflows.md`.
 
 ## Related Skills
 
-- **product-planning** — for thinking through a problem before creating tickets. Use when the user has an idea or vague direction, not a ready-to-implement task.
+- **product-planning** — for thinking through a problem before creating tickets. Use when user has an idea or vague direction, not a ready-to-implement task.
 - **github-cli** — for PR creation, review, and CI checks once the Linear issue is in progress.

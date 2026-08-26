@@ -5,18 +5,20 @@ description: Scan the entire codebase for tech debt and create prioritized Jira 
 
 # Tech Debt Scanner
 
-Exhaustively scan the codebase for tech debt and create one Jira issue per finding, ordered by severity.
+Exhaustively scan codebase for tech debt, create one Jira issue per finding, ordered by severity.
 
 ## Setup
 
 Before scanning:
 
-1. `jira project list --plain` — confirm the active project key
-2. Note the project key (e.g. `PROJ`) for issue creation
+1. `jira project list --plain` — confirm active project key
+2. Note project key (e.g. `PROJ`) for issue creation
+
+Skip this if project key already known from earlier in the session.
 
 ## Scanning
 
-Explore the full directory tree first (LS, Glob), then read every non-trivial source file.
+Explore full directory tree first (LS, Glob), then read every non-trivial source file.
 Don't skip files that look tidy — debt hides in overlooked corners.
 
 ### What to look for
@@ -37,8 +39,8 @@ Don't skip files that look tidy — debt hides in overlooked corners.
 - Large sections of commented-out code
 
 **TODO/FIXME/HACK/XXX comments** → Low or Medium
-- Surface all of them; judge priority by the comment content
-- Use Medium if the comment indicates a real correctness or reliability problem
+- Surface all of them; judge priority by comment content
+- Use Medium if comment indicates real correctness or reliability problem
 
 **Hardcoded configuration** → Medium
 - URLs, ports, timeouts, or limits hardcoded in logic (not in config files)
@@ -54,9 +56,9 @@ Don't skip files that look tidy — debt hides in overlooked corners.
 - Untyped parameters
 
 **Outdated patterns** → Low or Medium
-- Deprecated API usage within the codebase's own framework or libraries
-- Old async patterns (callbacks where promises are the project standard)
-- Inconsistent patterns across files (some use one approach, others a different one)
+- Deprecated API usage within codebase's own framework or libraries
+- Old async patterns (callbacks where promises are project standard)
+- Inconsistent patterns across files (some use one approach, others different)
 
 ## Priority mapping
 
@@ -69,8 +71,8 @@ Don't skip files that look tidy — debt hides in overlooked corners.
 
 ## Creating Jira issues
 
-Rank all findings first, then create issues in order: Highest → High → Medium → Low.
-Creating in priority order ensures the backlog is correctly sorted. Ask if issues should be created under an existing epic or left unassigned.
+Rank findings first, create in order: Highest → High → Medium → Low.
+Priority order keeps backlog correctly sorted. Ask if issues go under existing epic or unassigned.
 
 **Summary format:** `[DebtType] Short description`
 Example: `[Missing Tests] No test coverage for auth token validation`
@@ -98,9 +100,13 @@ jira issue create -tTask \
   --label "tech-debt"
 ```
 
-## Output
+## Output Format
 
-When all issues are created:
+One line per finding when listing to the user:
+
+`file:line: [severity] problem — fix.`
+
+Then the summary block once all issues are created:
 
 ```
 Found N debt items — X highest, Y high, Z medium, W low.
@@ -111,13 +117,13 @@ List each created issue key and summary.
 
 ## Rules
 
-- Read every source file — do not sample or skip
+- Read every source file — no sampling or skipping
 - One issue per debt item, not one per file or category
-- Never create an issue for a pattern that is not actually present in this codebase
+- Never create issue for pattern not actually present in this codebase
 - Keep descriptions concrete: file path, line reference, exact problem, specific fix
 
 ## Related skills
 
 - **bugs** — for finding runtime bugs rather than structural debt
 - **jira-cli** — full CLI reference for issue management
-- **product-planning** — for planning refactor work after the debt audit
+- **product-planning** — for planning refactor work after debt audit

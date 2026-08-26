@@ -37,24 +37,24 @@ Run these in parallel; each is cheap. Use the issue's key terms (feature name, f
    ```bash
    linear issues --open
    ```
-   Compare the target against other issues by title/description (same signals the **dedupe** skill uses). A near-identical issue that's Done → likely shipped; one that's open/in-progress → duplicate or parallel work.
+   Compare target against other issues by title/description (same signals **dedupe** uses). A near-identical Done issue → likely shipped; open/in-progress → duplicate or parallel work.
 
 3. **Existing implementation in the code**
-   Search the repo for the capability the issue asks for — function names, routes, config keys, UI strings from the acceptance criteria. If the feature is already present and meets the criteria, it's shipped (the issue is stale). If part of it exists, it's partial — extend it.
+   Search the repo for the capability the issue asks for — function names, routes, config keys, UI strings from the acceptance criteria. Feature already present and meets criteria → shipped (issue is stale). Part of it exists → partial, extend it.
 
 Keep the search proportional to the issue. A one-line fix needs a quick grep; a feature warrants checking PRs, issues, and code.
 
 ## Judging the match
 
-Be precise, like in **dedupe** — a shared topic is not a duplicate. The test: would the prior work, as-is, satisfy this issue's acceptance criteria?
+Be precise, like **dedupe** — a shared topic is not a duplicate. Test: would the prior work, as-is, satisfy this issue's acceptance criteria?
 
 - **Yes, fully** → Shipped.
-- **Yes, but it's still open/unmerged** → In flight.
+- **Yes, but still open/unmerged** → In flight.
 - **Another ticket covers it** → Duplicate.
-- **It gets you partway / is the right foundation** → Partial (extend).
+- **Gets you partway / right foundation** → Partial (extend).
 - **Only superficially related** → Clear; proceed.
 
-When uncertain between "partial" and "clear", treat as clear and proceed — but note what you found.
+Uncertain between "partial" and "clear" → treat as clear and proceed, but note what you found.
 
 ## Reporting
 
@@ -67,13 +67,13 @@ Prior-work check — ISSUE-12 "Add CSV export to billing"
   → Looks already done. The acceptance criteria appear satisfied by existing code.
 ```
 
-If clear, say so in one line and continue: `Prior-work check: no existing solution found. Proceeding.`
+Clear → say so in one line and continue: `Prior-work check: no existing solution found. Proceeding.`
 
 ## Acting on the finding
 
 ### Interactive callers (/next, /start) — ask the user
 
-Present the finding and the next-step options; do not decide unilaterally:
+Present the finding and next-step options; don't decide unilaterally:
 
 ```
 [Enter] Proceed anyway — implement as specified
@@ -96,9 +96,9 @@ An unattended run must not guess that work is "done" and close it, nor reimpleme
   mcp__claude_ai_Linear__save_comment   # "Prior-work check: appears already done by PR #188 / duplicate of ISSUE-29. Flagged for human review."
   linear issue update <id> --status "Backlog" --label "needs-human"
   ```
-  Print `<caller>: <id> appears already solved (PR #188 / ISSUE-29) — flagged needs-human, skipping.` Continue the loop; do not implement.
-- **Partial:** proceed, but build on the existing code — reuse the foundation, keep the change minimal, note in the PR body what was extended.
-- **In flight (open PR/branch by someone else):** do **not** stack a competing PR. Flag needs-human and skip, same as Shipped.
+  Print `<caller>: <id> appears already solved (PR #188 / ISSUE-29) — flagged needs-human, skipping.` Continue the loop; don't implement.
+- **Partial:** proceed, but build on existing code — reuse the foundation, keep the change minimal, note in the PR body what was extended.
+- **In flight (open PR/branch by someone else):** don't stack a competing PR. Flag needs-human and skip, same as Shipped.
 - **Clear:** proceed normally.
 
 ## Rules
@@ -106,7 +106,7 @@ An unattended run must not guess that work is "done" and close it, nor reimpleme
 - Run the check before branching/implementing — never after writing code.
 - Never auto-close an issue on an autonomous run; flag `needs-human` and skip instead.
 - A shared topic is not a duplicate — apply the dedupe precision test.
-- When extending prior work, reuse it; do not rebuild what already exists.
+- When extending prior work, reuse it; don't rebuild what already exists.
 - Report what you found even when proceeding — the finding is useful context for the PR.
 
 ## Related skills

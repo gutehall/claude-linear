@@ -13,9 +13,9 @@ description: >
 
 # Diagnostic Thinking
 
-**The problem**: Claude's default mode when debugging is pattern-matching — it sees an error message, recalls a common fix, applies it, and hopes for the best. This feels fast but often wastes more time than it saves. It's the engineering equivalent of shaking the TV to fix the picture.
+**The problem**: Claude's default debugging mode is pattern-matching — sees an error, recalls a common fix, applies it, hopes for the best. Feels fast, often wastes more time than it saves. Engineering equivalent of shaking the TV to fix the picture.
 
-**The goal**: Before touching anything, Claude should build a real mental model of what's wrong and *why*, then act from that understanding.
+**The goal**: Before touching anything, build a real mental model of what's wrong and *why*, then act from that understanding.
 
 ---
 
@@ -27,17 +27,17 @@ Before forming any hypothesis:
 
 - Read the **full** error message — not just the last line
 - Find where in the code/config the error originates, not just where it surfaces
-- Check if there are **multiple** errors and understand their order (first error is often the real one)
+- Check for **multiple** errors and their order (first error is often the real one)
 - Note what **changed recently** if known (recent commits, installs, config edits)
-- Check the environment: Node version, OS, env vars, file paths, permissions
+- Check environment: Node version, OS, env vars, file paths, permissions
 
-Ask yourself: *"What system is actually failing, and at what point does it fail?"*
+Ask: *"What system is actually failing, and at what point does it fail?"*
 
 ---
 
 ### Phase 2: Generate Real Hypotheses
 
-Don't go with the first explanation that looks plausible. Generate **at least 3 candidate causes**, ranked by likelihood:
+Don't go with the first plausible explanation. Generate **at least 3 candidate causes**, ranked by likelihood:
 
 ```
 Hypothesis A (most likely): [specific mechanical explanation]
@@ -53,48 +53,45 @@ Hypothesis C: [less likely but possible]
   Evidence against: ...
 ```
 
-Good hypotheses are **mechanical and specific** — they describe *what is actually broken in the system*, not just "maybe it's a version issue" or "could be a config problem".
+Good hypotheses are **mechanical and specific** — describe *what is actually broken*, not "maybe it's a version issue" or "could be a config problem".
 
-Bad hypothesis: "Maybe there's a dependency issue."
-Good hypothesis: "Package X expects peer dependency Y@^2.0, but Y@3.1 is installed, which introduced a breaking API change in the `connect()` function signature."
+Bad: "Maybe there's a dependency issue."
+Good: "Package X expects peer dependency Y@^2.0, but Y@3.1 is installed, which introduced a breaking API change in the `connect()` function signature."
 
 ---
 
 ### Phase 3: Design a Targeted Diagnostic
 
-Before fixing anything, **confirm which hypothesis is correct**. Pick the fastest test that distinguishes between your top hypotheses:
+Before fixing anything, **confirm which hypothesis is correct**. Pick the fastest test that distinguishes your top hypotheses:
 
 - A log statement at the right place
 - A minimal reproduction (strip everything until only the broken part remains)
-- A direct inspection (`console.log`, `cat`, `env`, `which`, `ls -la`, `curl`, type-checking)
+- Direct inspection (`console.log`, `cat`, `env`, `which`, `ls -la`, `curl`, type-checking)
 - Temporarily hardcoding a value to isolate a variable
 
-Run the diagnostic. Let the output update your hypothesis ranking.
+Run the diagnostic. Let output update your hypothesis ranking.
 
-Don't skip this step even if you're "pretty sure" — being wrong here means applying the wrong fix, which creates new problems.
+Don't skip this even if "pretty sure" — being wrong here means applying the wrong fix, creating new problems.
 
 ---
 
 ### Phase 4: Fix with Confidence, Not Hope
 
-Only now, with a confirmed hypothesis, write the fix. The fix should:
+Only now, with a confirmed hypothesis, write the fix. It should:
 
 - Address the **root cause**, not the symptom
 - Be the **minimum change** required
 - Not break anything adjacent (check side effects)
 
-After applying the fix, **verify it worked** — run the thing, check the output, confirm the error is gone and nothing new appeared.
+After applying, **verify it worked** — run it, check output, confirm error gone and nothing new appeared.
 
 ---
 
 ### Phase 5: Explain What You Found
 
-Briefly state:
-1. What was actually wrong (root cause)
-2. Why it was wrong (what condition caused it)
-3. What the fix does (why it resolves the root cause)
+State briefly, one line each: root cause — why it happened — what the fix does and why it resolves it.
 
-This is not just for the user — writing this out is how you confirm that you actually understood the problem.
+Not just for the user — writing this out confirms you actually understood the problem.
 
 ---
 
@@ -102,12 +99,12 @@ This is not just for the user — writing this out is how you confirm that you a
 
 | What it looks like | Why it's a problem |
 |---|---|
-| Trying the most common fix for an error message without reading context | Fixes a different instance of the same-looking error |
-| Making multiple changes at once | You won't know which one worked (or caused a new problem) |
-| "Let me try X and see if that helps" | You're now debugging by lottery |
-| Fixing the line that threw the error | The error is often thrown far from where it was caused |
-| Assuming the same fix as last time | Context changes; the same symptom can have different causes |
-| Not verifying after fixing | The fix may work for the wrong reason, leaving a latent bug |
+| Trying the most common fix without reading context | Fixes a different instance of the same-looking error |
+| Making multiple changes at once | Won't know which one worked (or caused a new problem) |
+| "Let me try X and see if that helps" | Debugging by lottery |
+| Fixing the line that threw the error | Error is often thrown far from where it was caused |
+| Assuming the same fix as last time | Context changes; same symptom can have different causes |
+| Not verifying after fixing | Fix may work for the wrong reason, leaving a latent bug |
 
 ---
 
@@ -119,13 +116,13 @@ If you've gone through this and still don't understand the problem:
 2. **Ask a targeted question** — not "can you give me more context?" but "can you show me the output of `npm ls react` and the contents of your `package.json`?"
 3. **Build a minimal reproduction** — if the real codebase is complex, strip it down until the error is isolated
 
-It is always better to say "I need to understand this better before I can fix it" than to run three wrong fixes in a row.
+Better to say "I need to understand this better before I can fix it" than run three wrong fixes in a row.
 
 ---
 
 ## `/diagnose` Command
 
-This skill is invoked by the `/diagnose` command (`claude/commands/diagnose.md`), installed the same way as the rest of this package — see the "Testing changes" section of the repo's CLAUDE.md.
+Invoked by `/diagnose` command (`claude/commands/diagnose.md`), installed same way as rest of package — see "Testing changes" in repo's CLAUDE.md.
 
 **Usage:**
 ```
@@ -134,7 +131,7 @@ This skill is invoked by the `/diagnose` command (`claude/commands/diagnose.md`)
 /diagnose   ← (no args — Claude will ask what's broken)
 ```
 
-The command forces the full 5-phase protocol: gather facts → hypotheses → diagnostic → fix → explain. It cannot be shortcut.
+Command forces the full 5-phase protocol: gather facts → hypotheses → diagnostic → fix → explain. Cannot be shortcut.
 
 ---
 
@@ -142,9 +139,9 @@ The command forces the full 5-phase protocol: gather facts → hypotheses → di
 
 Before writing any fix:
 
-- [ ] Have I read the full error, not just the last line?
-- [ ] Do I know *where in the system* the failure originates?
-- [ ] Have I generated multiple hypotheses, not just one?
-- [ ] Have I run a diagnostic to confirm which hypothesis is right?
-- [ ] Is my fix addressing the root cause, not the symptom?
-- [ ] Will I verify it worked after applying it?
+- [ ] Read the full error, not just the last line?
+- [ ] Know *where in the system* the failure originates?
+- [ ] Generated multiple hypotheses, not just one?
+- [ ] Run a diagnostic to confirm which hypothesis is right?
+- [ ] Fix addresses root cause, not the symptom?
+- [ ] Will verify it worked after applying it?

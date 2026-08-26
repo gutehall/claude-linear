@@ -40,6 +40,10 @@ Environment vars:
 - `JIRA_API_TOKEN` — API token (overrides config file)
 - `JIRA_AUTH_TYPE` — `bearer` or `basic`
 
+### Avoid redundant lookups
+
+Default `project` and `board.id` live in this config file — that's the cache for those facts. Check it (or what you already learned this session) before re-running `jira project list` or `jira board list` for the same facts. Only re-fetch if config is empty, stale, or the user is working a different project than the default.
+
 ## Quick Reference
 
 ```bash
@@ -150,80 +154,7 @@ git commit -m "PROJ-123 #time 2h Investigating the issue"
 
 ## Workflow Guidelines
 
-### Getting oriented
-
-```bash
-jira board list                           # Find your board ID
-jira sprint list --board-id <id>          # See active sprint
-jira issue list --sprint "Sprint 12" --resolution Unresolved --plain
-jira issue list -a"$(jira me)" --plain    # Your issues
-```
-
-### Starting work
-
-```bash
-jira issue list -s"To Do" -a"$(jira me)" --plain   # What's assigned and ready
-jira issue view PROJ-123                            # Read the full issue
-jira issue move PROJ-123 "In Progress"              # Transition to in progress
-jira issue assign PROJ-123 "$(jira me)"             # Assign to yourself
-git checkout -b PROJ-123-short-description          # Create branch
-```
-
-### When a task is larger than expected
-
-Break it into child issues:
-
-```bash
-jira issue create -tTask -s"Step 1: Research approach" --parent PROJ-123
-jira issue create -tTask -s"Step 2: Implement core logic" --parent PROJ-123
-jira issue create -tTask -s"Step 3: Add tests" --parent PROJ-123
-jira issue move PROJ-124 "In Progress"              # Start the first child
-```
-
-### When you hit a blocker
-
-```bash
-# Link the blocking issue
-jira issue link PROJ-123 PROJ-456 "blocks"
-# PROJ-456 now blocks PROJ-123
-
-# Add a comment explaining the blocker
-jira issue comment add PROJ-123 "Blocked on PROJ-456: need API credentials from infra team"
-```
-
-### Adding notes while working
-
-```bash
-jira issue comment add PROJ-123 "Found root cause in auth.ts:142"
-jira issue edit PROJ-123 --body "Updated: discovered X, trying Y approach"
-```
-
-### Completing work (no GitHub integration)
-
-```bash
-jira issue move PROJ-123 "Done"
-```
-
-Do not auto-close issues without confirming with the developer first.
-
-### Sprint management
-
-```bash
-jira sprint list --board-id <id>           # See all sprints and their state
-jira sprint add --board-id <id> PROJ-123   # Add an issue to the active sprint
-```
-
-## Parent Context and Epics
-
-Epics group related stories. When creating stories under an epic:
-
-```bash
-# Create child issue under an epic
-jira issue create -tStory -s"Add login page" --parent PROJ-100
-
-# View all child issues of an epic
-jira issue list --epics PROJ-100 --plain
-```
+For worked examples (getting oriented, starting work, breaking down large tasks, blockers, adding notes, completing work, sprint management, parent epics), read `references/workflows.md`.
 
 ## Related Skills
 

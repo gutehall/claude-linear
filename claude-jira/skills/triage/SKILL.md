@@ -38,7 +38,7 @@ For each issue, run `jira issue view <key>` and analyze the summary and descript
 |--------|-------------------|
 | "crash", "broken", "data loss", "security", "blocked", "production", "outage" | Highest or High |
 | Feature request, improvement, refactor | Medium or Low |
-| Vague title, missing description | Low — note that more detail is needed |
+| Vague title, missing description | Low — note more detail needed |
 | Priority already set | Do not override |
 
 ### Type
@@ -52,13 +52,13 @@ For each issue, run `jira issue view <key>` and analyze the summary and descript
 
 ### Labels
 
-- Only suggest labels that make sense from the issue content
+- Only suggest labels that make sense from issue content
 - Match on content: "bug" for defects, "security" for auth/vulnerability issues, "performance" for speed concerns
-- Do not invent labels — suggest only common, logical values
+- Don't invent labels — suggest only common, logical values
 
 ### Estimate
 
-Use the sizes from the **estimate** skill:
+Use sizes from the **estimate** skill:
 
 | Size | Story points | Criteria |
 |------|--------------|----------|
@@ -68,12 +68,16 @@ Use the sizes from the **estimate** skill:
 | L | 5 | Significant work, multiple components |
 | XL | 8 | Large, not well-defined, or clearly a multi-PR effort |
 
-Do not suggest an estimate if one is already set. Story points depend on field config — apply via whichever method works for this project (e.g. `jira issue edit <key> --custom "story_points=<n>"`).
+Don't suggest an estimate if one is already set. Story points depend on field config — apply via whichever method works for this project (e.g. `jira issue edit <key> --custom "story_points=<n>"`).
 
 ### Epic
 
 - Only suggest a parent epic if the issue clearly belongs to one
 - If no obvious epic: leave it unset
+
+## Delegating the analysis pass
+
+For >15 issues needing triage, delegate the "Suggesting values" step to a subagent: hand it the issue list, have it run `jira issue view` per issue and compute suggestions per the tables above, return only the suggestion set (key, current values, suggested values) — not the raw `jira issue view` output for each issue. Main thread then runs the interactive Accept/Edit/Skip loop against that compact result.
 
 ## Interaction loop
 
@@ -96,7 +100,7 @@ Suggested:
 [Enter] Accept  [e] Edit  [s] Skip  [q] Quit
 ```
 
-**Accept:** apply all suggested fields that are not already set:
+**Accept:** apply all suggested fields not already set:
 ```bash
 jira issue edit PROJ-42 --priority High
 jira issue edit PROJ-42 --label "bug,auth"
@@ -128,7 +132,7 @@ List each triaged issue key and summary.
 
 ## Error handling
 
-- `jira issue edit` failure: print the error, offer retry or skip — do not silently continue
+- `jira issue edit` failure: print the error, offer retry or skip — don't silently continue
 - If CLI fails: "Could not reach Jira. Check your configuration with `jira init`." and stop
 
 ## Rules

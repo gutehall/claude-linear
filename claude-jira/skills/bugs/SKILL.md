@@ -5,18 +5,20 @@ description: Scan the entire codebase for bugs and create prioritized Jira issue
 
 # Bug Scanner
 
-Exhaustively scan the codebase for bugs and create one Jira issue per finding, ordered by severity.
+Exhaustively scan codebase for bugs, create one Jira issue per finding, ordered by severity.
 
 ## Setup
 
 Before scanning:
 
-1. `jira project list --plain` — confirm the active project key
-2. Note the project key (e.g. `PROJ`) for issue creation
+1. `jira project list --plain` — confirm active project key
+2. Note project key (e.g. `PROJ`) for issue creation
+
+Skip this if project key already known from earlier in the session.
 
 ## Scanning
 
-Explore the full directory tree first (LS, Glob), then read every non-trivial source file.
+Explore full directory tree first (LS, Glob), then read every non-trivial source file.
 Don't skip files that look clean — bugs hide in boring code.
 
 ### What to look for
@@ -38,11 +40,11 @@ Don't skip files that look clean — bugs hide in boring code.
 - Off-by-one errors in loops, slices, or index calculations
 - Wrong comparison operators or inverted conditions
 - Incorrect boolean logic (check De Morgan's law violations)
-- State mutations that affect other code paths unexpectedly
+- State mutations affecting other code paths unexpectedly
 - Missing edge cases (empty arrays, zero, negative numbers, null inputs)
 
 **Null / undefined access** → Medium
-- Property access without null checks where the value may be absent
+- Property access without null checks where value may be absent
 - Missing optional chaining in chains that can be undefined
 - Variables used before assignment
 
@@ -72,8 +74,8 @@ Don't skip files that look clean — bugs hide in boring code.
 
 ## Creating Jira issues
 
-Rank all findings first, then create issues in order: Highest → High → Medium → Low.
-Creating in priority order ensures the backlog is correctly sorted. Ask if issues should be created under an existing epic or left unassigned.
+Rank findings first, create in order: Highest → High → Medium → Low.
+Priority order keeps backlog correctly sorted. Ask if issues go under existing epic or unassigned.
 
 **Summary format:** `[Category] Short description`
 Example: `[Security] SQL injection in user search endpoint`
@@ -101,9 +103,13 @@ jira issue create -tBug \
   --label "bug"
 ```
 
-## Output
+## Output Format
 
-When all issues are created:
+One line per finding when listing to the user:
+
+`file:line: [severity] problem — fix.`
+
+Then the summary block once all issues are created:
 
 ```
 Found N bugs — X highest, Y high, Z medium, W low.
@@ -114,12 +120,12 @@ List each created issue key and summary.
 
 ## Rules
 
-- Read every source file — do not sample or skip
+- Read every source file — no sampling or skipping
 - One issue per bug, not one per file or category
-- Never create an issue for a pattern that is not actually wrong in this codebase
+- Never create issue for pattern not actually wrong in this codebase
 - Keep descriptions concrete: file path, line reference, exact problem, specific fix
 
 ## Related skills
 
 - **jira-cli** — full CLI reference for issue management
-- **product-planning** — for planning follow-up work after the bug audit
+- **product-planning** — for planning follow-up work after bug audit

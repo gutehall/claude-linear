@@ -75,7 +75,7 @@ EOF
 - **Title format:** `PROJ-KEY: Short description` — links the PR to the Jira issue in the development panel
 - **Body must end with `Closes PROJ-KEY`** — triggers Jira-GitHub integration to auto-transition the issue on merge (if configured)
 - **Test plan must contain the commands actually run and their actual results** — never unchecked checkboxes. If the repo has no test/build tooling, say so in the test plan.
-- Do not use `--fill` — it produces poor titles and bodies
+- Don't use `--fill` — produces poor titles and bodies
 - Use `--draft` for WIP PRs not ready for review
 
 ## Detecting the base branch
@@ -126,7 +126,7 @@ gh pr diff 123
 
 ## Branch protection (server-side enforcement)
 
-The workflow's quality gates (diff review, local tests, code-review skill) live in prompts — they are advisory. Branch protection on the default branch makes them unbypassable for every contributor, human or bot:
+The workflow's quality gates (diff review, local tests, code-review skill) live in prompts — advisory only. Branch protection on the default branch makes them unbypassable for every contributor, human or bot:
 
 ```bash
 # Require CI checks + 1 approving review on main
@@ -153,7 +153,7 @@ Find the check name with `gh pr checks` on any open PR, or from `.github/workflo
 
 ## Push rejected (diverged history)
 
-Canonical procedure when `git push` is rejected because the remote branch moved on. All commands reference this — do not re-spell it.
+Canonical procedure when `git push` is rejected because the remote branch moved on. All commands reference this — don't re-spell it.
 
 1. `git fetch origin`, then check the gap: `git log --oneline HEAD..origin/<branch>`
 2. `git rebase origin/<base>` — rebase, **never** merge

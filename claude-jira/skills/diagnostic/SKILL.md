@@ -5,17 +5,17 @@ description: Structured diagnosis protocol — stop guessing, gather facts, gene
 
 # Diagnostic Thinking
 
-Stop guessing. Do not touch code until the root cause is confirmed.
+Stop guessing. Don't touch code until root cause is confirmed.
 
 ## Phase 1: Read Everything
 
-Before forming any theory, gather the facts:
-- Read the full error — not just the last line
-- Identify where the failure *originates* vs where it *surfaces*
+Before forming any theory, gather facts:
+- Read full error — not just last line
+- Identify where failure *originates* vs where it *surfaces*
 - Check what changed recently: last commit, new installs, config edits
-- Note the environment: versions, env vars, file paths, permissions
+- Note environment: versions, env vars, file paths, permissions
 
-State what you have found before moving on.
+State what you found before moving on.
 
 ## Phase 2: Generate Hypotheses
 
@@ -37,34 +37,38 @@ Hypotheses must be *mechanical and specific*. "Maybe it's a version issue" is no
 
 ## Phase 3: Design a Diagnostic
 
-Pick the fastest test that distinguishes between your top two hypotheses:
-- A specific log or print statement at the right location
+Pick fastest test distinguishing top two hypotheses:
+- A specific log or print statement at right location
 - A direct inspection command (`which`, `env`, `ls -la`, `cat`, `curl`)
 - Temporarily hardcoding a value to isolate a variable
-- A minimal reproduction (strip everything until only the broken part remains)
+- A minimal reproduction (strip everything until only broken part remains)
 
-Run the diagnostic. Update your hypothesis ranking based on the result.
+Run diagnostic. Update hypothesis ranking based on result.
 
 ## Phase 4: Fix with Confidence
 
-Only now — with a confirmed root cause — write the fix:
-- Address the root cause, not the symptom
-- Make the minimum change required
+Only now — with confirmed root cause — write the fix:
+- Address root cause, not symptom
+- Make minimum change required
 - Check for side effects
 
-Verify it worked: run the thing, check the output, confirm the error is gone.
+Verify it worked: run the thing, check output, confirm error is gone.
 
 ## Phase 5: Explain What You Found
 
 1. What was actually wrong (root cause)
 2. Why it was wrong (what condition caused it)
-3. What the fix does (why it resolves the root cause)
+3. What the fix does (why it resolves root cause)
+
+## Output Format
+
+Hypotheses as: `hypothesis — evidence for/against.` Final explanation stays prose (root cause / why / fix) — that's a narrative, not a list.
 
 ## Rules
 
-- Do not write any code until Phase 4
-- If you cannot confirm a hypothesis with available information, say so and ask for the specific output or file you need
-- "I need X before I can fix this" is always better than applying a guess
+- Don't write any code until Phase 4
+- If you cannot confirm a hypothesis with available information, say so and ask for specific output or file needed
+- "I need X before I can fix this" always beats applying a guess
 
 ---
 
@@ -73,11 +77,11 @@ Verify it worked: run the thing, check the output, confirm the error is gone.
 | What it looks like | Why it's a problem |
 |---|---|
 | Trying the most common fix for an error message without reading context | Fixes a different instance of the same-looking error |
-| Making multiple changes at once | You won't know which one worked (or caused a new problem) |
-| "Let me try X and see if that helps" | You're now debugging by lottery |
-| Fixing the line that threw the error | The error is often thrown far from where it was caused |
-| Assuming the same fix as last time | Context changes; the same symptom can have different causes |
-| Not verifying after fixing | The fix may work for the wrong reason, leaving a latent bug |
+| Making multiple changes at once | Won't know which one worked (or caused a new problem) |
+| "Let me try X and see if that helps" | Now debugging by lottery |
+| Fixing the line that threw the error | Error is often thrown far from where it was caused |
+| Assuming same fix as last time | Context changes; same symptom can have different causes |
+| Not verifying after fixing | Fix may work for wrong reason, leaving a latent bug |
 
 ---
 
@@ -87,15 +91,15 @@ If you've gone through this and still don't understand the problem:
 
 1. **Say so clearly** — "I don't have enough information to diagnose this confidently. I need to see X."
 2. **Ask a targeted question** — not "can you give me more context?" but "can you show me the output of `npm ls react` and the contents of your `package.json`?"
-3. **Build a minimal reproduction** — if the real codebase is complex, strip it down until the error is isolated
+3. **Build a minimal reproduction** — if real codebase is complex, strip it down until error is isolated
 
-It is always better to say "I need to understand this better before I can fix it" than to run three wrong fixes in a row.
+Always better to say "I need to understand this better before I can fix it" than run three wrong fixes in a row.
 
 ---
 
 ## `/diagnose` Command
 
-This skill is invoked by the `/diagnose` command (`claude-jira/commands/diagnose.md`), installed the same way as the rest of this package — see the "Testing changes" section of the repo's CLAUDE.md.
+This skill is invoked by the `/diagnose` command (`claude-jira/commands/diagnose.md`), installed the same way as rest of this package — see the "Testing changes" section of the repo's CLAUDE.md.
 
 **Usage:**
 ```
@@ -104,7 +108,7 @@ This skill is invoked by the `/diagnose` command (`claude-jira/commands/diagnose
 /diagnose   ← (no args — Claude will ask what's broken)
 ```
 
-The command forces the full 5-phase protocol: gather facts → hypotheses → diagnostic → fix → explain. It cannot be shortcut.
+Command forces full 5-phase protocol: gather facts → hypotheses → diagnostic → fix → explain. Cannot be shortcut.
 
 ---
 

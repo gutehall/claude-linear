@@ -5,7 +5,7 @@ description: Plan the next version of an existing solution through a grounded, c
 
 # Evolve Skill
 
-Facilitate a grounded design conversation about what the *next version* of a working solution should be. The defining move: read the actual code first, so every improvement is anchored to what exists — not generic best-practice.
+Facilitate a grounded design conversation about what the *next version* of a working solution should be. Defining move: read the actual code first, so every improvement is anchored to what exists — not generic best-practice.
 
 ## Mindset
 
@@ -22,6 +22,6 @@ Facilitate a grounded design conversation about what the *next version* of a wor
 
 ## Key principle
 
-This is not a feature wishlist and not a strategy session. It is a design tool. The user should leave with a concrete, sequenced, migration-aware brief for the next version — grounded in the code that exists today — ready to hand to `/plan`.
+Not a feature wishlist, not a strategy session. A design tool. User should leave with a concrete, sequenced, migration-aware brief for the next version — grounded in the code that exists today — ready to hand to `/plan`.
 
-An evolve session has succeeded when the user can answer: *What is the next version, what's the smallest valuable slice of it, and how do we get there without breaking what works?*
+An evolve session succeeds when user can answer: *What is the next version, what's the smallest valuable slice of it, and how do we get there without breaking what works?*

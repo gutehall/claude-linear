@@ -5,20 +5,20 @@ description: Scan the entire codebase for bugs and create prioritized Linear iss
 
 # Bug Scanner
 
-Exhaustively scan the codebase for bugs and create one Linear issue per finding, ordered by severity.
+Exhaustively scan codebase, create one Linear issue per finding, ordered by severity.
 
 ## Setup
 
 Before scanning:
 
-1. `mcp__claude_ai_Linear__list_teams` — identify the active team
-2. `mcp__claude_ai_Linear__list_issue_labels` — note available labels
+1. `mcp__claude_ai_Linear__list_teams` — identify active team (skip if team already known from this session or `.linear` config)
+2. `mcp__claude_ai_Linear__list_issue_labels` — note available labels (skip if already known)
 3. If no "bug" label exists: `mcp__claude_ai_Linear__create_issue_label` to create one
 
 ## Scanning
 
-Explore the full directory tree first (LS, Glob), then read every non-trivial source file.
-Don't skip files that look clean — bugs hide in boring code.
+Explore full directory tree first (LS, Glob), then read every non-trivial source file.
+Don't skip clean-looking files — bugs hide in boring code.
 
 ### What to look for
 
@@ -36,21 +36,21 @@ Don't skip files that look clean — bugs hide in boring code.
 - Errors logged but not propagated when they should be
 
 **Logic errors** → High or Medium
-- Off-by-one errors in loops, slices, or index calculations
+- Off-by-one errors in loops, slices, index calculations
 - Wrong comparison operators or inverted conditions
 - Incorrect boolean logic (check De Morgan's law violations)
-- State mutations that affect other code paths unexpectedly
+- State mutations affecting other code paths unexpectedly
 - Missing edge cases (empty arrays, zero, negative numbers, null inputs)
 
 **Null / undefined access** → Medium
-- Property access without null checks where the value may be absent
+- Property access without null checks where value may be absent
 - Missing optional chaining in chains that can be undefined
 - Variables used before assignment
 
 **Type safety** → Medium
 - Implicit type coercion producing wrong results
 - `parseInt` / `parseFloat` without radix
-- Comparisons between values of incompatible types
+- Comparisons between incompatible types
 
 **Resource management** → Medium or Low
 - Connections or file handles not closed in finally blocks
@@ -73,8 +73,8 @@ Don't skip files that look clean — bugs hide in boring code.
 
 ## Creating Linear issues
 
-Rank all findings first, then create issues in order: Urgent → High → Medium → Low. Ask if it should be created in existing project or in a new project.
-Creating in priority order ensures the backlog is correctly sorted.
+Rank findings first, create in order: Urgent → High → Medium → Low. Ask if it should go in existing project or new one.
+Priority order keeps backlog correctly sorted.
 
 **Title format:** `[Category] Short description`
 Example: `[Security] SQL injection in user search endpoint`
@@ -94,26 +94,26 @@ Example: `[Security] SQL injection in user search endpoint`
 <concrete fix — be specific>
 ```
 
-**Labels:** `["bug"]` plus any existing type labels that match (e.g. "security", "performance"). Do not create extra labels for categories.
+**Labels:** `["bug"]` plus matching existing type labels (e.g. "security", "performance"). Don't create extra category labels.
 
-Use `mcp__claude_ai_Linear__save_issue` for each issue.
+Use `mcp__claude_ai_Linear__save_issue` per issue.
 
-## Output
+## Output Format
 
-When all issues are created:
+When done:
 
 ```
 Found N bugs — X urgent, Y high, Z medium, W low.
 Created N Linear issues.
 ```
 
-List each created issue ID and title.
+Then one line per issue: `ISSUE-ID: Title`
 
 ## Rules
 
-- Read every source file — do not sample or skip
-- One issue per bug, not one per file or category
-- Never create an issue for a pattern that is not actually wrong in this codebase
+- Read every source file — no sampling or skipping
+- One issue per bug, not per file or category
+- Never create an issue for a pattern that isn't actually wrong in this codebase
 - Keep descriptions concrete: file path, line reference, exact problem, specific fix
 
 ## Related skills

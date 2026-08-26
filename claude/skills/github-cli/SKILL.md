@@ -6,7 +6,7 @@ allowed-tools: Bash(gh:*)
 
 # GitHub CLI
 
-Reference for `gh` — the official GitHub CLI. Used across this workflow for PR creation, review, and CI checks.
+Reference for `gh` — the official GitHub CLI. Used across this workflow for PR creation, review, CI checks.
 
 Install: `brew install gh` (or check https://cli.github.com)
 Auth: `gh auth login`
@@ -50,7 +50,7 @@ gh run rerun                        # Re-run failed run
 
 ## PR Creation Pattern
 
-Always use this structure when creating PRs in this workflow:
+Always use this structure for PRs in this workflow:
 
 ```bash
 gh pr create \
@@ -74,8 +74,8 @@ EOF
 
 - **Title format:** `ISSUE-ID: Short description` — enables Linear's GitHub integration to link the PR
 - **Body must end with `Closes ISSUE-ID`** — triggers Linear to auto-close the issue when the PR merges
-- **Test plan must contain the commands actually run and their actual results** — never unchecked checkboxes. If the repo has no test/build tooling, say so in the test plan.
-- Do not use `--fill` — it produces poor titles and bodies
+- **Test plan must contain commands actually run and their actual results** — never unchecked checkboxes. No test/build tooling in repo → say so in the test plan.
+- Don't use `--fill` — produces poor titles and bodies
 - Use `--draft` for WIP PRs not ready for review
 
 ## Detecting the base branch
@@ -93,7 +93,7 @@ Default to `main` if detection fails.
 gh pr view --json number,title,url,state
 ```
 
-Run this before `gh pr create` to avoid duplicate PRs.
+Run before `gh pr create` to avoid duplicate PRs.
 
 ## Common patterns
 
@@ -116,7 +116,7 @@ gh pr merge --squash --delete-branch          # interactive flows, after the use
 gh pr merge --auto --squash --delete-branch   # arm auto-merge: GitHub merges once checks + required reviews pass (use in /grind and /autopilot)
 ```
 
-Never merge with failing checks. If the repo has no checks at all, treat that as a missing gate — flag it and set up branch protection (below) rather than merging unvalidated code.
+Never merge with failing checks. No checks at all in repo → treat as a missing gate, flag it and set up branch protection (below) rather than merging unvalidated code.
 
 ### View a specific PR
 ```bash
@@ -126,7 +126,7 @@ gh pr diff 123
 
 ## Branch protection (server-side enforcement)
 
-The workflow's quality gates (diff review, local tests, code-review skill) live in prompts — they are advisory. Branch protection on the default branch makes them unbypassable for every contributor, human or bot:
+The workflow's quality gates (diff review, local tests, code-review skill) live in prompts — advisory only. Branch protection on the default branch makes them unbypassable for every contributor, human or bot:
 
 ```bash
 # Require CI checks + 1 approving review on main
@@ -153,14 +153,14 @@ Find the check name with `gh pr checks` on any open PR, or from `.github/workflo
 
 ## Push rejected (diverged history)
 
-Canonical procedure when `git push` is rejected because the remote branch moved on. All commands reference this — do not re-spell it.
+Canonical procedure when `git push` is rejected because the remote branch moved on. All commands reference this — don't re-spell it.
 
 1. `git fetch origin`, then check the gap: `git log --oneline HEAD..origin/<branch>`
 2. `git rebase origin/<base>` — rebase, **never** merge
-3. **Conflicts → stop. List the conflicting files. Do not auto-resolve.** The caller decides the outcome:
-   - interactive command (`/pr`, `/done`) → tell the user to resolve, run `git rebase --continue`, then re-run the command
+3. **Conflicts → stop. List the conflicting files. Do not auto-resolve.** Caller decides the outcome:
+   - interactive command (`/pr`, `/done`) → tell user to resolve, run `git rebase --continue`, then re-run the command
    - autonomous loop (`/grind`) → **STOP LOOP**
-4. **Never force-push** unless the user explicitly requests it.
+4. **Never force-push** unless user explicitly requests it.
 
 ## Related Skills
 

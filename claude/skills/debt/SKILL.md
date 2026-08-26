@@ -5,20 +5,20 @@ description: Scan the entire codebase for tech debt and create prioritized Linea
 
 # Tech Debt Scanner
 
-Exhaustively scan the codebase for tech debt and create one Linear issue per finding, ordered by severity.
+Exhaustively scan codebase, create one Linear issue per finding, ordered by severity.
 
 ## Setup
 
 Before scanning:
 
-1. `mcp__claude_ai_Linear__list_teams` — identify the active team
-2. `mcp__claude_ai_Linear__list_issue_labels` — note available labels
+1. `mcp__claude_ai_Linear__list_teams` — identify active team (skip if already known from this session or `.linear` config)
+2. `mcp__claude_ai_Linear__list_issue_labels` — note available labels (skip if already known)
 3. If no "tech-debt" label exists: `mcp__claude_ai_Linear__create_issue_label` to create one
 
 ## Scanning
 
-Explore the full directory tree first (LS, Glob), then read every non-trivial source file.
-Don't skip files that look tidy — debt hides in overlooked corners.
+Explore full directory tree first (LS, Glob), then read every non-trivial source file.
+Don't skip tidy-looking files — debt hides in overlooked corners.
 
 ### What to look for
 
@@ -30,7 +30,7 @@ Don't skip files that look tidy — debt hides in overlooked corners.
 **Complexity** → Medium
 - Functions over ~50 lines
 - Deeply nested conditionals (3+ levels)
-- Functions with 5 or more parameters
+- Functions with 5+ parameters
 
 **Dead code** → Low or Medium
 - Unused exports or functions never imported elsewhere
@@ -38,11 +38,11 @@ Don't skip files that look tidy — debt hides in overlooked corners.
 - Large sections of commented-out code
 
 **TODO/FIXME/HACK/XXX comments** → Low or Medium
-- Surface all of them; judge priority by the comment content
-- Use Medium if the comment indicates a real correctness or reliability problem
+- Surface all of them; judge priority by comment content
+- Medium if comment indicates a real correctness or reliability problem
 
 **Hardcoded configuration** → Medium
-- URLs, ports, timeouts, or limits hardcoded in logic (not in config files)
+- URLs, ports, timeouts, limits hardcoded in logic (not config files)
 - Values that belong in env vars or named constants
 
 **Duplicated code** → Medium
@@ -55,9 +55,9 @@ Don't skip files that look tidy — debt hides in overlooked corners.
 - Untyped parameters
 
 **Outdated patterns** → Low or Medium
-- Deprecated API usage within the codebase's own framework or libraries
-- Old async patterns (callbacks where promises are the project standard)
-- Inconsistent patterns across files (some use one approach, others a different one)
+- Deprecated API usage within the codebase's own framework/libraries
+- Old async patterns (callbacks where promises are project standard)
+- Inconsistent patterns across files
 
 ## Priority mapping
 
@@ -70,8 +70,8 @@ Don't skip files that look tidy — debt hides in overlooked corners.
 
 ## Creating Linear issues
 
-Rank all findings first, then create issues in order: Urgent → High → Medium → Low. Ask if it should be created in existing project or in a new project.
-Creating in priority order ensures the backlog is correctly sorted.
+Rank findings first, create in order: Urgent → High → Medium → Low. Ask if it should go in existing project or new one.
+Priority order keeps backlog correctly sorted.
 
 **Title format:** `[DebtType] Short description`
 Example: `[Missing Tests] No test coverage for auth token validation`
@@ -91,26 +91,26 @@ Example: `[Missing Tests] No test coverage for auth token validation`
 <specific action to take>
 ```
 
-**Labels:** `["tech-debt"]` plus any existing type labels that match (e.g. "testing", "refactor"). Do not create extra labels for categories.
+**Labels:** `["tech-debt"]` plus matching existing type labels (e.g. "testing", "refactor"). Don't create extra category labels.
 
-Use `mcp__claude_ai_Linear__save_issue` for each issue.
+Use `mcp__claude_ai_Linear__save_issue` per issue.
 
-## Output
+## Output Format
 
-When all issues are created:
+When done:
 
 ```
 Found N debt items — X urgent, Y high, Z medium, W low.
 Created N Linear issues.
 ```
 
-List each created issue ID and title.
+Then one line per issue: `ISSUE-ID: Title`
 
 ## Rules
 
-- Read every source file — do not sample or skip
-- One issue per debt item, not one per file or category
-- Never create an issue for a pattern that is not actually present in this codebase
+- Read every source file — no sampling or skipping
+- One issue per debt item, not per file or category
+- Never create an issue for a pattern not actually present in this codebase
 - Keep descriptions concrete: file path, line reference, exact problem, specific fix
 
 ## Related skills

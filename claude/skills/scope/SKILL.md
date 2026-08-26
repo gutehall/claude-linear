@@ -9,9 +9,13 @@ How to look at a project's issues and find what's missing, unclear, or out of or
 
 ## Mindset
 
-You're not padding the backlog — you're finding things that will surprise the team mid-sprint. The test for whether a gap is worth raising: would discovering it mid-implementation block progress or change the plan?
+You're not padding the backlog — you're finding things that'll surprise the team mid-sprint. Test for whether a gap is worth raising: would discovering it mid-implementation block progress or change the plan?
 
 Ask before creating anything. Present findings; let the user decide what to act on.
+
+## Large projects — delegate the gathering
+
+For a project with many issues (>~40), delegate the fetch-and-scan loop (pulling every issue, reading `product.md`, walking milestones) to a subagent and have it return only the compact findings list below. Keeps the per-issue fetch output out of the main thread's context — do the presenting/offering-actions steps yourself once the findings come back.
 
 ## What to look for
 
@@ -23,32 +27,32 @@ An issue is unclear if someone picking it up tomorrow couldn't start without ask
 - No estimate — is this an hour or a week?
 
 ### Scope gaps
-Work that's implied by the project goals but not tracked anywhere. Sources:
+Work implied by the project goals but not tracked anywhere. Sources:
 - `product.md` mentions a feature or requirement with no corresponding issue
-- An issue's acceptance criteria mentions a dependency that has no ticket
+- An issue's acceptance criteria mentions a dependency with no ticket
 - A milestone has a logical step clearly missing (e.g., "design" and "deploy" but no "implement")
 - Integration points mentioned in one issue that another team/system would need to handle
 
 ### Orphaned issues
-Issues that don't belong to any milestone in a project that uses milestones. They tend to get forgotten. Either assign them to a milestone, or confirm they're intentionally unscheduled.
+Issues that don't belong to any milestone in a project that uses milestones. Tend to get forgotten. Either assign to a milestone, or confirm intentionally unscheduled.
 
 ### Stale in-progress
-Issues that have been "In Progress" for an unusually long time (relative to their estimate). May be blocked, abandoned, or just forgotten. Worth a conversation.
+Issues "In Progress" for an unusually long time (relative to estimate). May be blocked, abandoned, or forgotten. Worth a conversation.
 
 ### Oversized issues
-L/XL issues that haven't been split. These are planning liabilities — hard to schedule, easy to underestimate. Flag them with a suggestion to `/split`.
+L/XL issues not yet split. Planning liabilities — hard to schedule, easy to underestimate. Flag with a suggestion to `/split`.
 
 ## How to assess gaps
 
 Read `product.md` first. Without it, you're guessing at intended scope.
 
-For each milestone or phase: trace through the work like a user journey or a data flow. What needs to happen for this milestone to deliver its stated goal? Is there a ticket for each step?
+For each milestone or phase: trace through the work like a user journey or data flow. What needs to happen for this milestone to deliver its stated goal? Is there a ticket for each step?
 
-Don't invent requirements. If you're unsure whether something is missing or just out of scope, say so and let the user decide.
+Don't invent requirements. Unsure whether something's missing or just out of scope → say so, let user decide.
 
 ## Presenting findings
 
-Group by category and be specific — include issue IDs, not just counts:
+Group by category, specific — include issue IDs, not just counts:
 
 ```
 Unclear (3):

@@ -5,19 +5,19 @@ description: Audit project dependencies for security vulnerabilities and outdate
 
 # Dependency Auditor
 
-Detect all package managers in the project, run security and outdated checks, and create one Linear issue per finding, ordered by severity.
+Detect all package managers in the project, run security and outdated checks, create one Linear issue per finding, ordered by severity.
 
 ## Setup
 
 Before auditing:
 
-1. `mcp__claude_ai_Linear__list_teams` — identify the active team
-2. `mcp__claude_ai_Linear__list_issue_labels` — note available labels
+1. `mcp__claude_ai_Linear__list_teams` — identify active team (skip if already known from this session or `.linear` config)
+2. `mcp__claude_ai_Linear__list_issue_labels` — note available labels (skip if already known)
 3. If no "dependencies" label exists: `mcp__claude_ai_Linear__create_issue_label` to create one
 
 ## Package manager detection
 
-Check for manifest files in the project root and subdirectories:
+Check for manifest files in project root and subdirectories:
 
 | Manifest | Package manager |
 |----------|----------------|
@@ -57,8 +57,8 @@ If no manifests found: "No package manifests found. Is this a new project?" and 
 | go | `go list -m -u all` |
 | bundler | `bundle outdated` |
 
-If a tool is not installed: note it, skip that check, continue.
-If a command exits non-zero with no parseable output: show raw error, skip, continue.
+Tool not installed: note it, skip check, continue.
+Command exits non-zero with no parseable output: show raw error, skip, continue.
 
 ## Priority mapping
 
@@ -81,8 +81,8 @@ If a command exits non-zero with no parseable output: show raw error, skip, cont
 
 ## Creating Linear issues
 
-Rank all findings first, then create issues in order: Urgent → High → Medium → Low.
-Creating in priority order ensures the backlog is correctly sorted.
+Rank findings first, create in order: Urgent → High → Medium → Low.
+Priority order keeps backlog correctly sorted.
 
 **Title for vulnerabilities:** `[Security] <package>@<current>: <CVE or brief description>`
 
@@ -106,26 +106,26 @@ Creating in priority order ensures the backlog is correctly sorted.
 <exact command to update, e.g. `npm install package@latest`>
 ```
 
-**Labels:** `["dependencies"]` for all issues. Add `["security"]` for any issue with a CVE or advisory. Do not create extra labels.
+**Labels:** `["dependencies"]` for all issues. Add `["security"]` for any issue with a CVE or advisory. Don't create extra labels.
 
-Use `mcp__claude_ai_Linear__save_issue` for each issue.
+Use `mcp__claude_ai_Linear__save_issue` per issue.
 
-## Output
+## Output Format
 
-When all issues are created:
+When done:
 
 ```
 Audited <N> package manager(s). Found X vulnerabilities, Y outdated packages.
 Created N Linear issues.
 ```
 
-List each created issue ID and title.
+Then one line per issue: `ISSUE-ID: Title`
 
-If everything is clean: "No vulnerabilities found. All packages are up to date (or within acceptable range)." — do not create any Linear issues.
+If clean: "No vulnerabilities found. All packages are up to date (or within acceptable range)." — don't create any Linear issues.
 
 ## Rules
 
-- Run every detected package manager — do not skip any
+- Run every detected package manager — don't skip any
 - One issue per vulnerable or outdated package
 - Never create an issue for a patch-only version difference
 - Keep descriptions concrete: exact package name, exact version, exact fix command

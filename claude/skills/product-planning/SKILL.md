@@ -25,7 +25,7 @@ linear roadmap        # Projects, milestones, progress
 linear issues --open  # Active work
 ```
 
-Read `product.md` if it exists—contains product vision, brand, tech decisions, prior planning context.
+Read `product.md` if it exists — contains product vision, brand, tech decisions, prior planning context.
 
 ## Process
 
@@ -48,7 +48,7 @@ Proactively search the web when exploring unfamiliar territory (competitors, mar
 - What can wait for later?
 - How will users discover and use this? What's prominent vs. hidden?
 
-Cut scope aggressively—except for core/differentiating features where polish and detail set you apart.
+Cut scope aggressively — except for core/differentiating features where polish and detail set you apart.
 
 For technical work, explore the existing codebase first to understand patterns and architecture.
 
@@ -98,7 +98,7 @@ linear issue move ISSUE-11 --before ISSUE-12   # design before build
 linear issue move ISSUE-12 --before ISSUE-13   # build before deploy
 ```
 
-Issues should appear in Linear in the sequence a developer would pick them up. If two issues are independent, put the higher-value one first.
+Issues should appear in Linear in the sequence a developer would pick them up. Two issues independent → put the higher-value one first.
 
 ### 6. Prioritize Projects and Milestones
 
@@ -109,7 +109,7 @@ linear milestones reorder "Alpha" "Beta" --project "Phase 2"
 
 ## product.md
 
-`product.md` is the persistent product context file for a project. It lives at the project root and is read at the start of every planning session to avoid re-deriving context.
+`product.md` is the persistent product context file for a project. Lives at project root, read at the start of every planning session to avoid re-deriving context.
 
 ### When to create it
 
@@ -149,7 +149,7 @@ Things explicitly cut from scope, and why.
 - Items explicitly deferred (and why)
 - Refined understanding of the user or problem
 
-Keep it short. It's a reference, not a wiki. If it grows beyond 1–2 pages, trim it.
+Keep it short. It's a reference, not a wiki. Grows beyond 1–2 pages → trim it.
 
 ## Session Summary
 

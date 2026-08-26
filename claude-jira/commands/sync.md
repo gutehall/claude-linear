@@ -24,6 +24,8 @@ git branch --list "*<issue-key>*"                              # Does a local br
 gh pr list --head <branch-name> --json number,state,mergedAt   # Any PR for that branch?
 ```
 
+If more than 5 issues are in progress, delegate this per-issue loop to a general-purpose subagent: hand it the issue list, have it run the `git`/`gh` checks for every issue, and return only the classified table from step 3 — not the raw command output. Keeps N issues × 2 tool calls out of the main thread's context.
+
 ### 3. Classify each issue
 
 | Situation | Classification |

@@ -5,7 +5,7 @@ description: Generate a changelog from merged PRs and commits since the last git
 
 # Release Manager
 
-Generate a changelog, bump the version, and publish a GitHub release — all from git history and merged PRs.
+Generate a changelog, bump the version, publish a GitHub release — all from git history and merged PRs.
 
 ## Step 1: Verify environment
 

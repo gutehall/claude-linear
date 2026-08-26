@@ -105,7 +105,7 @@ For ordering within a sprint, use the board drag-drop in the Jira UI, or set pri
 
 ## product.md
 
-`product.md` is the persistent product context file for a project. It lives at the project root and is read at the start of every planning session to avoid re-deriving context.
+`product.md` is the persistent product context file for a project. Lives at project root, read at the start of every planning session to avoid re-deriving context.
 
 ### When to create it
 
@@ -145,7 +145,7 @@ Things explicitly cut from scope, and why.
 - Items explicitly deferred (and why)
 - Refined understanding of the user or problem
 
-Keep it short. It's a reference, not a wiki. If it grows beyond 1–2 pages, trim it.
+Keep it short. A reference, not a wiki. If it grows beyond 1–2 pages, trim it.
 
 ## Session Summary
 
