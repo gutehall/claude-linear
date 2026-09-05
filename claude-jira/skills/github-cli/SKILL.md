@@ -1,6 +1,6 @@
 ---
 name: github-cli
-description: GitHub CLI (gh) reference for managing PRs, issues, and CI from the terminal. Used by /pr, /done, /review, and /sync commands.
+description: GitHub CLI (gh) reference for managing PRs, issues, and CI from the terminal. Do not trigger proactively. Load only when a command says to follow this skill, or the user asks for gh CLI syntax.
 allowed-tools: Bash(gh:*)
 ---
 

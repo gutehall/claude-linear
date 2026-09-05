@@ -1,6 +1,6 @@
 ---
 name: triage
-description: Interactively triage Linear issues that are missing priority, labels, estimate, or project assignment. Use this skill whenever the user runs /triage or asks to triage, review, or clean up untriaged issues in Linear.
+description: Interactively triage Linear issues that are missing priority, labels, estimate, or project assignment. Use this skill only for /triage or when the user explicitly asks to triage issues. Do not trigger proactively.
 ---
 
 # Issue Triage

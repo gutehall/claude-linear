@@ -1,6 +1,6 @@
 ---
 name: whatchanged
-description: Generate a management-facing progress report covering everything shipped since the last time the command was run — features delivered, bugs fixed, and work in flight. Persists a checkpoint so each run only covers new changes. Use this skill whenever the user runs /whatchanged or asks for a status report for management.
+description: Generate a management-facing progress report covering everything shipped since the last time the command was run. Use this skill only for /whatchanged or when the user explicitly asks for a management status report. Do not trigger proactively.
 ---
 
 # What Changed — Management Report

@@ -14,6 +14,7 @@ Pick one per project — install `claude/` **or** `claude-jira/`, not both.
 ## Contents
 
 - [How it works](#how-it-works)
+- [Token efficiency](#token-efficiency)
 - [Commands at a glance](#commands-at-a-glance)
 - [Linear vs Jira](#linear-vs-jira)
 - [Installation](#installation) — [Linear](#linear-installation) · [Jira](#jira-installation)
@@ -39,6 +40,22 @@ Or hand the whole cycle to Claude and walk away:
 
 Under the hood: the tracker's hosted MCP server gives Claude structured read access (issues, projects, comments), and the CLI (`linear` / `jira`) handles writes the MCP doesn't — branch creation, status moves, status-filtered listings. `gh` drives GitHub.
 
+Project-specific rules (verify commands, coding standards, extra pre-merge gates) live in the *consuming* repo — an optional conventions skill, else `CLAUDE.md` / `AGENTS.md` / `CONTRIBUTING.md`. This toolkit has none.
+
+---
+
+## Token efficiency
+
+Commands and skills are written so Claude pays for methodology only when it is invoked — not on every turn.
+
+- **Thin command routers.** `/sit` and `/diagnose` load their skill instead of pasting the protocol twice. `/done`, `/pr`, `/grind`, and `/autopilot` share a **ship-gate** skill for the pre-push quality gate (diff review, local verify, size-gated self-review).
+- **Scoped skill descriptions.** Skill `description:` frontmatter is routing context on every turn. Methodology skills say **Do not trigger proactively** — they load on `/cmd` or an explicit ask, not on generic "fix this" / "review my code".
+- **Cheap subagents as leads.** Locate/review greps go to Haiku (or `cavecrew-investigator` / `cavecrew-reviewer` if those agent types exist). Compressed `path:line` receipts are leads, not proof — the main thread reads the cited span. Never spawn a full-size model just to find files.
+- **Size-gated code review.** Under 400 lines **and** under 8 files, verified cheap-reviewer leads *are* the review — the full `code-review` skill stays unloaded. Larger diffs load it.
+- **Incremental scans.** `/bugs --changed` and `/debt --changed` scan only files since the last local `bugs-last-scan-*` / `debt-last-scan-*` tag.
+- **Core-only skill install.** Default copy skips non-vital skill folders so their descriptions don't sit in every prompt. See [`VITALITY.md`](VITALITY.md). Commands for those skills are still installed.
+- **Claude Code effort.** Set `effortLevel` to `"medium"` in `~/.claude/settings.json`. `/sit`, `/diagnose`, `/plan`, and `/review` tell the model that extra reasoning is worth it for that one run.
+
 ---
 
 ## Commands at a glance
@@ -47,7 +64,7 @@ Under the hood: the tracker's hosted MCP server gives Claude structured read acc
 |---------|--------------|
 | **Core loop** | |
 | `/next` | Pick the next ready issue and start — project or issue scope |
-| `/done` | Ship: quality gate (diff review, tests, code review), PR, CI, confirmed squash-merge |
+| `/done` | Ship: ship-gate (diff review, tests, size-gated code review), PR, CI, confirmed squash-merge |
 | `/grind` | One autonomous cycle (pick → implement → ship), no prompts; wrap in `/loop` |
 | `/autopilot` | `/grind` restricted to issues labelled `auto-claude` — for an unsupervised instance |
 | `/pr` | Open a PR for review without merging |
@@ -67,8 +84,8 @@ Under the hood: the tracker's hosted MCP server gives Claude structured read acc
 | `/dedupe` | Find duplicate / similar issues and collapse them |
 | `/issues` | Browse and filter issues by project |
 | **Code health** | |
-| `/bugs` | Scan the codebase for bugs → issues |
-| `/debt` | Scan for tech debt → issues |
+| `/bugs` | Scan the codebase for bugs → issues (`--changed` for incremental) |
+| `/debt` | Scan for tech debt → issues (`--changed` for incremental) |
 | `/deps` | Audit dependencies (security + outdated) → issues |
 | **Review & ship** | |
 | `/review` | Review an open PR (diff, CI, approve / comment) |
@@ -93,7 +110,7 @@ The command set and workflow are identical; only the tracker calls differ.
 | Branch (project mode) | `<project-slug>-YYYY-MM-DD` | `<epic-slug>-YYYY-MM-DD` |
 | Ready status | `Ready for build` | `To Do` |
 | Start issue | `linear issue start` | `jira issue move` + `jira issue assign` |
-| Close issue | `Closes FIN-X` in PR body (GitHub integration) | `jira issue move "Done"` after merge, or Jira GitHub app |
+| Close issue | `Closes ISSUE-X` in PR body (GitHub integration) | `jira issue move "Done"` after merge, or Jira GitHub app |
 | Sprints | Cycles + milestones | `jira sprint list/add` |
 | Priorities | Urgent / High / Medium / Low | Highest / High / Medium / Low / Lowest |
 
@@ -111,14 +128,25 @@ git clone https://github.com/gutehall/devloop.git
 
 **Per-project:**
 ```bash
-cp -r devloop/claude /path/to/your/project/.claude
+mkdir -p /path/to/your/project/.claude/commands /path/to/your/project/.claude/skills
+cp devloop/claude/commands/* /path/to/your/project/.claude/commands/
+# Core + situational skills only (see VITALITY.md). Skip estimate, triage, dedupe, vision, evolve, whatchanged.
+for s in ship-gate linear-cli github-cli code-review prior-work product-planning diagnostic bugs debt deps release scope split sit; do
+  cp -r "devloop/claude/skills/$s" /path/to/your/project/.claude/skills/
+done
 ```
+
+Opt a non-vital skill back in: `cp -r devloop/claude/skills/estimate /path/to/your/project/.claude/skills/`
 
 **Global:**
 ```bash
 cp devloop/claude/commands/* ~/.claude/commands/
-cp -r devloop/claude/skills/* ~/.claude/skills/
+for s in ship-gate linear-cli github-cli code-review prior-work product-planning diagnostic bugs debt deps release scope split sit; do
+  cp -r "devloop/claude/skills/$s" ~/.claude/skills/
+done
 ```
+
+Optional — Claude Code `~/.claude/settings.json`: `"effortLevel": "medium"`.
 
 ### 2. Linear CLI
 
@@ -162,7 +190,7 @@ The commands filter and transition issues by **exact, case-sensitive status name
 
 ### 6. Branch protection (recommended)
 
-The commands run quality gates before every push (diff review, local tests, code-review pass), but those gates are prompt-level. Protect `main` so they're enforced server-side too — required CI checks plus one approving review, and enable auto-merge so `/grind` and `/autopilot` can arm PRs instead of merging directly. The exact `gh` commands are in the **github-cli** skill's "Branch protection" section.
+The commands run quality gates before every push (diff review, local tests, size-gated code-review via the **ship-gate** skill), but those gates are prompt-level. Protect `main` so they're enforced server-side too — required CI checks plus one approving review, and enable auto-merge so `/grind` and `/autopilot` can arm PRs instead of merging directly. The exact `gh` commands are in the **github-cli** skill's "Branch protection" section.
 
 ### 7. Windows
 
@@ -180,13 +208,19 @@ git clone https://github.com/gutehall/devloop.git
 
 **Per-project:**
 ```bash
-cp -r devloop/claude-jira /path/to/your/project/.claude
+mkdir -p /path/to/your/project/.claude/commands /path/to/your/project/.claude/skills
+cp devloop/claude-jira/commands/* /path/to/your/project/.claude/commands/
+for s in ship-gate jira-cli github-cli code-review prior-work product-planning diagnostic bugs debt deps release scope split sit; do
+  cp -r "devloop/claude-jira/skills/$s" /path/to/your/project/.claude/skills/
+done
 ```
 
 **Global:**
 ```bash
 cp devloop/claude-jira/commands/* ~/.claude/commands/
-cp -r devloop/claude-jira/skills/* ~/.claude/skills/
+for s in ship-gate jira-cli github-cli code-review prior-work product-planning diagnostic bugs debt deps release scope split sit; do
+  cp -r "devloop/claude-jira/skills/$s" ~/.claude/skills/
+done
 ```
 
 ### 2. Jira CLI
@@ -233,7 +267,7 @@ The commands filter and transition issues by **exact status name**. Your Jira wo
 
 ### 7. Branch protection (recommended)
 
-The commands run quality gates before every push (diff review, local tests, code-review pass), but those gates are prompt-level. Protect `main` so they're enforced server-side too — required CI checks plus one approving review, and enable auto-merge so `/grind` and `/autopilot` can arm PRs instead of merging directly. The exact `gh` commands are in the **github-cli** skill's "Branch protection" section.
+The commands run quality gates before every push (diff review, local tests, size-gated code-review via the **ship-gate** skill), but those gates are prompt-level. Protect `main` so they're enforced server-side too — required CI checks plus one approving review, and enable auto-merge so `/grind` and `/autopilot` can arm PRs instead of merging directly. The exact `gh` commands are in the **github-cli** skill's "Branch protection" section.
 
 ---
 
@@ -313,7 +347,7 @@ Match the scope you started `/next` with.
 | **Issue** | One PR, one issue | `Closes FIN-12` |
 | **Project** | One PR for the branch | `Closes FIN-10`, `Closes FIN-12`, … (every issue on the branch) |
 
-- Runs a quality gate before pushing — full diff review (no blind staging), local test/build run, and a code-review-skill pass; Critical/High findings are fixed before anything leaves the machine.
+- Runs the **ship-gate** before pushing — full diff review (no blind staging), local test/build (whatever this repo defines), then a cheap reviewer pass. Diffs under 400 lines and under 8 files skip the full `code-review` skill; larger diffs load it. Critical/High findings are fixed before anything leaves the machine.
 - Pushes, waits for CI, then **asks before merging** (squash + delete branch). No CI checks → merges only with explicit confirmation. Repos with required reviews → arms auto-merge instead.
 - The PR's test plan contains the commands actually run and their results — not an empty checklist.
 - Project mode collects issues to close from `In Progress` + IDs in the branch's commits; `Closes <ID>` moves each to `Done` on merge, then runs `linear project complete` when none remain open.
@@ -328,7 +362,7 @@ Match the scope you started `/next` with.
 /loop /grind project       # drain the whole project, one issue per cycle
 ```
 
-`/grind` fuses `/next` + implement + `/done` into a single command with **no prompts** — built to run under `/loop` unattended. It resolves scope from the argument, branch, or default project, picks the top ready issue, runs a **prior-work check** (already-solved, duplicate, or in-flight issues are flagged `needs-human` and skipped — never reimplemented or auto-closed), branches from `main`, implements the minimal change, runs the pre-ship gate (diff review, local tests, code-review pass), pushes, opens a PR, waits for CI, and **arms auto-merge** — GitHub completes the merge once branch protection is satisfied. It never merges directly with absent CI.
+`/grind` fuses `/next` + implement + `/done` into a single command with **no prompts** — built to run under `/loop` unattended. It resolves scope from the argument, branch, or default project, picks the top ready issue, runs a **prior-work check** (already-solved, duplicate, or in-flight issues are flagged `needs-human` and skipped — never reimplemented or auto-closed), branches from the repo's default branch, implements the minimal change, runs **ship-gate** (diff review, local tests, size-gated code-review), pushes, opens a PR, waits for CI, and **arms auto-merge** — GitHub completes the merge once branch protection is satisfied. It never merges directly with absent CI.
 
 Where `/next`/`/done` would ask a human, `/grind` emits a **STOP LOOP** signal so the loop ends cleanly instead of hanging:
 
@@ -371,7 +405,7 @@ Where `/next`/`/done` would ask a human, `/grind` emits a **STOP LOOP** signal s
 /pr "my title"    # Override the generated title
 ```
 
-Reviews the full diff, runs local tests/build, runs a code-review pass, then commits, pushes, and creates a PR with `Closes <ID>` and a real test plan. Use when you want a teammate to review before merging. Test failures block the push unless you explicitly ask for a `--draft`.
+Reviews the full diff, runs local tests/build, runs ship-gate (size-gated code-review), then commits, pushes, and creates a PR with `Closes <ID>` and a real test plan. Use when you want a teammate to review before merging. Test failures block the push unless you explicitly ask for a `--draft`.
 
 ### `/standup` — Daily standup summary
 
@@ -501,6 +535,7 @@ Lists active projects, then issues with ID, priority, status, title, assignee, e
 ```
 /bugs              # Full codebase scan
 /bugs <path>       # Scan a specific path
+/bugs --changed    # Only files changed since the last /bugs scan
 ```
 
 Reads every source file across seven categories (security, error handling, logic, null access, type safety, resources, concurrency). Creates one issue per bug in priority order, each with location, impact, and suggested fix, tagged `bug`.
@@ -510,6 +545,7 @@ Reads every source file across seven categories (security, error handling, logic
 ```
 /debt              # Full codebase scan
 /debt <path>       # Scan a specific path
+/debt --changed    # Only files changed since the last /debt scan
 ```
 
 Looks for missing tests, complex functions, dead code, TODO/FIXME, hardcoded config, duplication, weak typing, outdated patterns. One issue per finding, tagged `tech-debt`. The non-bug counterpart to `/bugs`.

@@ -29,7 +29,7 @@ Primary concern: minimal friction between having an idea and shipping code. User
 
 **No runtime code.** Everything is markdown — prompt files read by Claude Code at invocation time. No build step, no dependencies, no servers.
 
-**Commands** (`claude/commands/`, `claude-jira/commands/`) are self-contained prompt files. Each command is a complete specification — exact CLI commands, exact MCP tool names, exact output format. No runtime dependencies between commands.
+**Commands** (`claude/commands/`, `claude-jira/commands/`) are prompt files. Each command is a complete specification for its own flow. Commands must not depend on other *commands* at runtime. If a command and a skill both exist, the command is a thin wrapper; the skill holds the protocol (`ship-gate` is the shared quality gate).
 
 **Skills** (`claude/skills/`, `claude-jira/skills/`) are reusable methodology modules. A command invokes a skill by name (e.g. "follow the product-planning skill"). Skills have YAML frontmatter so the AI can route to them. Some skills have a companion file (e.g. `sit/sit.md`) for the detailed protocol; the `SKILL.md` frontmatter is the entry point.
 
@@ -41,7 +41,7 @@ No versioned roadmap. Goals in order of priority:
 
 1. **Variant parity** — every command and skill that exists in `claude/` should have a functional equivalent in `claude-jira/`, and vice versa
 2. **Protocol completeness** — every SKILL.md that references a companion file should have that file present and populated
-3. **Self-contained commands** — no command should depend on another command at runtime; each must work in isolation
+3. **Self-contained commands** — no command should depend on another command at runtime; each must work in isolation. Shared methodology belongs in a skill (thin command wrapper).
 
 ## Decisions
 

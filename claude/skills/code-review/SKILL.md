@@ -5,12 +5,10 @@ description: >
   validates that the code actually works as intended, finds logic errors, missing edge cases,
   broken contracts between components, and anything that would cause the code to silently fail
   or behave incorrectly. If issues are found, the skill produces a concrete fix plan and then
-  executes it, followed by test runs to confirm the fix holds. Use this skill whenever the user
-  asks to "review my code", "check if this works", "validate this function", "audit this module",
-  "does this look right", "review before PR", or any time code correctness is in question. Also
-  trigger when the user shares code and asks for feedback, wants a sanity check, or is about to
-  merge/deploy and wants confidence. This skill should run proactively whenever Claude notices
-  it's about to work on code that hasn't been reviewed and correctness matters.
+  executes it, followed by test runs to confirm the fix holds. Use this skill for /review,
+  ship-gate G3 on L/XL diffs, or when the user explicitly says "review this", "review my code",
+  "check if this works", "does this look right", or "review before PR". Do not trigger
+  proactively — only on these explicit calls.
 ---
 
 # Code Review

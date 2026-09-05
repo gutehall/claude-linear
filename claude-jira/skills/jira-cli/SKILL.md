@@ -1,6 +1,6 @@
 ---
 name: jira-cli
-description: Manage Jira issues, sprints, and epics from the command line. Full CLI reference for automating Jira project management.
+description: Manage Jira issues, sprints, and epics from the command line. Do not trigger proactively. Load only when a command says to follow this skill, or the user asks for Jira CLI syntax.
 ---
 
 # Jira CLI

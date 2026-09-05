@@ -1,6 +1,6 @@
 ---
 name: release
-description: Generate a changelog from merged PRs and commits since the last git tag, determine the next semver version, and create a GitHub release. Use this skill whenever the user runs /release or asks to cut a release.
+description: Generate a changelog from merged PRs and commits since the last git tag, determine the next semver version, and create a GitHub release. Use this skill only for /release or when the user explicitly asks to cut a release. Do not trigger proactively.
 ---
 
 # Release Manager

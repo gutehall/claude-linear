@@ -1,6 +1,6 @@
 ---
 name: debt
-description: Scan the entire codebase for tech debt and create prioritized Jira issues tagged "tech-debt". Use this skill whenever the user runs /debt, asks to find tech debt, wants a code quality audit, or wants debt tracked in Jira.
+description: Scan the entire codebase for tech debt and create prioritized Jira issues tagged "tech-debt". Use this skill only for /debt or when the user explicitly asks to scan for tech debt. Do not trigger proactively.
 ---
 
 # Tech Debt Scanner
@@ -18,8 +18,19 @@ Skip this if project key already known from earlier in the session.
 
 ## Scanning
 
-Explore full directory tree first (LS, Glob), then read every non-trivial source file.
-Don't skip files that look tidy — debt hides in overlooked corners.
+### `--changed` mode
+
+A full scan re-reads the entire codebase every run. `--changed` narrows the scan to what moved since last time:
+
+1. Find the latest local tag matching `debt-last-scan-*` (`git tag -l 'debt-last-scan-*'`).
+2. `git diff --name-only <that-tag>..HEAD` (if no tag, treat as a full scan).
+3. After filing issues, tag the current commit so the next `--changed` run has a fresh marker: `git tag "debt-last-scan-$(date +%Y-%m-%d)"`. Don't push the tag unless the user asks — it's a local bookkeeping marker.
+
+If `--changed` yields zero files, say so and stop — nothing to scan.
+
+### Full scan
+
+Explore full directory tree first (LS, Glob) — or, in `--changed` mode, just the file set above. For a large tree, spawn several cheap locator sweeps in parallel (split by directory or category; prefer `cavecrew-investigator` if that type exists, else Task/Explore on Haiku). Then read every non-trivial source file yourself, including the sites any subagent cites. Don't skip files that look tidy — debt hides in overlooked corners.
 
 ### What to look for
 

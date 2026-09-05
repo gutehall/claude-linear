@@ -2,13 +2,8 @@
 name: diagnostic-thinking
 description: >
   Forces Claude to stop guessing and actually reason through what a problem could be before
-  attempting a fix. Use this skill whenever Claude is debugging, troubleshooting, or asked to
-  "fix" something — especially when the cause isn't immediately obvious, when a previous fix
-  attempt didn't work, or when Claude would otherwise jump straight to editing files or running
-  commands. Trigger this skill for any "it's not working", "why is X broken", "fix this error",
-  "this keeps failing" type request. If Claude is about to guess-and-check, this skill should
-  run instead. Also use when the user seems frustrated that Claude keeps trying things without
-  understanding the root cause.
+  attempting a fix. Use this skill only for /diagnose or when the user explicitly says
+  "root-cause this". Do not trigger on generic debugging/fix requests.
 ---
 
 # Diagnostic Thinking

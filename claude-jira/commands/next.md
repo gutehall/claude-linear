@@ -1,5 +1,7 @@
 # /next - Find and start the next piece of work
 
+> **Project conventions:** (1) If this repo has a skill whose description says it defines coding rules, verify/test commands, or pre-merge gates — invoke it. (2) Else if `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` exists at the repo root (then the nearest subdirectory you are editing) — follow those. (3) Else detect test/build from tooling and continue.
+
 Works for any type of issue — code, documents, decks, reviews, planning, ops tasks. Supports **project** mode (one branch, multiple issues in an epic) or **issue** mode (one branch per issue).
 
 **Project mode** uses an epic as the batch unit — one branch covers every issue in the epic.
@@ -140,7 +142,7 @@ If ambiguous, ask: "Is this code work or non-code work?"
 
 ### Path A: Code Work
 
-Read criteria (issue stays in **To Do** while reading), then run the **prior-work** skill — has this already been solved (merged PR, existing code, open branch, or duplicate issue)? If it finds a match, present the finding and ask the next step (proceed / close as done / extend existing / mark duplicate / quit) before branching. Then set up branch per scope, explore code, move to **In Progress**, and implement minimally.
+Read criteria (issue stays in **To Do** while reading), then run the **prior-work** skill — has this already been solved (merged PR, existing code, open branch, or duplicate issue)? For the "existing implementation in the code" search, spawn 1 cheap locator subagent by default (prefer `cavecrew-investigator` if that type exists; else Task/Explore on Haiku); only add a second/third in parallel if the issue is a feature/multi-file change or the first agent comes back `No match.`/ambiguous. Treat receipts as leads — read every cited span yourself before close/skip. This search doubles as explore; do not re-spawn locators unless those findings don't cover the area you're about to edit. If it finds a match, present the finding and ask the next step (proceed / close as done / extend existing / mark duplicate / quit) before branching. Then set up branch per scope, explore code (reuse prior-work results), move to **In Progress**, and implement minimally.
 
 **Implementation rules:** read before coding; focused changes only; no unrelated refactors; check acceptance criteria; flag scope creep.
 

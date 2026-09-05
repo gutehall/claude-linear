@@ -1,6 +1,6 @@
 ---
 name: dedupe
-description: Scan a Linear workspace for duplicate and near-duplicate issues, cluster them, and walk the user through merging or canceling them. Use this skill whenever the user runs /dedupe or asks to find duplicate issues, similar issues, redundant tickets, or clean up an overlapping backlog in Linear.
+description: Scan a Linear workspace for duplicate and near-duplicate issues, cluster them, and walk the user through merging or canceling them. Use this skill only for /dedupe or when the user explicitly asks to find duplicate issues. Do not trigger proactively.
 ---
 
 # Duplicate Detection
@@ -31,9 +31,21 @@ By default compare **open work**: Backlog, Todo, In Progress. Exclude Done and C
 
 If issue list is large (>200), tell user the count and that comparison is title/description-based, then proceed.
 
+## Cheap pre-filter before full comparison
+
+Full pairwise semantic comparison is O(n²) — on 250 issues that's ~31k pairs, most of them obviously unrelated. Before running semantic judgment, bucket issues with cheap heuristics and only compare within a bucket:
+
+- Same label(s), or
+- Same project/component, or
+- Title shares at least one significant word (ignore stopwords like "fix", "add", "the")
+
+Issues that share no bucket with anything are almost never duplicates — skip full comparison for them (they surface, if at all, as unclustered singletons; do not force a pairing). Within a bucket, apply the full semantic signal table below. This cuts the comparison set from all-pairs to same-bucket pairs, which is normally a small fraction on a real backlog.
+
+If the workspace is small (<40 open issues), skip the pre-filter — the full O(n²) pass is cheap enough there and bucketing adds overhead for no savings.
+
 ## Detecting duplicates
 
-Compare issues pairwise. Signals, strongest first:
+Compare issues pairwise (within a bucket from the pre-filter above). Signals, strongest first:
 
 | Signal | Weight |
 |--------|--------|

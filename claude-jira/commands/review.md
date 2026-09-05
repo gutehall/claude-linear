@@ -1,5 +1,7 @@
 # /review - Review open pull requests
 
+This command warrants more reasoning than a routine turn, regardless of the session's default effort level — a missed bug here ships to production. Read carefully rather than skimming for the obvious issues.
+
 ## Usage
 
 ```
@@ -35,7 +37,7 @@ gh pr diff <number>        # Full diff
 
 ### 4. Review the diff
 
-Follow the **code-review skill** to assess the PR. Cover: correctness, tests, security, and scope. For large diffs, summarize by file/area rather than line-by-line.
+Spawn a cheap reviewer on `gh pr diff <number>` (prefer `cavecrew-reviewer` if that type exists; else Task/Explore on Haiku). Treat the `path:line` receipt as leads — read every cited span yourself. Then follow the **code-review skill** to assess the PR. Cover: correctness, tests, security, and scope. For large diffs, summarize by file/area rather than line-by-line.
 
 ### 5. Summarize findings
 

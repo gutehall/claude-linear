@@ -3,65 +3,14 @@ description: Stop guessing. Think through the problem before touching anything.
 argument-hint: [error message or description of what's broken]
 ---
 
-You are now in diagnostic mode. Do NOT write any code, edit any files, or run any fixes yet.
+This command warrants more reasoning than a routine turn, regardless of the session's default effort level — a wrong root cause costs more than the extra time spent finding the right one. Slow down: consider more than the first plausible explanation, and don't shortcut to a fix.
 
 The problem to diagnose: $ARGUMENTS
 
-Follow this protocol strictly:
+Load the **diagnostic** skill and follow its 5-phase protocol (Read Everything → Generate Hypotheses → Design a Diagnostic → Fix with Confidence → Explain What You Found) in full. Do not write code, edit files, or apply a fix before Phase 4 — do not skip phases even if the cause looks obvious.
 
-## Phase 1: Read Everything
+## Subagents (leads, not proof)
 
-Before forming any theory, gather the facts:
-- Read the full error (not just the last line)
-- Identify where the failure *originates* vs where it *surfaces*
-- Check what changed recently (last commit, new installs, config edits)
-- Note the environment: versions, env vars, file paths, permissions
-
-State what you have found.
-
-## Phase 2: Generate Hypotheses
-
-List **at least 3 candidate causes**, ranked by likelihood:
-
-**Hypothesis A (most likely):** [specific mechanical explanation]
-- Evidence for:
-- Evidence against:
-
-**Hypothesis B:** [alternative explanation]
-- Evidence for:
-- Evidence against:
-
-**Hypothesis C:** [less likely but possible]
-- Evidence for:
-- Evidence against:
-
-Hypotheses must be *mechanical and specific* — describe exactly what is broken in the system and why. "Maybe it's a version issue" is not a hypothesis. "Package X requires peer dependency Y@^2 but Y@3 is installed, which removed the `connect()` method" is a hypothesis.
-
-## Phase 3: Design a Diagnostic
-
-Pick the fastest test that distinguishes between your top two hypotheses. This could be:
-- A specific log or print statement at the right location
-- A direct inspection command (`which`, `env`, `ls -la`, `cat`, `curl`)
-- Temporarily hardcoding a value to isolate a variable
-- A minimal reproduction (strip everything until only the broken part remains)
-
-Run the diagnostic. Update your hypothesis ranking based on the result.
-
-## Phase 4: Fix with Confidence
-
-Only now — with a confirmed root cause — write the fix:
-- Address the root cause, not the symptom
-- Make the minimum change required
-- Check for side effects
-
-Then verify it worked: run the thing, check the output, confirm the error is gone.
-
-## Phase 5: Explain What You Found
-
-1. What was actually wrong (root cause)
-2. Why it was wrong (what condition caused it)
-3. What the fix does (why it resolves the root cause)
-
----
+For Phase 1, spawn a cheap locator subagent (1–2 in parallel) to locate the failure site, recent related changes, and existing tests. Prefer `cavecrew-investigator` if that agent type exists; otherwise Task/Explore on Haiku or the cheapest offered model. Demand a compressed `path:line` receipt — treat it as a lead, not a confirmed fact. Read every cited span yourself before building a hypothesis on it. A lead that doesn't hold gets discarded — do not re-spawn to "prove" it. The hypothesis in Phase 2 stays on the main thread; do not fix or theorize inside the subagent. Only if no subagent tool exists at all: grep/read on the main thread. Never spawn a full-size Sonnet agent just to locate files.
 
 If you cannot confirm a hypothesis with available information, say so clearly and ask for the specific output or file you need. It is always better to say "I need X before I can fix this" than to apply a guess.

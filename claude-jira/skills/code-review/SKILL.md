@@ -1,6 +1,6 @@
 ---
 name: code-review
-description: How to review a pull request — what to look for, how to reason about quality, and how to communicate findings. Used by /review.
+description: How to review a pull request — what to look for, how to reason about quality, and how to communicate findings. Use for /review, ship-gate G3 on L/XL diffs, or when the user explicitly says "review this". Do not trigger proactively.
 ---
 
 # Code Review

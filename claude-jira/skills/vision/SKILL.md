@@ -1,6 +1,6 @@
 ---
 name: vision
-description: Deep strategic thinking about where a project is heading over 6-month to 1-year horizons. Use when the user wants to plan the future direction of a project, explore long-term possibilities, think through competitive positioning, identify capability gaps, or map out what the project should become. Also useful when product decisions feel directionless or when the team needs to align on where things are going.
+description: Deep strategic thinking about where a project is heading over 6-month to 1-year horizons. Use this skill only for /vision or when the user explicitly asks for a vision session. Do not trigger proactively.
 ---
 
 # Vision Skill

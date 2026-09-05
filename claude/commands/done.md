@@ -1,5 +1,7 @@
 # /done - Complete work and ship
 
+> **Project conventions:** (1) If this repo has a skill whose description says it defines coding rules, verify/test commands, or pre-merge gates — invoke it. (2) Else if `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` exists at the repo root (then the nearest subdirectory you are editing) — follow those. (3) Else detect test/build from tooling and continue.
+
 Works for any type of issue — code, documents, decks, reviews, planning, ops tasks. Supports **project** mode (one PR for the whole project branch) or **issue** mode (one PR for a single issue).
 
 ## Usage
@@ -40,34 +42,7 @@ Wait for the answer before pushing, creating a PR, or closing issues.
 
 ## Quality gate (both code paths — mandatory before any push)
 
-Run all three checks, in order, after the work summary and before pushing. Their results feed the PR body. **Do not push until all three pass.**
-
-### G1. Review the diff, then commit
-
-Read `git status` and the **full** `git diff` (plus `git diff <base>..HEAD` for already-committed work) before staging anything:
-
-- Stage only changes that belong to this issue/project
-- Leave out debug prints, commented-out code, stray files, and unrelated edits — list anything excluded
-- Never blind-stage with `git add -A` without reading what it picks up
-
-Then commit what survived. Prefer `ISSUE-12: …` per change; a project branch may use `<project-slug>: <summary>`.
-
-### G2. Verify locally
-
-Detect the project's test and build commands (`package.json` scripts, `Makefile`, `pyproject.toml`, CI workflow files) and run them.
-
-- Tests fail or build breaks → **stop. Do not push.** Fix it or report to the user.
-- No test/build tooling exists → say so explicitly; it must also be stated in the PR body.
-
-Record the exact commands and their results — they go into the PR body's test plan.
-
-### G3. Self-review the code
-
-Run the **code-review** skill (Phases 1–2: Understand → Audit) against the full diff (`git diff <base>..HEAD`):
-
-- **Critical/High** findings → fix now, re-run G2, then continue
-- **Medium** → fix now, or list under "Known issues" in the PR body — never silently drop
-- **Low** → note in the PR body or propose a follow-up issue
+Follow the **ship-gate** skill in **interactive** mode after the work summary and before pushing. Compute `<base>` once (origin HEAD branch, else `main`) and reuse it. Do not push until G1–G3 pass. Their results feed the PR body.
 
 ---
 
@@ -79,23 +54,20 @@ Run the **code-review** skill (Phases 1–2: Understand → Audit) against the f
 2. If a project name is provided, use it
 3. Otherwise ask which project this branch completes
 
-### 1. Gather project issues
+### 1. Detect base branch
+
+Follow the **ship-gate** skill's base-branch rule. Compute `<base>` once here and reuse it for every step below — do not re-derive it later in this run.
+
+If `linear project show "<project>"` was already fetched earlier this session for the same project and no issue status/comment changed since, reuse it instead of re-fetching (see prior-work skill's session-cache note).
+
+### 2. Gather project issues
 
 ```bash
 linear project show "<project>"
 linear issues --project "<project>" --status "In Progress"
-git log --oneline <base>..HEAD
 ```
 
 Union In Progress issues with `TEAM-123` patterns from commit messages.
-
-### 2. Detect base branch
-
-```bash
-git remote show origin | grep 'HEAD branch'
-```
-
-Default to `main`. Use `<base>` throughout.
 
 ### 3. Show work summary
 
@@ -104,11 +76,11 @@ git log --oneline <base>..HEAD
 git diff --stat <base>..HEAD
 ```
 
-List every issue ID in this project push.
+List every issue ID in this project push. Reuse this `git log`/`git diff --stat` output later in this run instead of re-running it.
 
 ### 4. Run the quality gate
 
-Complete **G1–G3** above. All three must pass before anything is pushed.
+Follow the **ship-gate** skill in **interactive** mode. All three checks must pass before anything is pushed.
 
 ### 5. Push branch
 
@@ -198,15 +170,11 @@ git pull
 From branch name (`TEAM-123` pattern) or the provided ID. If branch does not match:
 
 1. `git log --oneline -5`
-2. Ask: "Which issue does this complete? (e.g., FIN-42)"
+2. Ask: "Which issue does this complete? (e.g., ISSUE-12)"
 
 ### 2. Detect base branch
 
-```bash
-git remote show origin | grep 'HEAD branch'
-```
-
-Default to `main`.
+Follow the **ship-gate** skill's base-branch rule. Compute `<base>` once here and reuse it for every step below — do not re-derive it later in this run.
 
 ### 3. Show work summary
 
@@ -215,9 +183,11 @@ git log --oneline <base>..HEAD
 git diff --stat <base>..HEAD
 ```
 
+Reuse this output later in this run instead of re-running it.
+
 ### 4. Run the quality gate
 
-Complete **G1–G3** above. All three must pass before anything is pushed.
+Follow the **ship-gate** skill in **interactive** mode. All three checks must pass before anything is pushed.
 
 ### 5. Push branch
 

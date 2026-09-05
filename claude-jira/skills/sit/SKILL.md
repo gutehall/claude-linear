@@ -1,6 +1,6 @@
 ---
 name: sit
-description: Forces Claude Code to pause, reflect, and honestly assess whether the current approach is correct before continuing. Use this skill whenever the user says "sit", "pause and think", "wait, stop", "take a step back", "are you sure about this?", "rethink what you're doing", or any phrase that signals they want Claude to stop and self-audit rather than keep going. Also trigger proactively when many tool calls have been made without user confirmation, when something unexpected has happened, when the task has grown more complex than anticipated, or before any destructive/hard-to-reverse action. SIT is a reflective pause — not a summary of what was done, but an honest evaluation of whether the work is on the right track and what should happen next.
+description: Forces Claude Code to pause, reflect, and honestly assess whether the current approach is correct before continuing. Use this skill only when the user types "/sit" or says "sit", "pause and think", "wait, stop", "take a step back", "are you sure about this?", "rethink what you're doing", or a similarly explicit phrase. Do not trigger proactively. SIT is a reflective pause — not a summary of what was done, but an honest evaluation of whether the work is on the right track and what should happen next.
 ---
 
 # SIT Skill
@@ -9,13 +9,8 @@ SIT stands for **Stop, Inspect, Think**. A structured self-audit protocol for Cl
 
 ## When to use
 
-Trigger this skill when:
-- User says "sit", "pause", "stop and think", "rethink", "wait", "are you sure?", "step back"
-- Many consecutive tool calls made without checking in
-- Something unexpected, ambiguous, or error-like has occurred
-- Task has grown in scope or complexity beyond what was originally described
-- About to do something hard to undo
-- Two approaches seem equally valid and a choice must be made
+Trigger this skill only when:
+- The user types "/sit" or says "sit", "pause", "stop and think", "rethink", "wait", "are you sure?", "step back"
 
 ## How to use
 

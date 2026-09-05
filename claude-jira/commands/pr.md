@@ -1,5 +1,7 @@
 # /pr - Open a pull request for current work
 
+> **Project conventions:** (1) If this repo has a skill whose description says it defines coding rules, verify/test commands, or pre-merge gates — invoke it. (2) Else if `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` exists at the repo root (then the nearest subdirectory you are editing) — follow those. (3) Else detect test/build from tooling and continue.
+
 Creates a PR from the current branch. Use this when you want review before the work is fully done, or when you want to separate "open PR" from "close issue".
 
 For completed work, prefer `/done` — it handles commit, push, PR, and offers `/next` in one step.
@@ -17,40 +19,32 @@ For completed work, prefer `/done` — it handles commit, push, PR, and offers `
 1. **Detect the issue key** from branch name (`[A-Z]+-[0-9]+` pattern)
    - If not found: ask "Which issue does this branch belong to? (e.g. PROJ-42)"
 
-2. **Show work summary:**
-   ```bash
-   git log --oneline <base>..HEAD
-   git diff --stat <base>..HEAD
-   ```
+2. **Detect `<base>` once** — follow the **ship-gate** skill's base-branch rule. Reuse `git log --oneline <base>..HEAD` and `git diff --stat <base>..HEAD` later in this run.
 
-3. **Review the diff, then commit** — read `git status` and the **full** `git diff` before staging. Stage only changes that belong to this issue; leave out debug prints, stray files, and unrelated edits (list anything excluded). Never blind-stage with `git add -A`. Then commit (ask what the commit message should be).
+3. **Show work summary** (reuse the log/stat from step 2)
 
-4. **Verify locally** — detect and run the project's test and build commands; record the exact commands and results for the PR body.
-   - Failures → **stop and report; do not push.** Only exception: the user explicitly wants a WIP PR — push with `--draft` and state the failures in the body.
-   - No test/build tooling → say so; state it in the PR body too.
+4. **Quality gate** — follow the **ship-gate** skill in **interactive** mode (G1 commit, G2 verify, G3 size-gated review). `/pr --draft` / user wants a WIP PR: ship-gate allows pushing with `--draft` and stating failures in the body.
 
-5. **Self-review** — run the **code-review** skill on `git diff <base>..HEAD`. Fix any correctness bug, missing test for a risky path, or security issue before pushing; list unresolved suggestions or scope observations under "Known issues" in the PR body.
-
-6. **Push:**
+5. **Push:**
    ```bash
    git push -u origin HEAD
    ```
 
-7. **Build PR title:** `"PROJ-12: Issue summary"` — use custom title if provided
+6. **Build PR title:** `"PROJ-12: Issue summary"` — use custom title if provided
 
-8. **Build PR body:**
+7. **Build PR body:**
    - Brief bullet summary of what changed
-   - `## Test plan` with the real commands and results from step 4 — never an unchecked checkbox
-   - `## Known issues` for unresolved suggestions or scope observations from step 5, if any
+   - `## Test plan` with the real commands and results from G2 — never an unchecked checkbox
+   - `## Known issues` for unresolved Medium/Low findings from G3, if any
    - `Closes PROJ-12` at the end (triggers GitHub-Jira integration if configured)
 
-9. **Create PR:**
+8. **Create PR:**
    ```bash
    gh pr create --title "..." --body "..."
    # With --draft flag if requested
    ```
 
-10. **Print the PR URL**
+9. **Print the PR URL**
 
 ## If push fails due to diverged history
 
@@ -60,6 +54,6 @@ Follow the **github-cli** skill's "Push rejected (diverged history)" procedure. 
 
 - Body **must** contain `Closes <KEY>` — triggers Jira-GitHub integration if installed
 - If the integration is not set up, the issue will need to be manually moved: `jira issue move PROJ-12 "Done"` after merge
-- Base branch: detect with `git remote show origin | grep 'HEAD branch'`, default to `main`
+- Base branch: follow ship-gate (origin HEAD, else `main`)
 - If a PR already exists for this branch (`gh pr view`), report the existing URL instead of creating a duplicate
 - Follow the github-cli skill for PR body formatting

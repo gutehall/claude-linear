@@ -1,6 +1,6 @@
 ---
 name: prior-work
-description: Before implementing a Linear issue, check whether the same work has already been done — a merged PR, existing code, an open branch, or a duplicate issue. Use this skill whenever picking up an issue to implement (/next, /grind, /autopilot) so effort isn't duplicated and already-solved work is caught before any code is written.
+description: Before implementing a Linear issue, check whether the same work has already been done — a merged PR, existing code, an open branch, or a duplicate issue. Use only for /next, /grind, /autopilot, or an explicit "check prior work". Do not trigger proactively.
 ---
 
 # Prior-Work Check
@@ -43,6 +43,16 @@ Run these in parallel; each is cheap. Use the issue's key terms (feature name, f
    Search the repo for the capability the issue asks for — function names, routes, config keys, UI strings from the acceptance criteria. Feature already present and meets criteria → shipped (issue is stale). Part of it exists → partial, extend it.
 
 Keep the search proportional to the issue. A one-line fix needs a quick grep; a feature warrants checking PRs, issues, and code.
+
+## Session cache
+
+Reuse results already fetched this session instead of re-running the same query:
+
+- `linear issues --open` / `linear issues --project "<project>"` — reuse the last call's output for subsequent issues in the same `/next project` or `/grind` loop, as long as no issue status/comment was changed since (a status change invalidates the cache; re-run).
+- `gh pr list --state all --search "<key terms>"` — cache per distinct search term set within the session; a repeat issue with the same key terms (e.g. same feature area) can reuse it.
+- Don't cache across sessions — branch/PR state can change between runs.
+
+If unsure whether the cache is stale (state may have changed since the last fetch), re-run — a stale "no prior work" miss costs more than a redundant query.
 
 ## Judging the match
 

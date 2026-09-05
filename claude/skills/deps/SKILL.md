@@ -1,6 +1,6 @@
 ---
 name: deps
-description: Audit project dependencies for security vulnerabilities and outdated packages, then create prioritized Linear issues. Use this skill whenever the user runs /deps, asks to audit dependencies, wants a security scan of packages, or wants dependency issues tracked in Linear.
+description: Audit project dependencies for security vulnerabilities and outdated packages, then create prioritized Linear issues. Use this skill only for /deps or when the user explicitly asks to audit dependencies. Do not trigger proactively.
 ---
 
 # Dependency Auditor

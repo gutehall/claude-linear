@@ -1,5 +1,7 @@
 # /grind - Autonomous one-cycle: pick → implement → ship
 
+> **Project conventions:** (1) If this repo has a skill whose description says it defines coding rules, verify/test commands, or pre-merge gates — invoke it. (2) Else if `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` exists at the repo root (then the nearest subdirectory you are editing) — follow those. (3) Else detect test/build from tooling and continue.
+
 One full development cycle in a single command: `/next` + implement + `/done`, with **no interactive questions**. Built to be wrapped in `/loop` so a whole epic drains unattended.
 
 ```
@@ -70,7 +72,7 @@ Classify work type from summary/description/labels:
 
 ### 2b. Prior-work check (before branching)
 
-Run the **prior-work** skill (autonomous mode): is this already solved by a merged PR, existing code, an open branch/PR, or a duplicate issue?
+Run the **prior-work** skill (autonomous mode): is this already solved by a merged PR, existing code, an open branch/PR, or a duplicate issue? For the "existing implementation in the code" search, spawn 1 cheap locator subagent by default (prefer `cavecrew-investigator` if that type exists; else Task/Explore on Haiku); only add a second/third in parallel (defs / callers / tests) if the issue is a feature/multi-file change or the first agent comes back `No match.`/ambiguous. Treat every receipt as a lead — read the cited span yourself before trusting it; discard leads that don't hold instead of re-spawning to "prove" them. This search doubles as explore — do not re-spawn locators unless those findings don't cover the area you're about to edit.
 
 - **Shipped / duplicate / in flight** → **SKIP** — never reimplement and never auto-close. Comment, then move it out of the queue for a human:
   ```bash
@@ -84,19 +86,19 @@ Run the **prior-work** skill (autonomous mode): is this already solved by a merg
 
 ### 3. Branch (code work)
 
+Detect `<base>` once (origin HEAD branch, else `main`). Never assume `develop`. Reuse `<base>` for the rest of this cycle.
+
 **Project mode:** if already on `<epic-slug>-YYYY-MM-DD` for today, stay. Else:
 ```bash
-git checkout main && git pull
+git checkout <base> && git pull
 git checkout -b <epic-slug>-YYYY-MM-DD
 ```
 
 **Issue mode:**
 ```bash
-git checkout main && git pull
+git checkout <base> && git pull
 git checkout -b <key>-<slug>      # slug from summary, lowercase, dashes
 ```
-
-(`main` default; `develop` only if repo has no `main`.)
 
 ### 4. Implement
 
@@ -112,17 +114,11 @@ Implement the **minimal** solution against the acceptance criteria. Rules:
 
 ### 5. Pre-ship gate (mandatory, before any push)
 
-1. **Diff review** — read `git status` and the **full** `git diff`. Stage only changes that belong to <key>; drop debug prints, stray files, and unrelated edits. Never blind-stage with `git add -A`.
-2. **Local verification** — detect and run the project's test and build commands (re-run after the diff review even if step 4 already ran them). Record the exact commands and results — they go into the PR body. Unfixable failure → **STOP LOOP**.
-3. **Self-review** — run the **code-review** skill on `git diff <base>..HEAD`. Correctness bug, missing risky-path test, or security issue → fix, then re-run verification. Unfixable → **STOP LOOP**, leave issue In Progress, print `grind: <key> failed self-review — <finding>. Stopping loop.`
+Follow the **ship-gate** skill in **autonomous** mode. Unfixable test/build or unfixable Critical/High → **STOP LOOP**, leave issue In Progress, print `grind: <key> failed self-review — <finding>. Stopping loop.`
 
 ### 6. Ship (follow `/done`, non-interactive)
 
-```bash
-git remote show origin | grep 'HEAD branch'   # detect <base>, default main
-git log --oneline <base>..HEAD
-git diff --stat <base>..HEAD
-```
+Reuse `<base>` and the `git log`/`git diff --stat` already computed in ship-gate — do not re-derive or re-run them.
 
 No commits → **STOP LOOP**, print `grind: <key> produced no commits. Stopping loop.`
 
@@ -173,7 +169,7 @@ jira issue move <key> "Done"      # if integration did not auto-transition on me
 git checkout <base> && git pull
 ```
 
-Each cycle ships its own PR and merges with `--delete-branch`, so the branch is gone after merge. **Project mode:** the next cycle re-creates `<epic-slug>-YYYY-MM-DD` fresh from the updated `main` (step 3). Do **not** try to reuse or re-push the merged branch — its commits are already squashed onto `main`, so reuse would diverge.
+Each cycle ships its own PR and merges with `--delete-branch`, so the branch is gone after merge. **Project mode:** the next cycle re-creates `<epic-slug>-YYYY-MM-DD` fresh from the updated `<base>` (step 3). Do **not** try to reuse or re-push the merged branch — its commits are already squashed onto `<base>`, so reuse would diverge.
 
 ---
 

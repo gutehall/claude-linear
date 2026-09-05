@@ -1,6 +1,6 @@
 ---
 name: diagnostic
-description: Structured diagnosis protocol — stop guessing, gather facts, generate hypotheses, run the fastest test, then fix the confirmed root cause. Use this skill whenever the user runs /diagnose, reports a bug, encounters an error, or asks "why is X broken".
+description: Structured diagnosis protocol — stop guessing, gather facts, generate hypotheses, run the fastest test, then fix the confirmed root cause. Use this skill only for /diagnose or when the user explicitly says "root-cause this". Do not trigger on generic debugging/fix requests.
 ---
 
 # Diagnostic Thinking

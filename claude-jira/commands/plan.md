@@ -1,6 +1,10 @@
 # /plan - Inline product planning with Jira
 
+> **Project conventions:** (1) If this repo has a skill whose description says it defines coding rules, defaults, or pre-merge gates — invoke it when drafting issues. (2) Else if `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` exists — follow those. (3) Else continue.
+
 Create Jira issues directly, without clipboard or intermediate steps.
+
+This command warrants more reasoning than a routine turn, regardless of the session's default effort level — badly-scoped acceptance criteria cost everyone who implements or reviews the issue later. Take the extra time to think through edge cases and gaps before drafting.
 
 ## Usage
 

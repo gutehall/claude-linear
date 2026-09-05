@@ -1,5 +1,7 @@
 # /next - Find and start the next piece of work
 
+> **Project conventions:** (1) If this repo has a skill whose description says it defines coding rules, verify/test commands, or pre-merge gates — invoke it. (2) Else if `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` exists at the repo root (then the nearest subdirectory you are editing) — follow those. (3) Else detect test/build from tooling and continue.
+
 Works for any type of issue — code, documents, decks, reviews, planning, ops tasks. Supports **project** mode (one branch, multiple issues) or **issue** mode (one branch per issue).
 
 ## Usage
@@ -133,10 +135,12 @@ If ambiguous, ask: "Is this code work or non-code work?"
 ### Path A: Code Work
 
 1. Read description and acceptance criteria (issue stays in **Ready for build** while you read)
-2. **Prior-work check** — run the **prior-work** skill: has this already been solved (merged PR, existing code, open branch, or duplicate issue)? If it finds a match, present the finding and ask for the next step (proceed / close as done / extend existing / mark duplicate / quit) before branching. Do not skip this.
+2. **Prior-work check** — run the **prior-work** skill: has this already been solved (merged PR, existing code, open branch, or duplicate issue)? For the "existing implementation in the code" search, spawn 1 cheap locator subagent by default (prefer `cavecrew-investigator` if that type exists; else Task/Explore on Haiku); only add a second/third in parallel (defs / callers / tests) if the issue is a feature/multi-file change or the first agent comes back `No match.`/ambiguous — see **Subagents** below. This search doubles as the **explore** step below; do not re-spawn locators for step 4 unless the prior-work findings don't cover the area you're about to edit. Before presenting a "shipped" or "duplicate" finding, verify it yourself (read the cited PR/commit/code) — do not close or skip an issue on an unverified lead. Then present the finding and ask for the next step (proceed / close as done / extend existing / mark duplicate / quit) before branching. Do not skip this.
 3. Set up the branch per scope (project or issue rules above)
-4. Explore relevant code
+4. Explore relevant code — reuse the prior-work search results from step 2. Spawn additional cheap locators only for gaps those findings didn't cover. See **Subagents** below.
 5. Move the issue to **In Progress**, then implement — minimal solution, follow existing patterns
+
+**Subagents (leads, not proof):** Prefer `cavecrew-investigator` if that agent type exists; otherwise Task/Explore on Haiku or the cheapest offered model. Demand a compressed `path:line` receipt — treat it as a lead, not a confirmed fact. Read every cited span yourself before implementing against it. A lead that doesn't hold gets discarded — do not re-spawn to "prove" it. Only if no subagent tool exists at all: grep/read on the main thread. Never spawn a full-size Sonnet agent just to locate files.
 
 **Implementation rules:** read before coding; focused changes only; no unrelated refactors; check acceptance criteria; flag scope creep.
 

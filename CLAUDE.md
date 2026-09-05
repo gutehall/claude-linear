@@ -26,7 +26,8 @@ claude/
     sit/              # Stop, Inspect, Think — mid-task self-audit
     bugs/             # Bug scanning methodology
     debt/             # Tech debt scanning methodology
-    code-review/      # PR review methodology
+    code-review/      # PR review methodology (loaded on L/XL diffs only)
+    ship-gate/        # Shared G1–G3 quality gate for /done /pr /grind /autopilot
     (+ more)
 
 claude-jira/
@@ -36,11 +37,19 @@ claude-jira/
     (rest mirrors claude/skills/)
 ```
 
-Both variants install into the project's `.claude/` directory — a project uses one or the other, not both.
+See [`VITALITY.md`](VITALITY.md) for core vs situational vs non-vital. Both variants install into the project's `.claude/` directory — a project uses one or the other, not both.
 
 ## How commands and skills work
 
-**Commands** (`claude/commands/*.md`, `claude-jira/commands/*.md`) are prompt files — they are instructions written *to* Claude Code, not documentation for humans. They are prescriptive: exact CLI commands, exact MCP tool names, exact output formats. Each command is self-contained.
+**Commands** (`claude/commands/*.md`, `claude-jira/commands/*.md`) are prompt files — they are instructions written *to* Claude Code, not documentation for humans. They are prescriptive: exact CLI commands, exact MCP tool names, exact output formats.
+
+Commands stay self-contained **relative to other commands** (a command must not say “now run /done”). If a command and a skill both exist, the command is a **thin wrapper**; the skill holds the protocol. Do not paste the same protocol into both. `/done`, `/pr`, `/grind`, and `/autopilot` invoke the **ship-gate** skill for G1–G3 rather than inlining it.
+
+Skill `description:` frontmatter is loaded into routing context every turn. Descriptions must say when to invoke the skill and **Do not trigger proactively** unless the skill is a conventions hub owned by a consuming repo. CLI-reference skills (`linear-cli`, `jira-cli`, `github-cli`) load only when a command names them.
+
+**Cheap subagents:** whenever a Task/Explore/subagent tool exists, locate/review greps go to the cheapest model (`cavecrew-investigator` / `cavecrew-reviewer` if those types exist, else Task/Explore on Haiku). Demand a compressed `path:line` receipt; treat it as a lead, not proof; do not re-spawn to “prove” a discarded lead. Never spawn a full-size Sonnet agent just to locate files.
+
+This toolkit is project-agnostic. Project-specific rules live in the *consuming* repo (optional conventions skill, else `CLAUDE.md` / `AGENTS.md` / `CONTRIBUTING.md`). Never hardcode a product, verify matrix, or default base branch of `develop`.
 
 **Skills** (`*/skills/*/SKILL.md`) are reusable modules. A command invokes a skill by name: e.g. `Follow the diagnostic-thinking skill.` Skills have YAML frontmatter:
 
@@ -80,20 +89,26 @@ The Atlassian MCP gives Claude richer read access for Jira (search issues, fetch
 ## Working in this repo
 
 - Write commands as instructions to Claude Code, not as human documentation
-- Keep each command self-contained — no runtime dependencies on other commands
+- Keep each command self-contained relative to other commands — no “now run /done”
+- If a command and a skill both exist, keep the command a thin wrapper and give the reusable skill a distinct name
 - When adding or changing a command in one variant, mirror the change in the other variant where the methodology applies
 - Skills are shared methodology; keep them tool-agnostic where possible, or fork with a variant-specific note
+- Edit Linear (`claude/`) first, then mirror Jira (`claude-jira/`)
 
 ## Testing changes
 
-No test suite. Validate by installing commands in a test project and running the slash command in Claude Code:
+No test suite. Validate by installing commands in a test project and running the slash command in Claude Code. Prefer the Core + Situational skill set from [`VITALITY.md`](VITALITY.md) — do not copy `SKILL.original.md` (gitignored).
 
 ```bash
-# Linear variant
+# Linear variant (core + situational skills)
 cp claude/commands/* /path/to/project/.claude/commands/
-cp -r claude/skills/* /path/to/project/.claude/skills/
+for s in ship-gate linear-cli github-cli code-review prior-work product-planning diagnostic bugs debt deps release scope split sit; do
+  cp -r "claude/skills/$s" /path/to/project/.claude/skills/
+done
 
 # Jira variant
 cp claude-jira/commands/* /path/to/project/.claude/commands/
-cp -r claude-jira/skills/* /path/to/project/.claude/skills/
+for s in ship-gate jira-cli github-cli code-review prior-work product-planning diagnostic bugs debt deps release scope split sit; do
+  cp -r "claude-jira/skills/$s" /path/to/project/.claude/skills/
+done
 ```
