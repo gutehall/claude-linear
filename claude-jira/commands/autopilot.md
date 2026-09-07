@@ -13,201 +13,61 @@ Run bare (`/autopilot project`) to do exactly one cycle and stop.
 
 ## Why this exists
 
-`/grind` will pick up any issue in the ready queue. For an unsupervised instance that is too broad — a human must be able to decide, per issue, "yes, the bot may do this one." The `auto-claude` label is that switch. `/autopilot` is `/grind` with that switch enforced on every query and re-checked before any write.
+`/grind` will pick up any issue in the ready queue. For an unsupervised instance that is too broad — a human must be able to decide, per issue, "yes, the bot may do this one." The `auto-claude` label is that switch.
 
----
+## How it runs
 
-## Scope (never ask)
+**Follow `/grind` exactly** — same scope resolution, same cycle (pick → read → prior-work → branch → implement → ship-gate → ship → CI → transition + return to base), same loop control, same self-paced timing. Apply these deltas:
 
-Resolve scope in this order — do **not** prompt:
+### 1. Queue filter (every issue query)
 
-1. Explicit arg: `/autopilot project` or `/autopilot issue`
-2. Current branch: `<epic-slug>-YYYY-MM-DD` → project; `PROJ-123-*` → issue
-3. Default epic in config → project mode
+Add `-l"auto-claude"` to every `jira issue list` query in the pick step, in both scopes:
 
-If none resolve → **STOP LOOP**, print: `autopilot: scope unresolved — run /autopilot project or /autopilot issue once to seed.`
-
-**PR model:** ships **one PR per issue every cycle** in both scopes (same as `/grind`). "Project mode" only changes *which queue* issues are picked from, not how they ship.
-
----
-
-## Cycle
-
-### 1. Pick the issue (allowlisted only)
-
-The queue is **`To Do` AND labelled `auto-claude`** — never anything else.
-
-**Project mode (epic):**
 ```bash
-jira issue view <epic-key>
-jira issue list --epics <epic-key> -s"To Do" -l"auto-claude" --plain
+jira issue list --epics <epic-key> -s"To Do" -l"auto-claude" --plain          # project mode
+jira issue list -s"To Do" -l"auto-claude" -a"$(jira me)" --plain               # issue mode
 ```
-Pick the single **highest-priority** issue (Highest → High → Medium → Low → Lowest; ties by CLI order). No pick list. Do **not** fall back to other statuses, resolutions, or unlabelled issues — if empty, stop.
 
-**Issue mode:**
-```bash
-jira issue list -s"To Do" -l"auto-claude" -a"$(jira me)" --plain
-```
-Pick the highest-priority To Do issue assigned to you.
-
-**If nothing in the allowlisted queue** → **STOP LOOP**, print:
+Never fall back to unlabelled issues, blocked issues, or other statuses/resolutions. Empty queue → **STOP LOOP** (clean finish):
 `autopilot: no issues in "To Do" labelled auto-claude — <scope>. Stopping loop.`
-(Do not pick "Product planning" — that needs a human.)
 
-### 2. Read, verify the label, and classify
+### 2. Hard gate — verify the label after `jira issue view <key>`
 
-```bash
-jira issue assign <key> "$(jira me)"
-jira issue view <key>
-```
-(Leave the issue in **To Do** while reading — do not move it to In Review.)
-
-**Hard gate — verify the allowlist before doing anything else.** Confirm the issue shown actually carries the `auto-claude` label. If it does **not** (filter returned a stale or unexpected result) → **STOP LOOP**, touch nothing further, print:
+Before doing anything else with the picked issue, confirm it actually carries the `auto-claude` label. If it does **not** (stale/unexpected filter result) → **STOP LOOP**, touch nothing further:
 `autopilot: <key> is not labelled auto-claude — refusing to work it. Stopping loop.`
 
-Then classify work type from summary/description/labels:
-- **Code work** → continue
-- **Non-code work** (doc, deck, plan, research, comms) → **SKIP**: move it **out of the To Do queue** so the next cycle does not re-pick it:
-  ```bash
-  jira issue move <key> "Backlog"
-  jira issue edit <key> --label needs-human --no-input
-  ```
-  Print `autopilot: <key> is non-code — moved to Backlog (needs-human), skipping.` Continue loop; do not implement. (Leave the `auto-claude` label in place so a human can re-queue it after handling.)
-- **Ambiguous** → SKIP same as non-code. Never guess on autonomous runs.
+### 3. Skip actions keep the label
 
-### 2b. Prior-work check (before branching)
-
-Run the **prior-work** skill (autonomous mode): is this already solved by a merged PR, existing code, an open branch/PR, or a duplicate issue? Default the code search to **1–3 targeted greps/globs on the main thread**. Do **not** spawn a locator subagent for a typical issue. Spawn at most **one** cheap locator (`cavecrew-investigator` if that type exists, else Task/Explore on Haiku) only when the issue is clearly a feature / multi-file change. Never spawn 2–3 in parallel. Treat any receipt as a lead — read the cited span yourself; discard leads that don't hold.
-
-- **Shipped / duplicate / in flight** → **SKIP** — never reimplement and never auto-close. Comment, then move it out of the queue for a human (leave `auto-claude` in place so they can re-queue):
-  ```bash
-  jira issue comment add <key> "Prior-work check: appears already done by PR #188 / duplicate of PROJ-29. Flagged for human review."
-  jira issue move <key> "Backlog"
-  jira issue edit <key> --label needs-human --no-input
-  ```
-  Print `autopilot: <key> appears already solved (PR #188 / PROJ-29) — flagged needs-human, skipping.` Continue loop; do not implement.
-- **Partial** → proceed, but build on the existing code — reuse the foundation, keep the change minimal, note what was extended in the PR body.
-- **Clear** → proceed normally.
-
-### 3. Branch (code work)
-
-Detect `<base>` once (origin HEAD branch, else `main`). Never assume `develop`. Reuse `<base>` for the rest of this cycle.
-
-**Project mode:** if already on `<epic-slug>-YYYY-MM-DD` for today, stay. Else:
-```bash
-git checkout <base> && git pull
-git checkout -b <epic-slug>-YYYY-MM-DD
-```
-
-**Issue mode:**
-```bash
-git checkout <base> && git pull
-git checkout -b <key>-<slug>      # slug from summary, lowercase, dashes
-```
-
-### 4. Implement
+When `/grind` would move a skipped issue to Backlog (non-code, ambiguous, already-solved, in-flight), keep `auto-claude` in place so a human can re-queue it — add only `needs-human`:
 
 ```bash
-jira issue move <key> "In Progress"
+jira issue move <key> "Backlog"
+jira issue edit <key> --label needs-human --no-input
 ```
 
-Implement the **minimal** solution against the acceptance criteria. Rules:
-- **Now** apply project conventions: if this repo has a conventions skill, invoke it; else follow root/nearest `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` if present. Do not load those during pick / prior-work / branch.
-- Read before coding; follow existing patterns
-- Focused changes only — no unrelated refactors
-- If acceptance criteria cannot be met without a product decision → **STOP LOOP**, leave issue In Progress, print `autopilot: <key> needs a decision — <what>. Stopping loop.`
-- Run the project's tests/build if present. Failing tests you cannot fix → **STOP LOOP**.
+### 4. Merge — never direct-merge
 
-### 5. Pre-ship gate (mandatory, before any push)
+An unattended instance never runs a direct `gh pr merge`. In `/grind` step 7, the only change:
 
-Follow the **ship-gate** skill in **autonomous** mode. Unfixable test/build or unfixable Critical/High → **STOP LOOP**, leave issue In Progress, print `autopilot: <key> failed self-review — <finding>. Stopping loop.`
+- **Repo does not allow auto-merge (`--auto` rejected)** → **STOP LOOP**, leave the PR open, print `autopilot: cannot arm auto-merge on <PR> — review and merge manually. Stopping loop.` Never fall back to a direct merge.
 
-### 6. Ship (non-interactive)
+Every other CI/merge branch (fail, no checks, armed-awaiting-approval, merged-immediately) is identical to `/grind`.
 
-Reuse `<base>` and the `git log`/`git diff --stat` already computed in ship-gate — do not re-derive or re-run them.
+### 5. Receipts
 
-No commits → **STOP LOOP**, print `autopilot: <key> produced no commits. Stopping loop.`
-
-Stage + commit (`PROJ-12: …` per change; project mode may use `<epic-slug>: <summary>`), then:
-```bash
-git push -u origin HEAD
-```
-
-Push rejected → follow the **github-cli** skill's "Push rejected (diverged history)" procedure; **conflicts → STOP LOOP**, list files, never force-push.
-
-Create the PR — reference the issue key in title/body so the Jira GitHub integration links it, with a test plan containing the **real results** from the pre-ship gate:
-```bash
-gh pr create --title "PROJ-12: …" --body "$(cat <<'EOF'
-## Summary
-
-- What changed and why
-
-## Test plan
-
-- `<test command>` — <result>
-- `<build command>` — <result>
-
-PROJ-12
-EOF
-)"
-```
-Print PR URL.
-
-### 7. CI + merge (never merge directly)
-
-An unattended instance never runs a direct `gh pr merge` — merging is GitHub's decision via auto-merge + branch protection, or a human's.
-
-```bash
-gh pr checks --watch
-```
-- **Fail → STOP LOOP**, print `autopilot: CI failed on <PR> — stopping. Fix and re-run.` Do not pick the next issue on a broken base.
-- **No checks configured → STOP LOOP.** Leave the PR open, print `autopilot: no CI on this repo — refusing to merge <PR>. Review and merge manually.`
-- **Pass** → arm auto-merge:
-  ```bash
-  gh pr merge --auto --squash --delete-branch
-  ```
-  - Merges immediately (no review required) → continue to step 8.
-  - Stays open awaiting approval → **STOP LOOP** (clean finish), print `autopilot: PR <#> armed to auto-merge, awaiting review. Stopping — re-run after approval.` Do not stack further cycles on an unmerged base.
-  - Repo does not allow auto-merge (`--auto` rejected) → **STOP LOOP**, leave the PR open, print `autopilot: cannot arm auto-merge on <PR> — review and merge manually. Stopping loop.` Never fall back to a direct merge.
-
-### 8. Transition + return to base
-
-```bash
-jira issue move <key> "Done"      # if integration did not auto-transition on merge
-git checkout <base> && git pull
-```
-
-Each cycle ships its own PR and merges with `--delete-branch`, so the branch is gone after merge. **Project mode:** the next cycle re-creates `<epic-slug>-YYYY-MM-DD` fresh from the updated `<base>` (step 3). Do **not** reuse or re-push the merged branch — its commits are already squashed onto `<base>`, so reuse would diverge.
-
----
-
-## Loop control
-
-Each `/autopilot` run = exactly **one** cycle (one issue shipped or one skip). The loop wrapper repeats it. **End the loop** (omit the next wakeup) on any **STOP LOOP** above. Use **self-paced** loop timing — work duration varies, there is nothing to poll on a clock.
-
-On success, print a one-line receipt and let the loop fire the next cycle:
+All progress/stop lines are prefixed `autopilot:` instead of `grind:`. Success receipt:
 ```
 autopilot ✓ PROJ-12 merged (PR #214). Next cycle.
 ```
 
----
+## Stop conditions
 
-## Stop conditions (summary)
+Every `/grind` stop condition applies, plus:
 
 | Condition | Action |
 |-----------|--------|
 | No allowlisted (`auto-claude`) issues in To Do | STOP LOOP (clean finish) |
 | Picked issue is missing the `auto-claude` label | STOP LOOP, touch nothing |
-| Non-code / ambiguous issue | SKIP, continue loop |
-| Already solved / duplicate / in flight (prior-work check) | SKIP, flag needs-human, continue loop |
-| Needs product decision | STOP LOOP, issue left In Progress |
-| Tests/build fail (unfixable) | STOP LOOP |
-| Unfixable correctness/security self-review finding | STOP LOOP, issue left In Progress |
-| No commits produced | STOP LOOP |
-| Rebase conflict | STOP LOOP, no force-push |
-| CI fail | STOP LOOP |
-| No CI checks configured | STOP LOOP, PR left open for manual review |
-| PR awaiting required review | STOP LOOP (clean — auto-merge armed) |
 | Auto-merge not allowed by repo settings | STOP LOOP, PR left open — never direct-merge |
 
 Never: prompt the user, work an issue without the `auto-claude` label, pick blocked work, guess work type, force-push, run a direct `gh pr merge`, or transition to Done before merge.
