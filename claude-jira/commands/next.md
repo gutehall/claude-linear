@@ -1,7 +1,5 @@
 # /next - Find and start the next piece of work
 
-> **Project conventions:** (1) If this repo has a skill whose description says it defines coding rules, verify/test commands, or pre-merge gates — invoke it. (2) Else if `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` exists at the repo root (then the nearest subdirectory you are editing) — follow those. (3) Else detect test/build from tooling and continue.
-
 Works for any type of issue — code, documents, decks, reviews, planning, ops tasks. Supports **project** mode (one branch, multiple issues in an epic) or **issue** mode (one branch per issue).
 
 **Project mode** uses an epic as the batch unit — one branch covers every issue in the epic.
@@ -73,9 +71,9 @@ Then, **when you begin actually working** (writing code or producing the deliver
 Branch: `<epic-slug>-YYYY-MM-DD` (from epic summary; max 40 chars; lowercase, hyphenated slug).
 
 - If already on matching epic branch for today, stay on it.
-- Otherwise branch from `main` (default; use `develop` if the repo has no `main`):
+- Otherwise detect `<base>` once (origin HEAD branch, else `main`) and branch from it:
   ```bash
-  git checkout main
+  git checkout <base>
   git pull
   git checkout -b <epic-slug>-YYYY-MM-DD
   ```
@@ -118,9 +116,9 @@ Working on: PROJ-12 — Add caching layer
 
 ### Issue branch (code work)
 
-- Branch from `main` (default; use `develop` if the repo has no `main`):
+- Detect `<base>` once (origin HEAD branch, else `main`) and branch from it:
   ```bash
-  git checkout main
+  git checkout <base>
   git pull
   ```
 - Derive slug from summary (lowercase, dashes, max 50 chars):
@@ -142,7 +140,7 @@ If ambiguous, ask: "Is this code work or non-code work?"
 
 ### Path A: Code Work
 
-Read criteria (issue stays in **To Do** while reading), then run the **prior-work** skill — has this already been solved (merged PR, existing code, open branch, or duplicate issue)? For the "existing implementation in the code" search, spawn 1 cheap locator subagent by default (prefer `cavecrew-investigator` if that type exists; else Task/Explore on Haiku); only add a second/third in parallel if the issue is a feature/multi-file change or the first agent comes back `No match.`/ambiguous. Treat receipts as leads — read every cited span yourself before close/skip. This search doubles as explore; do not re-spawn locators unless those findings don't cover the area you're about to edit. If it finds a match, present the finding and ask the next step (proceed / close as done / extend existing / mark duplicate / quit) before branching. Then set up branch per scope, explore code (reuse prior-work results), move to **In Progress**, and implement minimally.
+Read criteria (issue stays in **To Do** while reading), then run the **prior-work** skill — has this already been solved (merged PR, existing code, open branch, or duplicate issue)? Default the code search to **1–3 targeted greps/globs on the main thread**. Do **not** spawn a locator subagent for a typical issue. Spawn at most **one** cheap locator (`cavecrew-investigator` if that type exists, else Task/Explore on Haiku) only when the issue is clearly a feature / multi-file change. Never spawn 2–3 in parallel. Verify cited PR/commit/code yourself before close/skip. This search doubles as explore. If it finds a match, present the finding and ask (proceed / close as done / extend existing / mark duplicate / quit) before branching. Then set up branch per scope, explore code (reuse prior-work results), move to **In Progress**, and implement minimally. **Now** apply project conventions: if this repo has a conventions skill, invoke it; else follow root/nearest `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` if present. Do not load those during pick / prior-work / branch.
 
 **Implementation rules:** read before coding; focused changes only; no unrelated refactors; check acceptance criteria; flag scope creep.
 
@@ -174,6 +172,6 @@ If the user chooses "Product planning", ask what to focus on (backlog, features,
 
 ## Notes
 
-- Scope question comes **before** loading work; branching is automatic from `main`
+- Scope question comes **before** loading work; branching is automatic from the repo default branch (`origin` HEAD, else `main`)
 - Match `/done` scope: `/done project` vs `/done issue`
 - `jira me` for self-assignment

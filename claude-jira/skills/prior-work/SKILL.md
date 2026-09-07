@@ -35,9 +35,13 @@ Run these in parallel; each is cheap. Use the issue's key terms (feature name, f
    Use the Atlassian MCP's issue-search tool (check available `mcp__claude_ai_Atlassian__*` tools for exact name) or `jira issue list` to pull candidates, then compare by summary/description (same signals the **dedupe** skill uses). A near-identical issue that's Done → likely shipped; one open/in-progress → duplicate or parallel work. Check existing **Duplicate** links on the issue too.
 
 3. **Existing implementation in the code**
-   Search the repo for the capability the issue asks for — function names, routes, config keys, UI strings from the acceptance criteria. If the feature is already present and meets the criteria, it's shipped (issue is stale). If part of it exists, it's partial — extend it.
+   Default: **1–3 targeted greps/globs on the main thread** (function names, routes, config keys, UI strings from the AC). Do **not** spawn a locator subagent for a typical issue — subagent setup cost dominates a small search, which is why `/next` got expensive.
 
-Keep the search proportional to the issue. A one-line fix needs a quick grep; a feature warrants checking PRs, issues, and code.
+   Spawn at most **one** cheap locator (`cavecrew-investigator` if that type exists, else Task/Explore on Haiku) only when the caller already classified the issue as a feature / multi-file change. Never spawn 2–3 in parallel from this skill. Treat any receipt as a lead — read the cited span yourself.
+
+   If the feature is already present and meets the criteria, it's shipped (issue is stale). If part of it exists, it's partial — extend it.
+
+Keep the search proportional to the issue. A one-line fix needs a quick grep; a feature still starts with grep unless the caller classified it as multi-file.
 
 ## Session cache
 
@@ -106,6 +110,7 @@ An unattended run must not guess that work is "done" and close it, nor reimpleme
 
 ## Rules
 
+- Default code search: main-thread grep. Spawn a locator only for feature/multi-file issues, never more than one.
 - Run the check before branching/implementing — never after writing code.
 - Never auto-close an issue on an autonomous run; flag `needs-human` and skip instead.
 - A shared topic is not a duplicate — apply the dedupe precision test.

@@ -1,7 +1,5 @@
 # /autopilot - Allowlisted autonomous one-cycle: pick → implement → ship
 
-> **Project conventions:** (1) If this repo has a skill whose description says it defines coding rules, verify/test commands, or pre-merge gates — invoke it. (2) Else if `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` exists at the repo root (then the nearest subdirectory you are editing) — follow those. (3) Else detect test/build from tooling and continue.
-
 `/grind`, but **hard-gated to issues labelled `auto-claude`**. Built for an unattended Claude Code instance: it may only ever touch work a human has explicitly opted in by adding the `auto-claude` label. Everything else is invisible to it.
 
 ```
@@ -79,7 +77,7 @@ Then classify work type from summary/description/labels:
 
 ### 2b. Prior-work check (before branching)
 
-Run the **prior-work** skill (autonomous mode): is this already solved by a merged PR, existing code, an open branch/PR, or a duplicate issue? For the "existing implementation in the code" search, spawn 1 cheap locator subagent by default (prefer `cavecrew-investigator` if that type exists; else Task/Explore on Haiku); only add a second/third in parallel (defs / callers / tests) if the issue is a feature/multi-file change or the first agent comes back `No match.`/ambiguous. Treat every receipt as a lead — read the cited span yourself before trusting it; discard leads that don't hold instead of re-spawning to "prove" them.
+Run the **prior-work** skill (autonomous mode): is this already solved by a merged PR, existing code, an open branch/PR, or a duplicate issue? Default the code search to **1–3 targeted greps/globs on the main thread**. Do **not** spawn a locator subagent for a typical issue. Spawn at most **one** cheap locator (`cavecrew-investigator` if that type exists, else Task/Explore on Haiku) only when the issue is clearly a feature / multi-file change. Never spawn 2–3 in parallel. Treat any receipt as a lead — read the cited span yourself; discard leads that don't hold.
 
 - **Shipped / duplicate / in flight** → **SKIP** — never reimplement and never auto-close. Comment, then move it out of the queue for a human (leave `auto-claude` in place so they can re-queue):
   ```bash
@@ -114,6 +112,7 @@ jira issue move <key> "In Progress"
 ```
 
 Implement the **minimal** solution against the acceptance criteria. Rules:
+- **Now** apply project conventions: if this repo has a conventions skill, invoke it; else follow root/nearest `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` if present. Do not load those during pick / prior-work / branch.
 - Read before coding; follow existing patterns
 - Focused changes only — no unrelated refactors
 - If acceptance criteria cannot be met without a product decision → **STOP LOOP**, leave issue In Progress, print `autopilot: <key> needs a decision — <what>. Stopping loop.`
