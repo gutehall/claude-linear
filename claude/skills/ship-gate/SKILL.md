@@ -16,7 +16,9 @@ Mandatory quality gate before any push. Callers pass **mode**:
 
 Do not push until G1–G3 pass. Results feed the PR body's test plan and Known issues.
 
-## Project conventions (before G2)
+## Project conventions
+
+Canonical statement of the convention-resolution rule. `/plan`, `/done`, and `/pr` point here instead of restating it (`/next` and `/grind` load conventions lazily at their implement step). Apply it before touching code (in this skill, before G2):
 
 1. If this repo has a skill whose description says it defines coding rules, verify/test commands, or pre-merge gates — invoke it (its checks run inside G2).
 2. Else if `CLAUDE.md`, `AGENTS.md`, or `CONTRIBUTING.md` exists at the repo root (then the nearest subdirectory you are editing) — follow those.
